@@ -15,6 +15,10 @@ def vars_to_mapping(variables):
 
 
 def generate_pdf(report: dict, output_path: str):
+    if os.path.isdir(output_path):
+        output_path = os.path.join(output_path, "output.pdf")
+
+
     writer = PdfWriter()
     current_page = 0
 
