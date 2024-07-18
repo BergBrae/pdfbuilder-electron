@@ -11,7 +11,7 @@ import json
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
 from buildpdf.build import generate_pdf
-
+from utils.qualify_filename import qualify_filename
 
 def getText(filename):
     doc = Document()
@@ -68,9 +68,7 @@ def validate_docx_template(
 
 
 @app.post("/filetype")
-def validate_file_type(
-    file: FileType, parent_directory_source: str, use_regex=False
-) -> FileType:
+def validate_file_type(file: FileType, parent_directory_source: str) -> FileType:
     if not file.filename_text_to_match:
         file.files = []
         return file
@@ -78,22 +76,14 @@ def validate_file_type(
     directory_source = os.path.normpath(directory_source)
 
     file.files = []
-    if os.path.exists(directory_source):
-        if use_regex:
-            pattern = re.compile(f".*{file.filename_text_to_match}.*")
-            for filename in glob.glob(directory_source + "/*") and not os.path.isdir(
-                filename
-            ):
-                if pattern.match(filename) and filename.lower().endswith(".pdf"):
-                    file.files.append(FileData(file_path=filename, id=createUUID()))
-        else:
-            for filename in glob.glob(directory_source + "/*"):
-                if (
-                    file.filename_text_to_match in os.path.basename(filename)
-                    and not os.path.isdir(filename)
-                    and filename.lower().endswith(".pdf")
-                ):
-                    file.files.append(FileData(file_path=filename, id=createUUID()))
+    if os.path.isdir(directory_source):
+        for filename in glob.glob(directory_source + "/*"):
+            if not os.path.isdir(filename) and filename.lower().endswith(".pdf"):
+                try:
+                    if qualify_filename(file.filename_text_to_match, filename):
+                        file.files.append(FileData(file_path=filename, id=createUUID()))
+                except Exception as e:
+                    pass
 
     # sort files by filename
     file.files = sorted(file.files, key=lambda x: os.path.basename(x.file_path))
@@ -134,7 +124,7 @@ def build_pdf(data: dict, output_path: str):
 
     generate_pdf(data, output_path)
 
-    return {'success': True, 'output_path': output_path}
+    return {"success": True, "output_path": output_path}
 
 
 if __name__ == "__main__":

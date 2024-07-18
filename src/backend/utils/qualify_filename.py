@@ -31,7 +31,7 @@ def create_expression(input_string, filename):
 
 if __name__ == "__main__":
     test_filename = "QC.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D.PDF"
-    test_input = " 'QC.S5' or '71'  "
+    test_input = " 'QC.S5' and 'brady'  "
     print(
         qualify_filename(test_input, test_filename)
     )  # filename.contains('QC') and filename.contains('.S')
