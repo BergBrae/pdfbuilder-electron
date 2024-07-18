@@ -1,0 +1,17 @@
+{
+  "name": "PDFBuilder",
+  "version": "0.1.0",
+  "description": "An app for use at Merit Laboratories. Allows users to build Quality Control Reports",
+  "license": "MIT",
+  "author": {
+    "name": "Brady Berg",
+    "email": "bradyberg0@gmail.com"
+  },
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "postinstall": "npm run rebuild && npm run link-modules",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+  },
+  "dependencies": {}
+}

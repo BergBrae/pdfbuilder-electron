@@ -1,0 +1,467 @@
+{
+  "type": "Section",
+  "bookmark_name": "BWL Report",
+  "base_directory": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313",
+  "variables": [],
+  "children": [
+    {
+      "type": "DocxTemplate",
+      "id": "bcd087b2-b495-466f-94a7-d78e8a5d1a4b",
+      "bookmark_name": "Cover",
+      "docx_path": "COVER.58313.doc",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [
+        "CLIENT_NAME",
+        "NAME",
+        "PROJECT_NAME"
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "daea1ca7-e822-4bda-a5c5-b54d9b4e239b",
+      "bookmark_name": "Cover Pages",
+      "docx_path": "COVER.58313_pages.doc",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [],
+      "needs_update": false
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "c4dbe7ef-e97b-44ef-9fdb-319a6bc980a3",
+      "bookmark_name": "Inorganic Inventory Sheet",
+      "docx_path": "Inorganic-Inventory-Sheet.58313.doc",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [],
+      "needs_update": false
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "7cd60ed8-8269-46b9-86e5-d94a52ecb8a5",
+      "bookmark_name": "Case Narrative",
+      "docx_path": "CaseNarrative.58313.240313.doc",
+      "exists": true,
+      "will_have_page_numbers": true,
+      "variables_in_doc": [],
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "349b1f84-0cb2-4b2a-a1ba-c80ddbeda2b8",
+      "bookmark_name": "Analytical Report",
+      "directory_source": "./",
+      "filename_text_to_match": "RPT",
+      "will_have_page_numbers": true,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "5ed918e5-a7dd-4550-a718-115b72528155",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\RPT.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D(Brady).PDF",
+          "num_pages": 17,
+          "current_page_num": null
+        }
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "a335bc15-b6ab-40dc-bacf-1fcbbcb40dd4",
+      "bookmark_name": "Quality Control Cover Page",
+      "directory_source": "./",
+      "filename_text_to_match": "QC.S",
+      "will_have_page_numbers": true,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "c7c5255e-c8e7-46f8-ae8e-4455c3c5d073",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D.PDF",
+          "num_pages": 1,
+          "current_page_num": null
+        }
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "b23d8830-b336-4bd4-ba92-8ee98aa7e704",
+      "bookmark_name": "Quality Control Report",
+      "directory_source": "./",
+      "filename_text_to_match": "QC-S",
+      "will_have_page_numbers": true,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "064006e1-1f29-48ad-8ab8-f0665f036cb6",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC-S58313-01.PDF",
+          "num_pages": 12,
+          "current_page_num": null
+        }
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "Section",
+      "id": "a4a2930e-e0c4-43ea-bdf2-5970cca636dd",
+      "base_directory": "./MT",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "21719974-83eb-497b-8309-a801fb1fd314",
+          "bookmark_name": "Form 5b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form5b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "e41b1353-b3a2-4297-b47f-be081c43baaa",
+          "bookmark_name": "Form 0",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form0.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "1ff21409-9086-43b0-81ac-f8ff94773bd9",
+          "bookmark_name": "Form 1",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form1.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "06d3f216-e2c6-4d9f-a271-76f529af344d",
+          "bookmark_name": "Form 1 Key",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form1key.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "bb2d2ac3-2daf-4be7-ae30-38e5b40ed5a7",
+          "bookmark_name": "Form 2a",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form2a.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "d57ba1db-f203-4714-88e6-6c399191a89a",
+          "bookmark_name": "Form 2b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form2b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "4d619e3b-31a6-47c3-86ce-0e4c2217ab28",
+          "bookmark_name": "Form 3",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form3.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "0ecdbbd5-134d-428a-a39b-641ae4a06f7c",
+          "bookmark_name": "Form 4b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form4b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "b5c9e818-0751-426a-b3ad-6360aa0ba1b2",
+          "bookmark_name": "Form 5a",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form5a.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "cfdb78ff-99ec-4827-871e-421b5f086a8e",
+          "bookmark_name": "Form 6",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form6.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "d3478036-1a9d-492e-8055-8197fbc6d014",
+          "bookmark_name": "Form 7",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form7.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "1dbc1271-bfa4-4ec0-a235-4aa7cf476cb6",
+          "bookmark_name": "Form 8",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form8.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "90d0c54c-0d75-495f-90ae-96b150ffa01e",
+          "bookmark_name": "Form 13",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form13.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "279439d4-82ca-4e9f-9d75-2dda78666dea",
+          "bookmark_name": "Tune",
+          "directory_source": "./",
+          "filename_text_to_match": "TUNE",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "ea8a528b-048a-4963-9813-d6ba31350959",
+          "bookmark_name": "Form 15",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form15.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "dbd0b352-167f-45c5-b8eb-f68c968c6fab",
+          "bookmark_name": "Forms 9 and 11",
+          "directory_source": "./",
+          "filename_text_to_match": "FORMS_9_11",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "ca273d28-02fd-4fac-b147-2dfccc4d67ba",
+          "bookmark_name": "Raw Data",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.rawdata.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "de5826af-7ad0-48a7-b220-bce9f2232204",
+          "bookmark_name": "Digestion",
+          "directory_source": "./",
+          "filename_text_to_match": "MTD-",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        }
+      ],
+      "bookmark_name": "Metals",
+      "needs_update": false
+    },
+    {
+      "type": "Section",
+      "id": "94e1df98-b17d-41a5-8ad2-e775de28dc1e",
+      "base_directory": "./HG",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "d3864d83-3599-4e1e-b0ee-dae8551c4119",
+          "bookmark_name": "Form 0",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form0.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "568187de-eaf5-4bf7-87ff-4ba42077f8dc",
+          "bookmark_name": "Form 1",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form1.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "b47b6e82-321b-495b-96db-77483974a2af",
+          "bookmark_name": "Form 1 Key",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form1key.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "52197cb8-8f28-4a2e-9331-2629c3cce5de",
+          "bookmark_name": "Form 2a",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form2a.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "194ef6fb-d5a0-4562-b58e-a28248723275",
+          "bookmark_name": "Form 2b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form2b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "b6516515-8e00-4d3f-ae5d-7141e43de0b0",
+          "bookmark_name": "Form 3",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form3.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "9a20be21-bdd3-43f5-840c-57f32f0ce788",
+          "bookmark_name": "Form 4b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form4b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "a6706704-ad83-422c-9e52-f9505a474384",
+          "bookmark_name": "Form 5a",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form5a.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "0d2cb920-3cbc-4815-b3c1-a5051b086a86",
+          "bookmark_name": "Form 5b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form5b",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "7a9ccb56-0983-4a21-ba70-63e91c701632",
+          "bookmark_name": "Form 6",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form6.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "187154b1-2e7e-487a-b616-4c27451593b9",
+          "bookmark_name": "Form 7",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form7.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "c1ba440e-5b60-4bb7-b399-27f8b038f8f4",
+          "bookmark_name": "Form 8",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form8.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "f4edf12d-96ac-4182-b1a4-20fce9eca021",
+          "bookmark_name": "Form 13",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form13.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "64468d73-8e1a-4dfc-a6ab-5e3809ddc065",
+          "bookmark_name": "Form 15",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form15.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "5c2deb17-b04f-4e69-a32a-301baef1c4dc",
+          "bookmark_name": "Raw Data",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.raw_hg2.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        },
+        {
+          "type": "FileType",
+          "id": "889df246-f57a-40e4-ad93-9f37ed8cbd82",
+          "bookmark_name": "Digestion",
+          "directory_source": "./",
+          "filename_text_to_match": "HGD-",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true
+        }
+      ],
+      "bookmark_name": "Mercury",
+      "needs_update": false
+    }
+  ],
+  "needs_update": false
+}
