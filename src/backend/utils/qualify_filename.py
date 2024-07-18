@@ -5,6 +5,7 @@ def qualify_filename(user_input: str, filename: str) -> bool:
     user_input = user_input.strip()
     if "'" in user_input or '"' in user_input:
         expression = create_expression(user_input, filename)
+        print(expression)
         try:
             return eval(expression)
         except Exception as e:

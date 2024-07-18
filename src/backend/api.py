@@ -13,6 +13,7 @@ from validate import validate_report
 from buildpdf.build import generate_pdf
 from utils.qualify_filename import qualify_filename
 
+
 def getText(filename):
     doc = Document()
     doc.LoadFromFile(filename)
@@ -77,11 +78,12 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
 
     file.files = []
     if os.path.isdir(directory_source):
-        for filename in glob.glob(directory_source + "/*"):
-            if not os.path.isdir(filename) and filename.lower().endswith(".pdf"):
+        for path in glob.glob(directory_source + "/*"):
+            filename = os.path.basename(path)
+            if not os.path.isdir(path) and filename.lower().endswith(".pdf"):
                 try:
                     if qualify_filename(file.filename_text_to_match, filename):
-                        file.files.append(FileData(file_path=filename, id=createUUID()))
+                        file.files.append(FileData(file_path=path, id=createUUID()))
                 except Exception as e:
                     pass
 
