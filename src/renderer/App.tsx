@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Section from './components/Section' // Correct path to Section
-import { Container } from 'react-bootstrap'
+import { Container, Spinner, Modal, Button } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 import { setFlags } from './components/utils'
@@ -17,6 +17,8 @@ function App () {
   const [report, setReport] = useState(emptyReport)
   const [builtPDF, setBuiltPDF] = useState(null)
   const [savePath, setSavePath] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   const handleSectionChange = (newSection) => {
     setReport(newSection)
@@ -56,6 +58,7 @@ function App () {
   }
 
   const handleBuildPDF = async () => {
+    setIsLoading(true)
     const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(savePath)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,16 +66,44 @@ function App () {
     })
     const data = await response.json()
     setBuiltPDF(data)
+    setIsLoading(false)
+  }
+
+  const handleNew = () => {
+    setShowModal(true)
+  }
+
+  const confirmNew = () => {
+    setReport(emptyReport)
+    setShowModal(false)
   }
 
   return (
     <Container className='App'>
-      <button onClick={() => setReport(emptyReport)}>New</button>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm New Report</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to create a new report? Unsaved changes will be lost.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={confirmNew}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <button onClick={handleNew}>New</button>
       <button onClick={handleSave}>Save</button>
       <button onClick={handleLoad}>Open</button>
       <button onClick={handleBuildPDF}>Build PDF</button>
-      <input type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
-      <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>
+      <div>
+        <label htmlFor='savePath'>Save Path:</label>
+        <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
+      </div>
+      {isLoading ? <Spinner animation="border" /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
       <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory='./' />
       <button onClick={() => console.log(report)}>Log Data</button>
     </Container>
