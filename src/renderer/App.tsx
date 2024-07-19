@@ -108,7 +108,7 @@ function App () {
         <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
       </div> */}
       {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
-      <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory='./' />
+      <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory='' />
       <button onClick={() => console.log(report)}>Log Data</button>
     </Container>
   )

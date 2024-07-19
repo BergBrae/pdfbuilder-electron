@@ -79,8 +79,7 @@ ipcMain.handle('directory-dialog', async (event, currentDirectory) => {
   if (!filePaths || filePaths.length === 0) {
     return null
   }
-  const relativePath = path.relative(currentDirectory, filePaths[0])
-  return relativePath
+  return currentDirectory ? path.relative(currentDirectory, filePaths[0]) : filePaths[0]
 })
 
 ipcMain.handle('load-report-dialog', async (event) => {
