@@ -160,7 +160,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
               {!isRoot && <Button variant='danger' size='sm' onClick={() => onDelete(section.id)}>x</Button>}
             </div>
             <p>Base Directory: {section.base_directory}</p>
-            <button onClick={() => handleBaseDirectoryChange(parentDirectory)}>Change Base Directory</button>
+            <Button size='sm' onClick={() => handleBaseDirectoryChange(parentDirectory)}>Change Base Directory</Button>
           </div>
         </Accordion.Header>
         <Accordion.Body>

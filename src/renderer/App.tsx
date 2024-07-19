@@ -99,10 +99,10 @@ function App () {
         </Modal.Footer>
       </Modal>
 
-      <button onClick={handleNew}>New</button>
-      <button onClick={handleSave}>Save</button>
-      <button onClick={handleLoad}>Open</button>
-      <button onClick={handleBuildPDF}>Build PDF</button>
+      <Button className='mr-2' variant='secondary' onClick={handleNew}>New</Button>
+      <Button className='ms-2' variant='secondary' onClick={handleSave}>Save</Button>
+      <Button className='ms-2' variant='secondary' onClick={handleLoad}>Open</Button>
+      <Button className='ms-2' variant='secondary' onClick={handleBuildPDF}>Build PDF</Button>
       {/* <div>
         <label htmlFor='savePath'>Save Path:</label>
         <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
