@@ -10,7 +10,8 @@ const electronHandler = {
   },
   saveReport: async (reportData) => await ipcRenderer.invoke('save-report-dialog', reportData),
   loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
-  buildPathDialog: async (defaultPath) => await ipcRenderer.invoke('build-path-dialog', defaultPath)
+  buildPathDialog: async (defaultPath) => await ipcRenderer.invoke('build-path-dialog', defaultPath),
+  directoryDialog: async (defaultPath) => await ipcRenderer.invoke('directory-dialog', defaultPath)
 }
 
 contextBridge.exposeInMainWorld('electron', electronHandler)

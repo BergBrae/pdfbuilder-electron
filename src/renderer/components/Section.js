@@ -40,10 +40,16 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
     onSectionChange({ ...section, variables: updatedVariables })
   }
 
-  const handleBaseDirectoryChange = (e) => {
-    section = setFlags(section)
-    onSectionChange({ ...section, base_directory: e.target.value })
-  }
+  const handleBaseDirectoryChange = async (defaultDirectory) => {
+    const newBaseDirectory = await window.electron.directoryDialog(defaultDirectory)
+    if (newBaseDirectory) {
+      const relativePath = newBaseDirectory // TODO: Make this relative to the parent directory
+      console.log("Chosen Directory: ", newBaseDirectory)
+      console.log("Relative Path: ", relativePath)
+      section = setFlags(section)
+      onSectionChange({ ...section, base_directory: relativePath })
+    }
+  };
 
   const handleBookmarkChange = (newBookmarkName) => {
     onSectionChange({ ...section, bookmark_name: newBookmarkName || null })
@@ -155,7 +161,8 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
               />
               {!isRoot && <Button variant='danger' size='sm' onClick={() => onDelete(section.id)}>x</Button>}
             </div>
-            <p>Base Directory: <input value={section.base_directory} onChange={handleBaseDirectoryChange} /></p>
+            <p>Base Directory: {section.base_directory}</p>
+            <button onClick={() => handleBaseDirectoryChange(directorySource)}>Change Base Directory</button>
           </div>
         </Accordion.Header>
         <Accordion.Body>

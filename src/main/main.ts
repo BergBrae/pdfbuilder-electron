@@ -55,7 +55,7 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   const window = BrowserWindow.getFocusedWindow()
   const options = {
     title: 'Build PDF',
-    defaultPath: defaultPath ? defaultPath : app.getPath('downloads'),
+    defaultPath: defaultPath || app.getPath('downloads'),
     buttonLabel: 'Build',
     filters: [
       { name: 'PDF Files', extensions: ['pdf'] }
@@ -65,6 +65,18 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   if (filePath) {
     return filePath
   }
+})
+
+ipcMain.handle('directory-dialog', async (event, defaultPath) => {
+  const window = BrowserWindow.getFocusedWindow()
+  const options = {
+    title: 'Base Directory',
+    defaultPath: defaultPath || app.getPath('downloads'),
+    buttonLabel: 'Set',
+    properties: ['openDirectory']
+  }
+  const { filePaths } = await dialog.showOpenDialog(window, options)
+  return filePaths[0]
 })
 
 ipcMain.handle('load-report-dialog', async (event) => {

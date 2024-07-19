@@ -90,10 +90,10 @@ function App () {
         </Modal.Header>
         <Modal.Body>Are you sure you want to create a new report? Unsaved changes will be lost.</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant='secondary' onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={confirmNew}>
+          <Button variant='primary' onClick={confirmNew}>
             Confirm
           </Button>
         </Modal.Footer>
@@ -107,7 +107,7 @@ function App () {
         <label htmlFor='savePath'>Save Path:</label>
         <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
       </div> */}
-      {isLoading ? <Spinner animation="border" /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
+      {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
       <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory='./' />
       <button onClick={() => console.log(report)}>Log Data</button>
     </Container>
