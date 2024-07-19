@@ -79,7 +79,9 @@ ipcMain.handle('directory-dialog', async (event, currentDirectory) => {
   if (!filePaths || filePaths.length === 0) {
     return null
   }
-  return currentDirectory ? path.relative(currentDirectory, filePaths[0]) : filePaths[0]
+  const chosenPath = filePaths[0].replaceAll(/\\/g, '/')
+  currentDirectory = currentDirectory.replaceAll(/\\/g, '/') + '/'
+  return currentDirectory ? path.relative(currentDirectory, chosenPath) : chosenPath
 })
 
 ipcMain.handle('load-report-dialog', async (event) => {

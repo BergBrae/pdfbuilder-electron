@@ -42,7 +42,6 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
 
   const handleBaseDirectoryChange = async (currentDirectory) => {
     const relativePath = await window.electron.directoryDialog(currentDirectory)
-    console.log("Relative Path from Main Process: ", relativePath)
     if (relativePath) {
       section = setFlags(section)
       onSectionChange({ ...section, base_directory: relativePath })
