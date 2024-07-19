@@ -67,16 +67,20 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   }
 })
 
-ipcMain.handle('directory-dialog', async (event, defaultPath) => {
+ipcMain.handle('directory-dialog', async (event, currentDirectory) => {
   const window = BrowserWindow.getFocusedWindow()
   const options = {
     title: 'Base Directory',
-    defaultPath: defaultPath || app.getPath('downloads'),
+    defaultPath: currentDirectory || app.getPath('downloads'),
     buttonLabel: 'Set',
     properties: ['openDirectory']
   }
   const { filePaths } = await dialog.showOpenDialog(window, options)
-  return filePaths[0]
+  if (!filePaths || filePaths.length === 0) {
+    return null
+  }
+  const relativePath = path.relative(currentDirectory, filePaths[0])
+  return relativePath
 })
 
 ipcMain.handle('load-report-dialog', async (event) => {
