@@ -51,6 +51,22 @@ ipcMain.handle('save-report-dialog', async (event, reportData) => {
   }
 })
 
+ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
+  const window = BrowserWindow.getFocusedWindow()
+  const options = {
+    title: 'Build PDF',
+    defaultPath: defaultPath ? defaultPath : app.getPath('downloads'),
+    buttonLabel: 'Build',
+    filters: [
+      { name: 'PDF Files', extensions: ['pdf'] }
+    ]
+  }
+  const { filePath } = await dialog.showSaveDialog(window, options)
+  if (filePath) {
+    return filePath
+  }
+})
+
 ipcMain.handle('load-report-dialog', async (event) => {
   const window = BrowserWindow.getFocusedWindow()
   const options = {

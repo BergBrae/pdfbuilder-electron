@@ -58,15 +58,19 @@ function App () {
   }
 
   const handleBuildPDF = async () => {
-    setIsLoading(true)
-    const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(savePath)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(report)
-    })
-    const data = await response.json()
-    setBuiltPDF(data)
-    setIsLoading(false)
+    const chosenPath = await window.electron.buildPathDialog(savePath)
+    if (chosenPath) {
+      setSavePath(chosenPath)
+      setIsLoading(true)
+      const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(chosenPath)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(report)
+      })
+      const data = await response.json()
+      setBuiltPDF(data)
+      setIsLoading(false)
+    }
   }
 
   const handleNew = () => {
@@ -99,10 +103,10 @@ function App () {
       <button onClick={handleSave}>Save</button>
       <button onClick={handleLoad}>Open</button>
       <button onClick={handleBuildPDF}>Build PDF</button>
-      <div>
+      {/* <div>
         <label htmlFor='savePath'>Save Path:</label>
         <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
-      </div>
+      </div> */}
       {isLoading ? <Spinner animation="border" /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
       <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory='./' />
       <button onClick={() => console.log(report)}>Log Data</button>

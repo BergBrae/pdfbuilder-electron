@@ -9,7 +9,8 @@ const electronHandler = {
     once (channel: Channels, func: (...args: unknown[]) => void) { /* ... */ }
   },
   saveReport: async (reportData) => await ipcRenderer.invoke('save-report-dialog', reportData),
-  loadReport: async () => await ipcRenderer.invoke('load-report-dialog')
+  loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
+  buildPathDialog: async (defaultPath) => await ipcRenderer.invoke('build-path-dialog', defaultPath)
 }
 
 contextBridge.exposeInMainWorld('electron', electronHandler)
