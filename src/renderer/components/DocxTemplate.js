@@ -2,13 +2,14 @@
 import React, { useState } from 'react'
 import BookmarkIcon from './BookmarkIcon'
 import { FaFileWord } from 'react-icons/fa6'
+import { FaCheck } from "react-icons/fa";
 import { Row, Col, Form, Card, Container, Button } from 'react-bootstrap'
 import { handleAPIUpdate } from './utils'
 
 const docxIcon = (
-  <span className='docx-icon content-align-center'>
-    <FaFileWord className='mb-2 ms-1 mt-1' />
-    <span className='m-2'>Docx Template</span>
+  <span className='docx-icon content-align-center mt-2 mb-2'>
+    <FaFileWord className='m-2' />
+    <span className=''>Docx Template</span>
   </span>
 )
 
@@ -38,7 +39,7 @@ function DocxTemplate ({ docxTemplate, onTemplateChange, onDelete, parentDirecto
   }
 
   return (
-    <Card className='docx-template'>
+    <Card className={docxTemplate.exists ? 'docx-template file-found' : 'docx-template file-not-found'}>
       <Card.Header>
         <Container>
           <div className='d-flex justify-content-between'>
@@ -51,16 +52,19 @@ function DocxTemplate ({ docxTemplate, onTemplateChange, onDelete, parentDirecto
               x
             </Button>
           </div>
-          <Row>
+          <div className='d-flex justify-content-between'>
             {docxIcon}
             <Form.Control
+              className='m-2'
               type='text'
               value={docxPath}
               onChange={handleDocxPathChange}
               placeholder='Enter docx path'
             />
-            <span>{docxTemplate.exists ? 'Exists' : 'Does not exist'}</span>
-          </Row>
+            <div className='m-2 align-items-center justify-content-center'>
+              <p>{docxTemplate.exists ? <FaCheck /> : 'Does not exist'}</p>
+            </div>
+          </div>
         </Container>
       </Card.Header>
       <Card.Body>
