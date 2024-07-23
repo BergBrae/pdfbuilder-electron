@@ -132,3 +132,9 @@
 .wide-input {
   width: 30%;
 }
+
+.filename {
+  font-size: 0.8rem;
+  color: #2e2e2e;
+  font-weight: bold;
+}
