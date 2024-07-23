@@ -163,7 +163,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
                 onBookmarkChange={handleBookmarkChange}
                 includeIcon={!isRoot}
               />
-              {!isRoot && <Button variant='danger' size='sm' onClick={() => onDelete(section.id)}>x</Button>}
+              {!isRoot && <Button className='x' variant='danger' size='sm' onClick={() => onDelete(section.id)}>X</Button>}
             </div>
             <p>Base Directory: {section.base_directory}</p>
             <Button size='sm' onClick={() => handleBaseDirectoryChange(parentDirectory)}>Change Base Directory</Button>

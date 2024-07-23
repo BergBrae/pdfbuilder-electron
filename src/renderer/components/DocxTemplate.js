@@ -48,8 +48,8 @@ function DocxTemplate ({ docxTemplate, onTemplateChange, onDelete, parentDirecto
               bookmarkName={docxTemplate.bookmark_name}
               onBookmarkChange={handleBookmarkChange}
             />
-            <Button variant='danger' size='sm' onClick={handleDelete}>
-              x
+            <Button className='x' variant='danger' size='sm' onClick={handleDelete}>
+              X
             </Button>
           </div>
           <div className='d-flex justify-content-between'>

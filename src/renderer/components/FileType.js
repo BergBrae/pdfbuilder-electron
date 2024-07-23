@@ -58,8 +58,8 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
               bookmarkName={file.bookmark_name}
               onBookmarkChange={handleBookmarkChange}
             />
-            <Button variant='danger' size='sm' onClick={handleDelete}>
-              x
+            <Button className="x" variant='danger' size='sm' onClick={handleDelete}>
+              X
             </Button>
           </div>
           <br />
