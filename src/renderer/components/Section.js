@@ -10,7 +10,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { handleAPIUpdate, setFlags } from './utils'
 
 function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDirectory }) {
-  const directorySource = `${parentDirectory}\\${section.base_directory}`
+
+  const directorySource = parentDirectory ? `${parentDirectory}\\${section.base_directory}` : section.base_directory
 
   const handleChildChange = (index, newChild) => {
     const updatedChildren = section.children.map((child, i) =>
