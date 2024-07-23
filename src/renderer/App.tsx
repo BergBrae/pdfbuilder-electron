@@ -52,9 +52,11 @@ function App () {
 
   const handleLoad = async () => {
     let report = await window.electron.loadReport()
-    report = setFlags(report)
-    setReport(report)
-    console.log(report)
+    if (report) {
+      report = setFlags(report)
+      setReport(report)
+      console.log(report)
+    }
   }
 
   const handleBuildPDF = async () => {
