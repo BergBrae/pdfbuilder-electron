@@ -8,7 +8,7 @@ export default function FileData ({ fileData }) {
 
   return (
     <Col xs={12} sm={12} md={4} lg={4}>
-      <Card>
+      <Card className='mb-4'>
         <Card.Body>
           <p className='filename'>{fileName}</p>
           <p>{num_pages}{num_pages > 1 ? ' Pages' : ' Page'}</p>
