@@ -101,6 +101,8 @@ function App () {
         </Modal.Footer>
       </Modal>
 
+      <div className='mt-3'></div>
+
       <Button className='mr-2' variant='secondary' onClick={handleNew}>New</Button>
       <Button className='ms-2' variant='secondary' onClick={handleSave}>Save</Button>
       <Button className='ms-2' variant='secondary' onClick={handleLoad}>Open</Button>
@@ -111,7 +113,6 @@ function App () {
       </div> */}
       {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
       <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
-      <button onClick={() => console.log(report)}>Log Data</button>
     </Container>
   )
 }
