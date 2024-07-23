@@ -3,13 +3,20 @@ import React from 'react'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 
 export default function AddComponent ({ onAdd }) {
-  const handleAdd = (type) => () => onAdd(type)
+  const labelToType = {
+    'Docx Template': 'DocxTemplate',
+    'PDF Type': 'FileType',
+    'Section': 'Section',
+  }
+  const handleAdd = (type) => () => {
+    onAdd(labelToType[type])
+  }
 
   return (
     <Container className='add-elmnt'>
       <Row>
         <Col className='text-center'>
-          {['DocxTemplate', 'FileType', 'Section'].map((type) => (
+          {['Docx Template', 'PDF Type', 'Section'].map((type) => (
             <Button
               key={type}
               className='add-elmnt-btn'
