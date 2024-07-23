@@ -38,7 +38,7 @@ function DocxTemplate ({ docxTemplate, onTemplateChange, onDelete, parentDirecto
   }
 
   return (
-    <Card className='mb-3 docx-template'>
+    <Card className='docx-template'>
       <Card.Header>
         <Container>
           <div className='d-flex justify-content-between'>

@@ -119,6 +119,8 @@
 .parent-element:hover .add-elmnt {
   /* Hover state: visible and expanded */
   max-height: 100px; /* Adjust this to the desired regular height */
+  margin-top: 10px;
+  margin-bottom: 10px;
   visibility: visible;
   opacity: 1;
 }

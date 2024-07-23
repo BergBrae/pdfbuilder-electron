@@ -49,7 +49,7 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
   }
 
   return (
-    <Card className={file.files.length ? 'mb-3 file-found' : 'mb-3 file-not-found'}>
+    <Card className={file.files.length ? 'file-found' : 'file-not-found'}>
       <Card.Header>
         <Container>
           <div className='d-flex justify-content-between'>
