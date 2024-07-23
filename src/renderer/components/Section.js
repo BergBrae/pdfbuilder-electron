@@ -1,4 +1,3 @@
-// Section.js
 import React, { useEffect } from 'react'
 import DocxTemplate from './DocxTemplate'
 import FileType from './FileType'
@@ -115,16 +114,13 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
     onSectionChange({ ...section, variables: updatedVariables })
   }
 
-  const updateChildWithAPI = async (child) => {
-    if (child.type === 'Section' && child.needs_update) {
-      return { ...child, children: await Promise.all(child.children.map(updateChildWithAPI)) }
-    }
-    if (child.needs_update) {
+  const updateChildWithAPI = async (child, directorySource) => {
+    if (child.needs_update && child.type !== 'Section') {
       const updatedChild = await handleAPIUpdate(
-      `http://localhost:8000/${child.type.toLowerCase()}?parent_directory_source=${directorySource}`,
-      child,
-      null,
-      console.log
+        `http://localhost:8000/${child.type.toLowerCase()}?parent_directory_source=${directorySource}`,
+        child,
+        null,
+        console.log
       )
       return updatedChild
     } else {
@@ -132,18 +128,28 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
     }
   }
 
-  // Update children with API
-  const updateChildrenWithAPI = async (section) => {
-    const updatedChildren = await Promise.all(section.children.map(updateChildWithAPI))
-    onSectionChange({ ...section, children: updatedChildren })
+  const updateChildrenWithAPI = async (section, directorySource) => {
+    const updatedChildren = await Promise.all(
+      section.children.map(async (child) => {
+        if (child.type === 'Section') {
+          const updatedChild = await updateChildrenWithAPI(child, `${directorySource}\\${child.base_directory}`)
+          return { ...child, children: updatedChild.children }
+        } else {
+          return updateChildWithAPI(child, directorySource)
+        }
+      })
+    )
+    return { ...section, children: updatedChildren }
   }
 
   useEffect(() => {
     if (section.needs_update) {
       section.needs_update = false
-      updateChildrenWithAPI(section)
+      updateChildrenWithAPI(section, directorySource).then(updatedSection => {
+        onSectionChange(updatedSection)
+      })
     }
-  })
+  }, [section, directorySource, onSectionChange])
 
   return (
     <Accordion className='mb-3 section' defaultActiveKey={isRoot ? '0' : ''}>
