@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import BookmarkIcon from './BookmarkIcon'
 import { FaFileWord } from 'react-icons/fa6'
-import { FaCheck } from "react-icons/fa";
+import { FaCheck } from 'react-icons/fa'
 import { Row, Col, Form, Card, Container, Button } from 'react-bootstrap'
 import { handleAPIUpdate } from './utils'
 

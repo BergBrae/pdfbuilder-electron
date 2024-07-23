@@ -143,3 +143,34 @@
   height: 30px;
   width: 30px;
 }
+
+.header-top > .x {
+  margin-right: 10px
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.section-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.section-header .header-top .x {
+  margin-left: auto;
+}
+
+.section-header .base-directory {
+  display: flex;
+  align-items: center;
+}
+
+.section-header .base-directory p {
+  margin: 0;
+  margin-right: 10px; /* Adjust spacing as needed */
+}

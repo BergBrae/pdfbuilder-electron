@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { handleAPIUpdate, setFlags } from './utils'
 
 function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDirectory }) {
-
   const directorySource = parentDirectory ? `${parentDirectory}\\${section.base_directory}` : section.base_directory
 
   const handleChildChange = (index, newChild) => {
@@ -46,7 +45,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
       section = setFlags(section)
       onSectionChange({ ...section, base_directory: relativePath })
     }
-  };
+  }
 
   const handleBookmarkChange = (newBookmarkName) => {
     onSectionChange({ ...section, bookmark_name: newBookmarkName || null })
@@ -156,7 +155,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
       <Accordion.Item eventKey='0'>
         <Accordion.Header>
           <div className='section-header'>
-            <div className='d-flex justify-content-between'>
+            <div className='header-top'>
               <BookmarkIcon
                 isBookmarked={!!section.bookmark_name}
                 bookmarkName={section.bookmark_name}
@@ -165,10 +164,13 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
               />
               {!isRoot && <Button className='x' variant='danger' size='sm' onClick={() => onDelete(section.id)}>X</Button>}
             </div>
-            <p>Base Directory: {section.base_directory}</p>
-            <Button size='sm' onClick={() => handleBaseDirectoryChange(parentDirectory)}>Change Base Directory</Button>
+            <div className='base-directory'>
+              <p>Base Directory: {section.base_directory}</p>
+              <Button size='sm' onClick={() => handleBaseDirectoryChange(parentDirectory)}>Change Base Directory</Button>
+            </div>
           </div>
         </Accordion.Header>
+
         <Accordion.Body>
           {!!section.variables.length &&
             <Row>
