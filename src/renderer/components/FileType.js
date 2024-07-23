@@ -65,8 +65,8 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
           <br />
           {FileIcon}
           <span className='ms-5'>
-            A PDF in <input value={directorySource} onChange={handleDirectoryChange} /> containing{' '}
-            <input value={filenameText} onChange={handleFilenameChange} /> in the filename.
+            A PDF in <input className='narrow-input' value={directorySource} onChange={handleDirectoryChange} /> containing{' '}
+            <input className='wide-input' value={filenameText} onChange={handleFilenameChange} /> in the filename.
             <Form.Check
               inline
               type='switch'
