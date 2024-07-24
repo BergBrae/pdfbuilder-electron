@@ -25,6 +25,7 @@ function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showHelpModal, setShowHelpModal] = useState(false)
+  const [zoom, setZoom] = useState(1)  // New state for zoom level
 
   const handleSectionChange = (newSection) => {
     setReport(newSection)
@@ -98,6 +99,14 @@ function App () {
     setShowHelpModal(false)
   }
 
+  const handleZoomIn = () => {
+    setZoom(prevZoom => Math.min(prevZoom * 1.1, 1.1))
+  }
+
+  const handleZoomOut = () => {
+    setZoom(prevZoom => Math.max(prevZoom * 0.9, 0.3))
+  }
+
   return (
     <Container fluid className='App'>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -136,13 +145,17 @@ function App () {
         <Button className='mb-2' variant='secondary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
         <Button className='mb-2' variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
         <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleZoomIn}>Zoom In</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleZoomOut}>Zoom Out</Button>
       </div>
 
       <Row className="justify-content-center">
         <Col md={8}>
           <div className='mt-3'></div>
           {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
-          <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
+          <div className='zoom-wrapper' style={{ transform: `scale(${zoom})` }}>
+            <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
+          </div>
         </Col>
       </Row>
     </Container>

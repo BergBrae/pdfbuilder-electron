@@ -194,3 +194,7 @@
   margin-right: auto;
 }
 
+
+.zoom-wrapper {
+  transform-origin: top center;
+}
