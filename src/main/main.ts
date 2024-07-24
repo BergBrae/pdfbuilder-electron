@@ -24,19 +24,30 @@ const BACKEND_API_PATH = app.isPackaged
   : path.join(__dirname, '..', 'backend', 'dist', 'api.exe')
 
 let mainWindow: BrowserWindow | null = null
+
+// Set up log file path
+const logFilePath = app.isPackaged
+  ? path.join(process.resourcesPath, 'logs', 'api.log')
+  : path.join(__dirname, '..', 'logs', 'api.log')
+
+// Ensure the log directory exists
+fs.mkdirSync(path.dirname(logFilePath), { recursive: true })
+
+const logFile = fs.createWriteStream(logFilePath, { flags: 'a' })
+
 const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], { stdio: 'pipe' })
 
-// Pipe stdout and stderr to the console
+// Pipe stdout and stderr to the log file
 exeProcess.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`)
+  logFile.write(`stdout: ${data}\n`)
 })
 
 exeProcess.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`)
+  logFile.write(`stderr: ${data}\n`)
 })
 
 exeProcess.on('close', (code) => {
-  console.log(`Child process exited with code ${code}`)
+  logFile.write(`Child process exited with code ${code}\n`)
 })
 
 // End backend code
