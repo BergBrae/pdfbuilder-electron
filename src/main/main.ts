@@ -5,8 +5,7 @@ import log from 'electron-log'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import fs from 'fs'
-import { spawn, ChildProcess } from 'child_process'
-import { exec } from 'child_process' // Import exec from child_process
+import { spawn, ChildProcess, exec } from 'child_process' // Import exec from child_process
 
 class AppUpdater {
   constructor () {
@@ -25,7 +24,20 @@ const BACKEND_API_PATH = app.isPackaged
   : path.join(__dirname, '..', 'backend', 'dist', 'api.exe')
 
 let mainWindow: BrowserWindow | null = null
-const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], {})
+const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], { stdio: 'pipe' })
+
+// Pipe stdout and stderr to the console
+exeProcess.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`)
+})
+
+exeProcess.stderr.on('data', (data) => {
+  console.error(`stderr: ${data}`)
+})
+
+exeProcess.on('close', (code) => {
+  console.log(`Child process exited with code ${code}`)
+})
 
 // End backend code
 
