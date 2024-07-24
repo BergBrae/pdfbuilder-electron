@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import Section from './components/Section' // Correct path to Section
+import Section from './components/Section'
+import Help from './components/Help'
 import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -110,12 +111,12 @@ function App () {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showHelpModal} onHide={closeHelpModal}>
+      <Modal size='xl' show={showHelpModal} onHide={closeHelpModal}>
         <Modal.Header closeButton>
           <Modal.Title>Help</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>This is the help information for the app. Use the buttons to create, save, load, and build PDF reports.</p>
+          <Help />
         </Modal.Body>
         <Modal.Footer>
           <Button variant='primary' onClick={closeHelpModal}>
