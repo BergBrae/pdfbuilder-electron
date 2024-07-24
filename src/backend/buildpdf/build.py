@@ -11,13 +11,34 @@ def get_pdf_and_page_count(file_path):
 
 
 def vars_to_mapping(variables):
-    return {'{'+var['template_text']+'}': (var['constant_value']if var['constant_value'] else var['template_text']) for var in variables if var['is_constant']}
+    return {
+        "{"
+        + var["template_text"]
+        + "}": (
+            var["constant_value"] if var["constant_value"] else var["template_text"]
+        )
+        for var in variables
+        if var["is_constant"]
+    }
+
+
+def section_has_files(section):
+    for child in section["children"]:
+        if child["type"] == "docxTemplate":
+            if child["exists"]:
+                return True
+        if child["type"] == "FileType":
+            if len(child["files"]) > 0:
+                return True
+        if child["type"] == "Section":
+            if section_has_files(child):
+                return True
+    return False
 
 
 def generate_pdf(report: dict, output_path: str):
     if os.path.isdir(output_path):
         output_path = os.path.join(output_path, "output.pdf")
-
 
     writer = PdfWriter()
     current_page = 0
@@ -26,7 +47,7 @@ def generate_pdf(report: dict, output_path: str):
         nonlocal current_page
         base_directory = os.path.join(base_directory, section["base_directory"])
         base_directory = os.path.normpath(base_directory)
-        if section.get("bookmark_name"):
+        if section.get("bookmark_name") and section_has_files(section):
             root_bookmark = writer.add_outline_item(
                 section["bookmark_name"], current_page, root_bookmark
             )
@@ -42,7 +63,9 @@ def generate_pdf(report: dict, output_path: str):
                     docx_path = os.path.normpath(
                         os.path.join(base_directory, child["docx_path"])
                     )
-                    pdf, num_pages = convert_doc_to_pdf(docx_path, replacements=vars_to_mapping(section["variables"]))
+                    pdf, num_pages = convert_doc_to_pdf(
+                        docx_path, replacements=vars_to_mapping(section["variables"])
+                    )
                     writer.append(pdf)
                     current_page += num_pages
 
