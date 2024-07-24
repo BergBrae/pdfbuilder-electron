@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Section from './components/Section'
 import Help from './components/Help'
+import Zoom from './components/Zoom'
 import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -140,13 +141,12 @@ function App () {
       </Modal>
 
       <div className="floating-buttons">
+        <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <Button className='mb-2' variant='secondary' onClick={handleNew}><IoIosCreate /> New</Button>
         <Button className='mb-2' variant='secondary' onClick={handleSave}><IoIosSave /> Save</Button>
         <Button className='mb-2' variant='secondary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
         <Button className='mb-2' variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
         <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleZoomIn}>Zoom In</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleZoomOut}>Zoom Out</Button>
       </div>
 
       <Row className="justify-content-center">

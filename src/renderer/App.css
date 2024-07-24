@@ -177,6 +177,7 @@
 
 * {
   transition: all 0.3s ease;
+  font-family: 'Roboto', sans-serif;
 }
 
 
@@ -198,3 +199,14 @@
 .zoom-wrapper {
   transform-origin: top center;
 }
+
+
+.zoom-container {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 10px;
+ }
