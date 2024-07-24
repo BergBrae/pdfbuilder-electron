@@ -36,6 +36,7 @@ export default function Help () {
       <p>How to use:</p>
       <ul>
         <li>Each section's base directory is relative to its parent section except for the top-level section which uses an absolute path.</li>
+        <li>When a section does not have a bookmark, the files inside will be bookmarked on the same level as the parent.</li>
         <li>When a template is created for a report only one section's directory should need to be changed for the template to point at the new report's files.</li>
       </ul>
     </div>
