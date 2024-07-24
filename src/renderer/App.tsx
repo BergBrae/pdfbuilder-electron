@@ -5,6 +5,10 @@ import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 import { setFlags } from './components/utils'
+import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from "react-icons/io";
+import { IoHammer } from "react-icons/io5";
+import { FaBoxOpen } from "react-icons/fa";
+
 
 function App () {
   const emptyReport = {
@@ -119,6 +123,7 @@ function App () {
           <Help />
         </Modal.Body>
         <Modal.Footer>
+          <p>Contact Brady for further help</p>
           <Button variant='primary' onClick={closeHelpModal}>
             Dismiss
           </Button>
@@ -126,11 +131,11 @@ function App () {
       </Modal>
 
       <div className="floating-buttons">
-        <Button className='mb-2' variant='secondary' onClick={handleNew}>New</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleSave}>Save</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleLoad}>Open</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}>Build PDF</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleHelp}>Help</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleNew}><IoIosCreate /> New</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleSave}><IoIosSave /> Save</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
       </div>
 
       <Row className="justify-content-center">
