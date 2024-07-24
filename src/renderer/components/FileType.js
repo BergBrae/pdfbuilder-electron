@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import BookmarkIcon from './BookmarkIcon'
 import { FaFilePdf } from 'react-icons/fa'
-import { Form, Card, Container, Button, Row } from 'react-bootstrap'
+import { Form, Container, Button, Row, Accordion } from 'react-bootstrap'
 import FileData from './FileData'
 import { handleAPIUpdate } from './utils'
 
@@ -49,8 +49,8 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
   }
 
   return (
-    <Card className={file.files.length ? 'file-found' : 'file-not-found'}>
-      <Card.Header>
+    <Accordion className={file.files.length ? 'file-found' : 'file-not-found'}>
+      <Accordion.Header>
         <Container>
           <div className='d-flex justify-content-between'>
             <BookmarkIcon
@@ -78,17 +78,17 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
             />
           </span>
         </Container>
-      </Card.Header>
+      </Accordion.Header>
       {file.files.length > 0 && (
-        <Card.Body>
+        <Accordion.Body>
           <Row>
             {file.files.map((fileData) => (
               <FileData key={fileData.id} fileData={fileData} />
             ))}
           </Row>
-        </Card.Body>
+        </Accordion.Body>
       )}
-    </Card>
+    </Accordion>
   )
 }
 
