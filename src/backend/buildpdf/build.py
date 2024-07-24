@@ -66,7 +66,7 @@ def generate_pdf(report: dict, output_path: str):
                     pdf, num_pages = convert_doc_to_pdf(
                         docx_path, replacements=vars_to_mapping(section["variables"])
                     )
-                    writer.append(pdf)
+                    writer.append(pdf, import_outline=False)
                     current_page += num_pages
 
             if child["type"] == "FileType":
@@ -83,7 +83,7 @@ def generate_pdf(report: dict, output_path: str):
                         os.path.join(directory_source, file["file_path"])
                     )
                     pdf, num_pages = get_pdf_and_page_count(file_path)
-                    writer.append(pdf)
+                    writer.append(pdf, import_outline=False)
                     current_page += num_pages
 
             if child["type"] == "Section":
