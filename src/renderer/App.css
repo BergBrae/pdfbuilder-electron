@@ -178,3 +178,19 @@
 * {
   transition: all 0.3s ease;
 }
+
+
+.floating-buttons {
+  position: fixed;
+  top: 10%;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.main-content {
+  margin-left: auto;
+  margin-right: auto;
+}
+

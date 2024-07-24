@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Section from './components/Section' // Correct path to Section
-import { Container, Spinner, Modal, Button } from 'react-bootstrap'
+import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 import { setFlags } from './components/utils'
@@ -19,6 +19,7 @@ function App () {
   const [savePath, setSavePath] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showHelpModal, setShowHelpModal] = useState(false)
 
   const handleSectionChange = (newSection) => {
     setReport(newSection)
@@ -84,8 +85,16 @@ function App () {
     setShowModal(false)
   }
 
+  const handleHelp = () => {
+    setShowHelpModal(true)
+  }
+
+  const closeHelpModal = () => {
+    setShowHelpModal(false)
+  }
+
   return (
-    <Container className='App'>
+    <Container fluid className='App'>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm New Report</Modal.Title>
@@ -101,18 +110,35 @@ function App () {
         </Modal.Footer>
       </Modal>
 
-      <div className='mt-3'></div>
+      <Modal show={showHelpModal} onHide={closeHelpModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Help</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>This is the help information for the app. Use the buttons to create, save, load, and build PDF reports.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='primary' onClick={closeHelpModal}>
+            Dismiss
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-      <Button className='mr-2' variant='secondary' onClick={handleNew}>New</Button>
-      <Button className='ms-2' variant='secondary' onClick={handleSave}>Save</Button>
-      <Button className='ms-2' variant='secondary' onClick={handleLoad}>Open</Button>
-      <Button className='ms-2' variant='secondary' onClick={handleBuildPDF}>Build PDF</Button>
-      {/* <div>
-        <label htmlFor='savePath'>Save Path:</label>
-        <input id='savePath' type='text' value={savePath} onChange={(e) => setSavePath(e.target.value)} />
-      </div> */}
-      {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
-      <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
+      <div className="floating-buttons">
+        <Button className='mb-2' variant='secondary' onClick={handleNew}>New</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleSave}>Save</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleLoad}>Open</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}>Build PDF</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleHelp}>Help</Button>
+      </div>
+
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <div className='mt-3'></div>
+          {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
+          <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
+        </Col>
+      </Row>
     </Container>
   )
 }
