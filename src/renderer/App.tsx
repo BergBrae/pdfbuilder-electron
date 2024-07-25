@@ -153,7 +153,7 @@ function App () {
           <Button variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
         </div>
         <div className='buttons-container'>
-          <Button variant='primary' onClick={handleNew}><IoIosCreate /> New</Button>
+          <Button variant='primary' onClick={handleNew}><IoIosCreate /> Clear</Button>
           <Button variant='primary' onClick={handleSave}><IoIosSave /> Save</Button>
           <Button variant='primary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
         </div>
