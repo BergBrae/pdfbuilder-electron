@@ -6,10 +6,9 @@ import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 import { setFlags } from './components/utils'
-import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from "react-icons/io";
-import { IoHammer } from "react-icons/io5";
-import { FaBoxOpen } from "react-icons/fa";
-
+import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from 'react-icons/io'
+import { IoHammer } from 'react-icons/io5'
+import { FaBoxOpen } from 'react-icons/fa'
 
 function App () {
   const emptyReport = {
@@ -26,7 +25,7 @@ function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showHelpModal, setShowHelpModal] = useState(false)
-  const [zoom, setZoom] = useState(1)  // New state for zoom level
+  const [zoom, setZoom] = useState(1) // New state for zoom level
 
   const handleSectionChange = (newSection) => {
     setReport(newSection)
@@ -140,7 +139,7 @@ function App () {
         </Modal.Footer>
       </Modal>
 
-      <div className="floating-buttons">
+      <div className='floating-buttons'>
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <Button className='mb-2' variant='secondary' onClick={handleNew}><IoIosCreate /> New</Button>
         <Button className='mb-2' variant='secondary' onClick={handleSave}><IoIosSave /> Save</Button>
@@ -149,9 +148,9 @@ function App () {
         <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
       </div>
 
-      <Row className="justify-content-center">
+      <Row className='justify-content-center'>
         <Col md={8}>
-          <div className='mt-3'></div>
+          <div className='mt-3' />
           {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
           <div className='zoom-wrapper' style={{ transform: `scale(${zoom})` }}>
             <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />

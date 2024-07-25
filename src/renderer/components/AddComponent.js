@@ -6,7 +6,7 @@ export default function AddComponent ({ onAdd }) {
   const labelToType = {
     'Docx Template': 'DocxTemplate',
     'PDF Type': 'FileType',
-    'Section': 'Section',
+    Section: 'Section'
   }
   const handleAdd = (type) => () => {
     onAdd(labelToType[type])
