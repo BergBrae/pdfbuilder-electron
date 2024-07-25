@@ -48,7 +48,9 @@ def validate_docx_template(
         return doc
 
     doc.exists = os.path.exists(docx_path)
-    if doc.exists:
+    if docx_path.lower().endswith(".doc"):
+        doc.variables_in_doc = ["Please convert this file to .docx format (not .doc)"]
+    elif doc.exists:
         doc.variables_in_doc = get_variables_in_docx(docx_path)
 
     doc.needs_update = False
