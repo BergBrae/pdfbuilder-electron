@@ -1,18 +1,28 @@
 import os
 from docx import Document
+from python_docx_replace import docx_replace, docx_get_keys
 from docx2pdf import convert
 from PyPDF2 import PdfReader
+
+
+def get_variables_in_docx(docx_path):
+    # Create an object of the Document class
+    document = Document(docx_path)
+
+    # Get the keys in the DOCX file
+    try:
+      keys = docx_get_keys(document)
+    except Exception as e:
+      keys = [f"Error: {e}"]
+    return keys
 
 
 def replace_text_in_docx(docx_path, replacements):
     # Create an object of the Document class
     document = Document(docx_path)
 
-    # Replace text based on the replacements dictionary
-    for key, value in replacements.items():
-        for p in document.paragraphs:  # also try p.runs
-            if p.text.find(key) >= 0:
-                p.text = p.text.replace(key, value)
+    # Replace the text in the DOCX file
+    docx_replace(document, **replacements)
 
     # Save the modified DOCX file
     modified_docx_path = docx_path.replace(".docx", "_modified.docx")
@@ -57,12 +67,18 @@ def convert_docx_template_to_pdf(docx_path, replacements=None):
 
 # Example usage
 if __name__ == "__main__":
+    from PyPDF2 import PdfWriter
+
     input_file = r"C:\Users\guest2\Documents\DocxTemplate-testing\testing-template.docx"
+    print(f"Variables in the DOCX file: {get_variables_in_docx(input_file)}")
     replacements_dict = {
-        "{VAR1}": "Variable One",
-        "{VAR2}": "Variable Two",
-        "{VAR3}": "Variable Three",
-        "{VAR4}": "Variable Four",
+        "VAR1": "Variable One",
+        "VAR2": "Variable Two",
+        "VAR3": "Variable Three",
+        "VAR4": "Variable Four",
     }
-    pdf_reader = convert_docx_template_to_pdf(input_file, replacements_dict)
-    print(f"PDF file content read successfully.")
+    pdf_reader, num_pages = convert_docx_template_to_pdf(input_file, replacements_dict)
+    writer = PdfWriter()
+    writer.append(pdf_reader)
+    output_path = input_file.replace(".docx", ".pdf")
+    writer.write(output_path)

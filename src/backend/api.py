@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 import os
-from spire.doc import Document
 import re
 import glob
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,13 +10,8 @@ import json
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
 from buildpdf.build import generate_pdf
+from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
-
-
-def getText(filename):
-    doc = Document()
-    doc.LoadFromFile(filename)
-    return doc.GetText()
 
 
 def createUUID():
@@ -55,13 +49,7 @@ def validate_docx_template(
 
     doc.exists = os.path.exists(docx_path)
     if doc.exists:
-        variable_pattern = re.compile(r"\{(.+)\}")
-        try:
-            text = getText(docx_path)
-        except Exception as e:
-            doc.variables_in_doc = [f"Error: {e}"]
-            return doc
-        doc.variables_in_doc = variable_pattern.findall(text)
+        doc.variables_in_doc = get_variables_in_docx(docx_path)
 
     doc.needs_update = False
 

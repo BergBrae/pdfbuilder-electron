@@ -10,15 +10,7 @@ def get_pdf_and_page_count(file_path):
 
 
 def vars_to_mapping(variables):
-    return {
-        "{"
-        + var["template_text"]
-        + "}": (
-            var["constant_value"] if var["constant_value"] else var["template_text"]
-        )
-        for var in variables
-        if var["is_constant"]
-    }
+    return {var['template_text']: var['constant_value'] for var in variables}
 
 
 def section_has_files(section):
