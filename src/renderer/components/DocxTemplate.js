@@ -65,26 +65,19 @@ function DocxTemplate ({ docxTemplate, onTemplateChange, onDelete, parentDirecto
               <p>{docxTemplate.exists ? <FaCheck /> : 'Does not exist'}</p>
             </div>
           </div>
+          <Form.Check
+            type='switch'
+            id='page-numbers-switch'
+            label='Add Page Numbers'
+            checked={docxTemplate.will_have_page_numbers}
+            onChange={() =>
+              onTemplateChange({
+                ...docxTemplate,
+                will_have_page_numbers: !docxTemplate.will_have_page_numbers
+              })}
+          />
         </Container>
       </Card.Header>
-      <Card.Body>
-        <Form.Check
-          type='switch'
-          id='page-numbers-switch'
-          label='Add Page Numbers'
-          checked={docxTemplate.will_have_page_numbers}
-          onChange={() =>
-            onTemplateChange({
-              ...docxTemplate,
-              will_have_page_numbers: !docxTemplate.will_have_page_numbers
-            })}
-        />
-        {docxTemplate.variables_in_doc.map((variable, index) => (
-          <Col xl={3} key={index}>
-            <p>{variable}</p>
-          </Col>
-        ))}
-      </Card.Body>
     </Card>
   )
 }
