@@ -1,8 +1,7 @@
 from PyPDF2 import PdfWriter, PdfReader
 import os
-from docx2pdf import convert
 from io import StringIO
-from buildpdf.convert_docx import convert_doc_to_pdf
+from buildpdf.convert_docx import convert_docx_template_to_pdf
 
 
 def get_pdf_and_page_count(file_path):
@@ -63,7 +62,7 @@ def generate_pdf(report: dict, output_path: str):
                     docx_path = os.path.normpath(
                         os.path.join(base_directory, child["docx_path"])
                     )
-                    pdf, num_pages = convert_doc_to_pdf(
+                    pdf, num_pages = convert_docx_template_to_pdf(
                         docx_path, replacements=vars_to_mapping(section["variables"])
                     )
                     writer.append(pdf, import_outline=False)
