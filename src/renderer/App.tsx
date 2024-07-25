@@ -9,6 +9,7 @@ import { setFlags } from './components/utils'
 import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from 'react-icons/io'
 import { IoHammer } from 'react-icons/io5'
 import { FaBoxOpen } from 'react-icons/fa'
+import { FiRefreshCw } from "react-icons/fi";
 
 function App () {
   const emptyReport = {
@@ -62,8 +63,12 @@ function App () {
     if (report) {
       report = setFlags(report)
       setReport(report)
-      console.log(report)
     }
+  }
+
+  const handleRefresh = () => {
+    const unrefreshedReport = setFlags(report)
+    setReport(unrefreshedReport)
   }
 
   const handleBuildPDF = async () => {
@@ -146,6 +151,7 @@ function App () {
         <Button className='mb-2' variant='secondary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
         <Button className='mb-2' variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
         <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
+        <Button className='mb-2' variant='secondary' onClick={handleRefresh}><FiRefreshCw /> Refresh</Button>
       </div>
 
       <Row className='justify-content-center'>
