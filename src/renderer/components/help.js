@@ -1,6 +1,5 @@
 import React from 'react'
 
-
 export default function Help () {
   return (
     <div>
@@ -8,9 +7,9 @@ export default function Help () {
       <p>Docx templates are useful for making pages that have text that varies between reports.</p>
       <p>How to use:</p>
       <ol>
-        <li>In the Word document, use this notation to flag a variable to be replaced: <code>{`{variable_name}`}</code>.</li>
+        <li>In the Word document, use this notation to flag a variable to be replaced: <code>{'${'}variable_name{'}'}</code>.</li>
         <li>Then when you add the file to PDFBuilder, <code>{`variable_name`}</code> will show as a field where you can specify the value for the current report.</li>
-        <li>When the report is built, <code>{`{variable_name}`}</code> is replaced with the text you specified and converted to a pdf.</li>
+        <li>When the report is built, <code>{'${'}variable_name{'}'}</code> is replaced with the text you specified and converted to a pdf.</li>
       </ol>
 
       <h5>PDF Type</h5>
