@@ -10,6 +10,7 @@ import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from 
 import { IoHammer } from 'react-icons/io5'
 import { FaBoxOpen } from 'react-icons/fa'
 import { FiRefreshCw } from "react-icons/fi";
+import logo from '../../assets/merit-logo.jpeg'
 
 function App () {
   const emptyReport = {
@@ -145,13 +146,20 @@ function App () {
       </Modal>
 
       <div className='floating-buttons'>
+        <img src={logo} alt='Merit Logo' style={{'maxWidth': '15vw', 'margin-bottom': '30px'}} />
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
-        <Button className='mb-2' variant='secondary' onClick={handleNew}><IoIosCreate /> New</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleSave}><IoIosSave /> Save</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
-        <Button className='mb-2' variant='secondary' onClick={handleRefresh}><FiRefreshCw /> Refresh</Button>
+        <div className='buttons-container'>
+          <Button variant='secondary' onClick={handleRefresh}><FiRefreshCw /> Refresh</Button>
+          <Button variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
+        </div>
+        <div className='buttons-container'>
+          <Button variant='primary' onClick={handleNew}><IoIosCreate /> New</Button>
+          <Button variant='primary' onClick={handleSave}><IoIosSave /> Save</Button>
+          <Button variant='primary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
+        </div>
+        <div className='buttons-container'>
+          <Button variant='primary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
+        </div>
       </div>
 
       <Row className='justify-content-center'>
