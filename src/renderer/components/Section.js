@@ -11,14 +11,11 @@ import { handleAPIUpdate, setFlags } from './utils'
 function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDirectory }) {
   const directorySource = parentDirectory ? `${parentDirectory}\\${section.base_directory}` : section.base_directory
 
-  const handleChildChange = (index, newChild) => {
-    const updatedChildren = section.children.map((child, i) =>
-      i === index ? newChild : child
-    )
-
+  const getUpdatedVariables = (section) => {
     const currentTemplateTexts = section.variables.map(variable => variable.template_text)
     const updatedVariables = []
-    for (const child of updatedChildren) {
+
+    for (const child of section.children) {
       if (child.variables_in_doc) {
         for (const templateText of child.variables_in_doc) {
           if (!currentTemplateTexts.includes(templateText) && !updatedVariables.map(variable => variable.template_text).includes(templateText)) { // Then it is a new variable
@@ -29,6 +26,14 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
         }
       }
     }
+    return updatedVariables
+  }
+
+  const handleChildChange = (index, newChild) => {
+    const updatedChildren = section.children.map((child, i) =>
+      i === index ? newChild : child
+    )
+    const updatedVariables = getUpdatedVariables({ ...section, children: updatedChildren })
     onSectionChange({ ...section, children: updatedChildren, variables: updatedVariables })
   }
 
@@ -145,6 +150,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
     if (section.needs_update) {
       section.needs_update = false
       updateChildrenWithAPI(section, directorySource).then(updatedSection => {
+        updatedSection.variables = getUpdatedVariables(updatedSection)
         onSectionChange(updatedSection)
       })
     }
