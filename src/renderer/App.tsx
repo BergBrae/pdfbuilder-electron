@@ -9,7 +9,7 @@ import { setFlags } from './components/utils'
 import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from 'react-icons/io'
 import { IoHammer } from 'react-icons/io5'
 import { FaBoxOpen } from 'react-icons/fa'
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw } from 'react-icons/fi'
 import logo from '../../assets/merit-logo.jpeg'
 
 function App () {
@@ -146,7 +146,7 @@ function App () {
       </Modal>
 
       <div className='floating-buttons'>
-        <img src={logo} alt='Merit Logo' style={{'maxWidth': '15vw', 'margin-bottom': '30px'}} />
+        <img src={logo} alt='Merit Logo' style={{ maxWidth: '15vw', 'margin-bottom': '30px' }} />
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <div className='buttons-container'>
           <Button variant='secondary' onClick={handleRefresh}><FiRefreshCw /> Refresh</Button>
