@@ -27,6 +27,8 @@ function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showHelpModal, setShowHelpModal] = useState(false)
+  const [showBuildModal, setShowBuildModal] = useState(false) // New state for build modal
+  const [buildStatus, setBuildStatus] = useState('') // New state for build status
   const [zoom, setZoom] = useState(1) // New state for zoom level
 
   const handleSectionChange = (newSection) => {
@@ -77,14 +79,22 @@ function App () {
     if (chosenPath) {
       setSavePath(chosenPath)
       setIsLoading(true)
-      const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(chosenPath)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(report)
-      })
-      const data = await response.json()
-      setBuiltPDF(data)
-      setIsLoading(false)
+      setShowBuildModal(true) // Show build modal
+      setBuildStatus('building') // Set status to building
+      try {
+        const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(chosenPath)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(report)
+        })
+        const data = await response.json()
+        setBuiltPDF(data)
+        setBuildStatus('success') // Set status to success
+      } catch (error) {
+        setBuildStatus('failure') // Set status to failure
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -103,6 +113,11 @@ function App () {
 
   const closeHelpModal = () => {
     setShowHelpModal(false)
+  }
+
+  const closeBuildModal = () => {
+    setShowBuildModal(false)
+    setBuildStatus('') // Reset status
   }
 
   const handleZoomIn = () => {
@@ -145,6 +160,22 @@ function App () {
         </Modal.Footer>
       </Modal>
 
+      <Modal show={showBuildModal} onHide={closeBuildModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Building PDF</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {isLoading
+            ? <Spinner animation='border' />
+            : (buildStatus === 'success'
+                ? <p>PDF built successfully!</p>
+                : buildStatus === 'failure' ? <p>Failed to build PDF. Please try again.</p> : null)}
+        </Modal.Body>
+        <Modal.Footer>
+          {!isLoading && <Button variant='primary' onClick={closeBuildModal}>Close</Button>}
+        </Modal.Footer>
+      </Modal>
+
       <div className='floating-buttons'>
         <img src={logo} alt='Merit Logo' style={{ maxWidth: '15vw', 'margin-bottom': '30px' }} />
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
@@ -165,7 +196,6 @@ function App () {
       <Row className='justify-content-center'>
         <Col md={8}>
           <div className='mt-3' />
-          {isLoading ? <Spinner animation='border' /> : <p>{builtPDF ? JSON.stringify(builtPDF) : null}</p>}
           <div className='zoom-wrapper' style={{ transform: `scale(${zoom})` }}>
             <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
           </div>
