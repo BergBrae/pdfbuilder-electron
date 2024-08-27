@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Button, Modal } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Outline({ report }) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   const convertToOutlineData = (report) => {
     return {
       bookmarkName: report.bookmark_name,
@@ -10,16 +17,17 @@ export default function Outline({ report }) {
       }),
     };
   };
+
   const outlineData = convertToOutlineData(report);
+  console.log(outlineData);
 
   const convertToOutlineElement = (outlineData, depth = 1) => {
     return (
-      <div>
-        {outlineData.bookmarkName}
+      <div key={outlineData.bookmarkName}>
+        <div>{outlineData.bookmarkName}</div>
         {outlineData.children?.map((child) => {
           return (
-            <div>
-              <div style={{ marginLeft: `${20 * depth}px` }} />{' '}
+            <div key={child.bookmarkName} style={{ marginLeft: `${10 * depth}px` }}>
               {convertToOutlineElement(child, depth + 1)}
             </div>
           );
@@ -27,13 +35,26 @@ export default function Outline({ report }) {
       </div>
     );
   };
+
   const outlineElement = convertToOutlineElement(outlineData);
 
   return (
-    <div>
-      <h1>Outline</h1>
-      {/* <pre>{JSON.stringify(outlineData, null, 2)}</pre> */}
-      {outlineElement}
-    </div>
+    <>
+      <Button variant="primary" onClick={handleShow}>
+        Outline
+      </Button>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Outline</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{outlineElement}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
