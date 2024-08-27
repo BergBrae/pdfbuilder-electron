@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
 import { FaCheck } from 'react-icons/fa';
-import { Row, Col, Form, Card, Container, Button } from 'react-bootstrap';
+import { Row, Col, Form, Card, Container, Button, Table } from 'react-bootstrap';
 import { handleAPIUpdate } from './utils';
 
 const docxIcon = (
@@ -99,9 +99,23 @@ function DocxTemplate({
         </Container>
       </Card.Header>
       <Card.Body>
-        {docxTemplate.table_entries?.map((tableEntry, index) => (
-          <p key={index}>{tableEntry}</p>
-        ))}
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Table Entry</th>
+              <th>Corresponding File/Section</th>
+            </tr>
+          </thead>
+          <tbody>
+            {docxTemplate.table_entries?.map((tableEntry, index) => (
+              <tr key={index}>
+                <td>{tableEntry[0]}</td>
+                <td>{tableEntry[1]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        {/* {JSON.stringify(docxTemplate)} */}
       </Card.Body>
     </Card>
   );
