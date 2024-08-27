@@ -10,7 +10,7 @@ export default function Outline({ report }) {
 
   const convertToOutlineData = (report) => {
     return {
-      bookmarkName: report.bookmark_name,
+      bookmarkName: report.bookmark_name ? report.bookmark_name : '(No bookmark name)',
       type: report.type,
       children: report.children?.map((child) => {
         return convertToOutlineData(child);
