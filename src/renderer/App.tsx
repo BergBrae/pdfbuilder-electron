@@ -221,14 +221,12 @@ function App() {
           <Button variant="primary" onClick={handleLoad}>
             <FaBoxOpen /> Open
           </Button>
+          <Outline report={report} />
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleBuildPDF}>
             <IoHammer /> Build PDF
           </Button>
-        </div>
-        <div className="outline">
-          <Outline report={report} />
         </div>
       </div>
 

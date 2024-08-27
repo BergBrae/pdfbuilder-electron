@@ -6,7 +6,6 @@
   padding: 2px;
 }
 
-
 .bookmark-container {
   display: inline-flex;
   align-items: center;
@@ -72,7 +71,7 @@
 }
 
 .red {
-  color: #d80303
+  color: #d80303;
 }
 
 .docx-header .header-content {
@@ -81,9 +80,9 @@
   align-items: start;
 }
 
-.docx-header .header-content>div,
-.docx-header .header-content>span,
-.docx-header .header-content>.form-check {
+.docx-header .header-content > div,
+.docx-header .header-content > span,
+.docx-header .header-content > .form-check {
   margin-bottom: 0.5rem;
 }
 
@@ -149,7 +148,7 @@
 }
 
 .header-top > .x {
-  margin-right: 10px
+  margin-right: 10px;
 }
 
 .section-header {
@@ -184,7 +183,6 @@
   font-family: 'Roboto', sans-serif;
 }
 
-
 .floating-buttons {
   position: fixed;
   top: 10px;
@@ -199,11 +197,9 @@
   margin-right: auto;
 }
 
-
 .zoom-wrapper {
   transform-origin: top center;
 }
-
 
 .zoom-container {
   text-align: center;
@@ -213,10 +209,10 @@
   border: 1px solid;
   border-radius: 5px;
   padding: 10px;
- }
+}
 
 .buttons-container {
-  text-align: center;
+  text-align: left;
   justify-content: center;
   align-items: center;
   margin-bottom: 10px;
