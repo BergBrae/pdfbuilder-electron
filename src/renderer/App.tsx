@@ -1,151 +1,165 @@
-import React, { useState } from 'react'
-import Section from './components/Section'
-import Help from './components/Help'
-import Zoom from './components/Zoom'
-import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './App.css'
-import { setFlags } from './components/utils'
-import { IoIosHelpCircleOutline, IoIosSave, IoIosCreate, IoIosHelpCircle } from 'react-icons/io'
-import { IoHammer } from 'react-icons/io5'
-import { FaBoxOpen } from 'react-icons/fa'
-import { FiRefreshCw } from 'react-icons/fi'
-import logo from '../../assets/merit-logo.jpeg'
+import React, { useState } from 'react';
+import Section from './components/Section';
+import Help from './components/Help';
+import Zoom from './components/Zoom';
+import Outline from './components/Outline';
+import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import { setFlags } from './components/utils';
+import {
+  IoIosHelpCircleOutline,
+  IoIosSave,
+  IoIosCreate,
+  IoIosHelpCircle,
+} from 'react-icons/io';
+import { IoHammer } from 'react-icons/io5';
+import { FaBoxOpen } from 'react-icons/fa';
+import { FiRefreshCw } from 'react-icons/fi';
+import logo from '../../assets/merit-logo.jpeg';
 
-function App () {
+function App() {
   const emptyReport = {
     type: 'Section',
     bookmark_name: 'Quality Control Report',
     base_directory: '',
     variables: [],
-    children: []
-  }
+    children: [],
+  };
 
-  const [report, setReport] = useState(emptyReport)
-  const [builtPDF, setBuiltPDF] = useState(null)
-  const [savePath, setSavePath] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [showHelpModal, setShowHelpModal] = useState(false)
-  const [showBuildModal, setShowBuildModal] = useState(false) // New state for build modal
-  const [buildStatus, setBuildStatus] = useState('') // New state for build status
-  const [zoom, setZoom] = useState(1) // New state for zoom level
+  const [report, setReport] = useState(emptyReport);
+  const [builtPDF, setBuiltPDF] = useState(null);
+  const [savePath, setSavePath] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showBuildModal, setShowBuildModal] = useState(false); // New state for build modal
+  const [buildStatus, setBuildStatus] = useState(''); // New state for build status
+  const [zoom, setZoom] = useState(1); // New state for zoom level
 
   const handleSectionChange = (newSection) => {
-    setReport(newSection)
-  }
+    setReport(newSection);
+  };
 
   const handleSave = async () => {
     // clear report of data that may change
-    report.variables = []
+    report.variables = [];
 
     const cleanReport = (report) => {
       for (const child of report.children) {
         switch (child.type) {
           case 'DocxTemplate':
-            child.variables_in_doc = []
-            child.exists = false
-            break
+            child.variables_in_doc = [];
+            child.exists = false;
+            break;
           case 'FileType':
-            child.files = []
-            break
+            child.files = [];
+            break;
           case 'Section':
-            cleanReport(child)
-            break
+            cleanReport(child);
+            break;
         }
       }
-    }
+    };
 
-    cleanReport(report)
+    cleanReport(report);
 
-    await window.electron.saveReport(report)
-  }
+    await window.electron.saveReport(report);
+  };
 
   const handleLoad = async () => {
-    let report = await window.electron.loadReport()
+    let report = await window.electron.loadReport();
     if (report) {
-      report = setFlags(report)
-      setReport(report)
+      report = setFlags(report);
+      setReport(report);
     }
-  }
+  };
 
   const handleRefresh = () => {
-    const unrefreshedReport = setFlags(report)
-    setReport(unrefreshedReport)
-  }
+    const unrefreshedReport = setFlags(report);
+    setReport(unrefreshedReport);
+  };
 
   const handleBuildPDF = async () => {
-    const chosenPath = await window.electron.buildPathDialog(savePath)
+    const chosenPath = await window.electron.buildPathDialog(savePath);
     if (chosenPath) {
-      setSavePath(chosenPath)
-      setIsLoading(true)
-      setShowBuildModal(true) // Show build modal
-      setBuildStatus('building') // Set status to building
+      setSavePath(chosenPath);
+      setIsLoading(true);
+      setShowBuildModal(true); // Show build modal
+      setBuildStatus('building'); // Set status to building
       try {
-        const response = await fetch(`http://localhost:8000/buildpdf?output_path=${encodeURIComponent(chosenPath)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(report)
-        })
-        const data = await response.json()
-        setBuiltPDF(data)
-        setBuildStatus('success') // Set status to success
+        const response = await fetch(
+          `http://localhost:8000/buildpdf?output_path=${encodeURIComponent(
+            chosenPath,
+          )}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(report),
+          },
+        );
+        const data = await response.json();
+        setBuiltPDF(data);
+        setBuildStatus('success'); // Set status to success
       } catch (error) {
-        setBuildStatus('failure') // Set status to failure
+        setBuildStatus('failure'); // Set status to failure
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-  }
+  };
 
   const handleNew = () => {
-    setShowModal(true)
-  }
+    setShowModal(true);
+  };
 
   const confirmNew = () => {
-    setReport(emptyReport)
-    setShowModal(false)
-  }
+    setReport(emptyReport);
+    setShowModal(false);
+  };
 
   const handleHelp = () => {
-    setShowHelpModal(true)
-  }
+    setShowHelpModal(true);
+  };
 
   const closeHelpModal = () => {
-    setShowHelpModal(false)
-  }
+    setShowHelpModal(false);
+  };
 
   const closeBuildModal = () => {
-    setShowBuildModal(false)
-    setBuildStatus('') // Reset status
-  }
+    setShowBuildModal(false);
+    setBuildStatus(''); // Reset status
+  };
 
   const handleZoomIn = () => {
-    setZoom(prevZoom => Math.min(prevZoom * 1.1, 1.1))
-  }
+    setZoom((prevZoom) => Math.min(prevZoom * 1.1, 1.1));
+  };
 
   const handleZoomOut = () => {
-    setZoom(prevZoom => Math.max(prevZoom * 0.9, 0.3))
-  }
+    setZoom((prevZoom) => Math.max(prevZoom * 0.9, 0.3));
+  };
 
   return (
-    <Container fluid className='App'>
+    <Container fluid className="App">
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm New Report</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to create a new report? Unsaved changes will be lost.</Modal.Body>
+        <Modal.Body>
+          Are you sure you want to create a new report? Unsaved changes will be
+          lost.
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant='secondary' onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant='primary' onClick={confirmNew}>
+          <Button variant="primary" onClick={confirmNew}>
             Confirm
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal size='xl' show={showHelpModal} onHide={closeHelpModal}>
+      <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
         <Modal.Header closeButton>
           <Modal.Title>Help</Modal.Title>
         </Modal.Header>
@@ -154,7 +168,7 @@ function App () {
         </Modal.Body>
         <Modal.Footer>
           <p>Contact Brady for further help</p>
-          <Button variant='primary' onClick={closeHelpModal}>
+          <Button variant="primary" onClick={closeHelpModal}>
             Dismiss
           </Button>
         </Modal.Footer>
@@ -165,47 +179,76 @@ function App () {
           <Modal.Title>Building PDF</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {isLoading
-            ? <Spinner animation='border' />
-            : (buildStatus === 'success'
-                ? <p>PDF built successfully!</p>
-                : buildStatus === 'failure' ? <p>Failed to build PDF. Please try again.</p> : null)}
+          {isLoading ? (
+            <Spinner animation="border" />
+          ) : buildStatus === 'success' ? (
+            <p>PDF built successfully!</p>
+          ) : buildStatus === 'failure' ? (
+            <p>Failed to build PDF. Please try again.</p>
+          ) : null}
         </Modal.Body>
         <Modal.Footer>
-          {!isLoading && <Button variant='primary' onClick={closeBuildModal}>Close</Button>}
+          {!isLoading && (
+            <Button variant="primary" onClick={closeBuildModal}>
+              Close
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
 
-      <div className='floating-buttons'>
-        <img src={logo} alt='Merit Logo' style={{ maxWidth: '15vw', 'margin-bottom': '30px' }} />
+      <div className="floating-buttons">
+        <img
+          src={logo}
+          alt="Merit Logo"
+          style={{ maxWidth: '15vw', 'margin-bottom': '30px' }}
+        />
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
-        <div className='buttons-container'>
-          <Button variant='secondary' onClick={handleRefresh}><FiRefreshCw /> Refresh</Button>
-          <Button variant='secondary' onClick={handleHelp}><IoIosHelpCircle />  Help</Button>
+        <div className="buttons-container">
+          <Button variant="secondary" onClick={handleRefresh}>
+            <FiRefreshCw /> Refresh
+          </Button>
+          <Button variant="secondary" onClick={handleHelp}>
+            <IoIosHelpCircle /> Help
+          </Button>
         </div>
-        <div className='buttons-container'>
-          <Button variant='primary' onClick={handleNew}><IoIosCreate /> Clear</Button>
-          <Button variant='primary' onClick={handleSave}><IoIosSave /> Save</Button>
-          <Button variant='primary' onClick={handleLoad}><FaBoxOpen />  Open</Button>
+        <div className="buttons-container">
+          <Button variant="primary" onClick={handleNew}>
+            <IoIosCreate /> Clear
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            <IoIosSave /> Save
+          </Button>
+          <Button variant="primary" onClick={handleLoad}>
+            <FaBoxOpen /> Open
+          </Button>
         </div>
-        <div className='buttons-container'>
-          <Button variant='primary' onClick={handleBuildPDF}><IoHammer />  Build PDF</Button>
+        <div className="buttons-container">
+          <Button variant="primary" onClick={handleBuildPDF}>
+            <IoHammer /> Build PDF
+          </Button>
+        </div>
+        <div className="outline">
+          <Outline report={report} />
         </div>
       </div>
 
-      <Row className='justify-content-center'>
+      <Row className="justify-content-center">
         <Col md={8}>
-          <div className='mt-3' />
-          <div className='zoom-wrapper' style={{ transform: `scale(${zoom})` }}>
-            <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
+          <div className="mt-3" />
+          <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
+            <Section
+              section={report}
+              isRoot
+              onSectionChange={handleSectionChange}
+              onDelete={null}
+              parentDirectory={null}
+            />
           </div>
-          <pre>
-            {JSON.stringify(report, null, 2)}
-          </pre>
+          <pre>{JSON.stringify(report, null, 2)}</pre>
         </Col>
       </Row>
     </Container>
-  )
+  );
 }
 
-export default App
+export default App;

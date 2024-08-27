@@ -39,7 +39,6 @@ def validate_docx_template(doc: DocxTemplate, parent_directory_source: str) -> D
     docx_path = os.path.join(parent_directory_source, doc.docx_path)
     docx_path = os.path.normpath(docx_path)
     doc.variables_in_doc = []
-    doc.table_entries = [[]]
 
     # check if it is a directory
     if os.path.isdir(docx_path):
@@ -52,7 +51,8 @@ def validate_docx_template(doc: DocxTemplate, parent_directory_source: str) -> D
         doc.variables_in_doc = ["Please convert this file to .docx format (not .doc)"]
     elif doc.exists:
         doc.variables_in_doc = get_variables_in_docx(docx_path)
-        doc.table_entries = get_table_entries_in_docx(docx_path)
+
+    doc.table_entries = get_table_entries_in_docx(docx_path)
 
     doc.needs_update = False
 

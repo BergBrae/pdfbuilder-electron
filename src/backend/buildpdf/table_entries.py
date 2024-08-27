@@ -4,7 +4,10 @@ from pydantic import BaseModel
 
 
 def get_table_entries_in_docx(docx_path) -> List[str]:
-    doc = Document(docx_path)
+    try:
+        doc = Document(docx_path)
+    except Exception as e:
+        return [[f"Error: {e}"]]
     if len(doc.tables) == 0:
         return []
     if len(doc.tables) > 1:
