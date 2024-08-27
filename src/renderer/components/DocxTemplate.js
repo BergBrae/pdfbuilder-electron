@@ -1,9 +1,16 @@
-// DocxTemplate.js
 import React, { useState } from 'react';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
 import { FaCheck } from 'react-icons/fa';
-import { Row, Col, Form, Card, Container, Button, Table } from 'react-bootstrap';
+import {
+  Row,
+  Col,
+  Form,
+  Accordion,
+  Container,
+  Button,
+  Table,
+} from 'react-bootstrap';
 import { handleAPIUpdate } from './utils';
 
 const docxIcon = (
@@ -46,15 +53,32 @@ function DocxTemplate({
     );
   };
 
+  const handlePageStartColChange = (event) => {
+    const newPageStartCol = parseInt(event.target.value, 10) || 0;
+    onTemplateChange({
+      ...docxTemplate,
+      page_start_col: newPageStartCol,
+    });
+  };
+
+  const handlePageEndColChange = (event) => {
+    const newPageEndCol =
+      event.target.value === '' ? null : parseInt(event.target.value, 10) || 0;
+    onTemplateChange({
+      ...docxTemplate,
+      page_end_col: newPageEndCol,
+    });
+  };
+
   return (
-    <Card
+    <Accordion
       className={
         docxTemplate.exists
           ? 'docx-template file-found'
           : 'docx-template file-not-found'
       }
     >
-      <Card.Header>
+      <Accordion.Header>
         <Container>
           <div className="d-flex justify-content-between">
             <BookmarkIcon
@@ -97,8 +121,34 @@ function DocxTemplate({
             }
           />
         </Container>
-      </Card.Header>
-      <Card.Body>
+      </Accordion.Header>
+      <Accordion.Body>
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Page Start Column:
+          </Form.Label>
+          <Col sm="8">
+            <Form.Control
+              type="number"
+              value={docxTemplate.page_start_col || ''}
+              onChange={handlePageStartColChange}
+              placeholder="Enter start column"
+            />
+          </Col>
+        </Form.Group>
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Page End Column:
+          </Form.Label>
+          <Col sm="8">
+            <Form.Control
+              type="number"
+              value={docxTemplate.page_end_col || ''}
+              onChange={handlePageEndColChange}
+              placeholder="Enter end column (or leave blank)"
+            />
+          </Col>
+        </Form.Group>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -116,8 +166,8 @@ function DocxTemplate({
           </tbody>
         </Table>
         {/* {JSON.stringify(docxTemplate)} */}
-      </Card.Body>
-    </Card>
+      </Accordion.Body>
+    </Accordion>
   );
 }
 

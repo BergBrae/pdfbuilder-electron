@@ -27,6 +27,10 @@ class DocxTemplate(BaseModel):
     variables_in_doc: list[str] = []
     needs_update: bool = False
     table_entries: list[list[Optional[str]]] = []  # (table entry name, bookmark name)
+    page_start_col: int = (
+        3  # the col num of the start page number in the table. 0-indexed
+    )
+    page_end_col: int = 4
 
 
 class FileData(BaseModel):
