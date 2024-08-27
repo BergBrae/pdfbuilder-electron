@@ -130,6 +130,7 @@ function DocxTemplate({
           <Col sm="8">
             <Form.Control
               type="number"
+              style={{ maxWidth: '300px' }}
               value={docxTemplate.page_start_col || ''}
               onChange={handlePageStartColChange}
               placeholder="Enter start column"
@@ -143,6 +144,7 @@ function DocxTemplate({
           <Col sm="8">
             <Form.Control
               type="number"
+              style={{ maxWidth: '300px' }}
               value={docxTemplate.page_end_col || ''}
               onChange={handlePageEndColChange}
               placeholder="Enter end column (or leave blank)"

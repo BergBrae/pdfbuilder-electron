@@ -1,0 +1,4 @@
+- Allow Select Corresponding ID of page/section
+- Build new table in backend
+- Auto-fill docx-templates with data from analytical report
+  - Remove page number toggle and update schema to not use page nums in variables. Use table method instead.
