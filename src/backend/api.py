@@ -41,6 +41,7 @@ def validate_docx_template(
     docx_path = os.path.join(parent_directory_source, doc.docx_path)
     docx_path = os.path.normpath(docx_path)
     doc.variables_in_doc = []
+    doc.table_entries = []
 
     # check if it is a directory
     if os.path.isdir(docx_path):

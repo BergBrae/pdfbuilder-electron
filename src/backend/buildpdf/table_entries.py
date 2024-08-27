@@ -13,7 +13,7 @@ def get_table_entries_in_docx(docx_path) -> List[str]:
 
     table_entries = get_table_entries(table)
 
-    return [entry.name for entry in table_entries]
+    return [(entry.name, None) for entry in table_entries]
 
 
 def set_cell_text(cell, text):

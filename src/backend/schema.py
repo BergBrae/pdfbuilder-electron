@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Union, ClassVar
+from typing import Optional, Union, ClassVar
 
 
 class TemplateVariable(BaseModel):
@@ -24,9 +24,9 @@ class DocxTemplate(BaseModel):
     exists: bool = False
     will_have_page_numbers: bool = True
     # Variables in the docx file. Determined by backend, not user.
-    variables_in_doc: List[str] = []
+    variables_in_doc: list[str] = []
     needs_update: bool = False
-    table_entries: List[str] = []
+    table_entries: list[tuple[str, str]] = [] # (table entry name, bookmark name)
 
 
 class FileData(BaseModel):
@@ -45,7 +45,7 @@ class FileType(BaseModel):
     filename_text_to_match: str  # In this document
     will_have_page_numbers: bool = True
     # if is_found, at least one file has been found. These are/is the file(s)
-    files: List[FileData] = []
+    files: list[FileData] = []
     needs_update: bool = False
 
 
@@ -54,6 +54,6 @@ class Section(BaseModel):
     id: str
     bookmark_name: Optional[str] = None
     base_directory: str  # relevant to the parent document
-    variables: List[TemplateVariable] = []
+    variables: list[TemplateVariable] = []
     # At the end so the json file it formated easier to read
-    children: List[Union[FileType, DocxTemplate, "Section"]] = []
+    children: list[Union[FileType, DocxTemplate, "Section"]] = []

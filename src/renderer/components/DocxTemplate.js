@@ -99,7 +99,7 @@ function DocxTemplate({
         </Container>
       </Card.Header>
       <Card.Body>
-        {docxTemplate.table_entries.map((tableEntry, index) => (<p>{tableEntry}</p>))}
+        {docxTemplate.table_entries?.map((tableEntry, index) => (<p>{tableEntry}</p>))}
       </Card.Body>
     </Card>
   );

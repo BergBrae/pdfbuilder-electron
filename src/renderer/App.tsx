@@ -199,6 +199,9 @@ function App () {
           <div className='zoom-wrapper' style={{ transform: `scale(${zoom})` }}>
             <Section section={report} isRoot onSectionChange={handleSectionChange} onDelete={null} parentDirectory={null} />
           </div>
+          <pre>
+            {JSON.stringify(report, null, 2)}
+          </pre>
         </Col>
       </Row>
     </Container>
