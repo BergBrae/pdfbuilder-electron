@@ -26,7 +26,7 @@ class DocxTemplate(BaseModel):
     # Variables in the docx file. Determined by backend, not user.
     variables_in_doc: list[str] = []
     needs_update: bool = False
-    table_entries: list[tuple[str, str]] = [] # (table entry name, bookmark name)
+    table_entries: list[list[Optional[str]]] = []  # (table entry name, bookmark name)
 
 
 class FileData(BaseModel):

@@ -42,7 +42,7 @@ function DocxTemplate({
       (data) => {
         onTemplateChange(data);
       },
-      (error) => console.error('Failed to fetch variables from the API', error),
+      (error) => console.log(error),
     );
   };
 
@@ -99,7 +99,9 @@ function DocxTemplate({
         </Container>
       </Card.Header>
       <Card.Body>
-        {docxTemplate.table_entries?.map((tableEntry, index) => (<p>{tableEntry}</p>))}
+        {docxTemplate.table_entries?.map((tableEntry, index) => (
+          <p key={index}>{tableEntry}</p>
+        ))}
       </Card.Body>
     </Card>
   );
