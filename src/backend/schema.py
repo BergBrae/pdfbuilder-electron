@@ -26,6 +26,7 @@ class DocxTemplate(BaseModel):
     # Variables in the docx file. Determined by backend, not user.
     variables_in_doc: List[str] = []
     needs_update: bool = False
+    table_entries: List[str] = []
 
 
 class FileData(BaseModel):

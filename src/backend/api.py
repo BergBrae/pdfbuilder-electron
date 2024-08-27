@@ -6,12 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 import PyPDF2
 import uuid
 import json
-
-from schema import DocxTemplate, FileType, FileData, Section
-from validate import validate_report
 from buildpdf.build import generate_pdf
 from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
+
+from schema import DocxTemplate, FileType, FileData, Section
+from validate import validate_report
+from buildpdf.table_entries import get_table_entries_in_docx
 
 
 def createUUID():
@@ -52,6 +53,7 @@ def validate_docx_template(
         doc.variables_in_doc = ["Please convert this file to .docx format (not .doc)"]
     elif doc.exists:
         doc.variables_in_doc = get_variables_in_docx(docx_path)
+        doc.table_entries = get_table_entries_in_docx(docx_path)
 
     doc.needs_update = False
 
@@ -105,7 +107,7 @@ def load_file(path) -> Section:
 @app.post("/savefile")
 def save_file(path, data: Section):
     with open(path, "w") as f:
-        json.dump(data.dict(), f, indent=4)
+        json.dump(data.model_dump(), f, indent=4)
 
 
 @app.post("/buildpdf")
