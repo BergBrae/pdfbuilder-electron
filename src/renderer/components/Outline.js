@@ -9,9 +9,18 @@ export default function Outline({ report }) {
   const handleShow = () => setShow(true);
 
   const convertToOutlineData = (report) => {
+    let exists = report.exists ? report.exists : (report.files && report.files.length > 0)
+    if (report.children) {
+      for (const child of report.children) {
+        if (child.exists || (child.files && child.files.length > 0)) {
+          exists = true;
+        }
+      }
+    }
     return {
       bookmarkName: report.bookmark_name ? report.bookmark_name : '(No bookmark name)',
       type: report.type,
+      exists: exists,
       children: report.children?.map((child) => {
         return convertToOutlineData(child);
       }),
@@ -19,12 +28,11 @@ export default function Outline({ report }) {
   };
 
   const outlineData = convertToOutlineData(report);
-  console.log(outlineData);
 
   const convertToOutlineElement = (outlineData, depth = 1) => {
     return (
       <div key={outlineData.bookmarkName}>
-        <div>{outlineData.bookmarkName}</div>
+        <div className={outlineData.exists ? 'green' : 'red'}>{outlineData.bookmarkName}</div>
         {outlineData.children?.map((child) => {
           return (
             <div key={child.bookmarkName} style={{ marginLeft: `${10 * depth}px` }}>

@@ -71,6 +71,10 @@
   color: #12a804;
 }
 
+.red {
+  color: #d80303
+}
+
 .docx-header .header-content {
   display: flex;
   flex-direction: column;
