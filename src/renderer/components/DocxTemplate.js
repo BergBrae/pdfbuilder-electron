@@ -31,7 +31,8 @@ function DocxTemplate({
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
 
   const getTableOptions = (section, depth = 0, ignoreThisLevel = false) => {
-    const depthSpaces = '  '.repeat(depth);
+    const spacer = '        '
+    const depthSpaces = spacer.repeat(depth);
     let bookmarkName = section.bookmark_name
       ? section.bookmark_name
       : '(No bookmark name)';
@@ -44,12 +45,16 @@ function DocxTemplate({
     for (const child of section.children) {
       if (child.type === 'Section') {
         // Increase depth when calling recursively
-        tableOptions = tableOptions.concat(getTableOptions(child, depth + 1 - ignoreThisLevel));
+        tableOptions = tableOptions.concat(
+          getTableOptions(child, depth + 1 - ignoreThisLevel),
+        );
       } else {
         let childBookmarkName = child.bookmark_name
           ? child.bookmark_name
           : '(No bookmark name)';
-        childBookmarkName = `${'   '.repeat(depth + 1 - ignoreThisLevel)}${childBookmarkName}`;
+        childBookmarkName = `${spacer.repeat(
+          depth + 1 - ignoreThisLevel,
+        )}${childBookmarkName}`;
         tableOptions.push({ value: child.id, label: childBookmarkName });
       }
     }
@@ -192,7 +197,18 @@ function DocxTemplate({
             {docxTemplate.table_entries?.map((tableEntry, index) => (
               <tr key={index}>
                 <td>{tableEntry[0]}</td>
-                <td>{<Select options={tableOptions}/>}</td>
+                <td>
+                  {
+                    <Select
+                      options={tableOptions}
+                      formatOptionLabel={(option) => (
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                          {option.label}
+                        </div>
+                      )}
+                    />
+                  }
+                </td>
               </tr>
             ))}
           </tbody>
