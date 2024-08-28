@@ -119,9 +119,9 @@ function DocxTemplate({
     });
   };
 
-   useEffect(() => {
+  useEffect(() => {
     setTableEntries(docxTemplate.table_entries);
-   })
+  }, []);
 
   return (
     <Accordion
@@ -175,67 +175,69 @@ function DocxTemplate({
           />
         </Container>
       </Accordion.Header>
-      {!!tableEntries[0].length &&  <Accordion.Body>
-        <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
-            Page Start Column:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control
-              type="number"
-              style={{ maxWidth: '300px' }}
-              value={docxTemplate.page_start_col || ''}
-              onChange={handlePageStartColChange}
-              placeholder="Enter start column"
-            />
-          </Col>
-        </Form.Group>
-        <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
-            Page End Column:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control
-              type="number"
-              style={{ maxWidth: '300px' }}
-              value={docxTemplate.page_end_col || ''}
-              onChange={handlePageEndColChange}
-              placeholder="Enter end column (or leave blank)"
-            />
-          </Col>
-        </Form.Group>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Table Entry</th>
-              <th>Corresponding File/Section</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableEntries?.map((tableEntry, index) => (
-              <tr key={index}>
-                <td>{tableEntry[0]}</td>
-                <td>
-                  <Select
-                    options={tableOptions}
-                    value={tableOptions.find(
-                      (option) => option.value === tableEntry[1],
-                    )}
-                    onChange={(selectedOption) =>
-                      handleTableEntryChange(index, selectedOption)
-                    }
-                    formatOptionLabel={(option) => (
-                      <div style={{ whiteSpace: 'pre-wrap' }}>
-                        {option.label}
-                      </div>
-                    )}
-                  />
-                </td>
+      {!!tableEntries[0].length && (
+        <Accordion.Body>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm="4">
+              Page Start Column:
+            </Form.Label>
+            <Col sm="8">
+              <Form.Control
+                type="number"
+                style={{ maxWidth: '300px' }}
+                value={docxTemplate.page_start_col || ''}
+                onChange={handlePageStartColChange}
+                placeholder="Enter start column"
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm="4">
+              Page End Column:
+            </Form.Label>
+            <Col sm="8">
+              <Form.Control
+                type="number"
+                style={{ maxWidth: '300px' }}
+                value={docxTemplate.page_end_col || ''}
+                onChange={handlePageEndColChange}
+                placeholder="Enter end column (or leave blank)"
+              />
+            </Col>
+          </Form.Group>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Table Entry</th>
+                <th>Corresponding File/Section</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Accordion.Body>}
+            </thead>
+            <tbody>
+              {tableEntries?.map((tableEntry, index) => (
+                <tr key={index}>
+                  <td>{tableEntry[0]}</td>
+                  <td>
+                    <Select
+                      options={tableOptions}
+                      value={tableOptions.find(
+                        (option) => option.value === tableEntry[1],
+                      )}
+                      onChange={(selectedOption) =>
+                        handleTableEntryChange(index, selectedOption)
+                      }
+                      formatOptionLabel={(option) => (
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                          {option.label}
+                        </div>
+                      )}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Accordion.Body>
+      )}
     </Accordion>
   );
 }
