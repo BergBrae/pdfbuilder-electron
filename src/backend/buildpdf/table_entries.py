@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-def get_table_entries_in_docx(docx_path) -> List[str]:
+def get_table_entries_in_docx(docx_path, current_table_entries) -> List[str]:
     try:
         doc = Document(docx_path)
     except Exception as e:
@@ -16,8 +16,13 @@ def get_table_entries_in_docx(docx_path) -> List[str]:
 
     table_entries = get_table_entries(table)
 
+    current_table_entries = {name: _id for name, _id in current_table_entries}
+
     if table_entries:
-        return [[entry.name, None] for entry in table_entries]
+        return [
+            [entry.name, current_table_entries.get(entry.name)]
+            for entry in table_entries
+        ]
     return [[]]
 
 

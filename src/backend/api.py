@@ -52,7 +52,7 @@ def validate_docx_template(doc: DocxTemplate, parent_directory_source: str) -> D
     elif doc.exists:
         doc.variables_in_doc = get_variables_in_docx(docx_path)
 
-    doc.table_entries = get_table_entries_in_docx(docx_path)
+    doc.table_entries = get_table_entries_in_docx(docx_path, current_table_entries=doc.table_entries)
 
     doc.needs_update = False
 
