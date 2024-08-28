@@ -29,9 +29,10 @@ function DocxTemplate({
   report,
 }) {
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
+  const [tableEntries, setTableEntries] = useState(docxTemplate.table_entries);
 
   const getTableOptions = (section, depth = 0, ignoreThisLevel = false) => {
-    const spacer = '        '
+    const spacer = '        ';
     const depthSpaces = spacer.repeat(depth);
     let bookmarkName = section.bookmark_name
       ? section.bookmark_name
@@ -61,6 +62,7 @@ function DocxTemplate({
 
     return tableOptions;
   };
+
   const tableOptions = getTableOptions(report, 0, true);
 
   const handleBookmarkChange = (newBookmarkName) => {
@@ -102,6 +104,18 @@ function DocxTemplate({
     onTemplateChange({
       ...docxTemplate,
       page_end_col: newPageEndCol,
+    });
+  };
+
+  const handleTableEntryChange = (index, selectedOption) => {
+    const newTableEntries = [...tableEntries];
+    newTableEntries[index][1] = selectedOption.value;
+    setTableEntries(newTableEntries);
+
+    // Update the docxTemplate with the new table entries
+    onTemplateChange({
+      ...docxTemplate,
+      table_entries: newTableEntries,
     });
   };
 
@@ -194,26 +208,29 @@ function DocxTemplate({
             </tr>
           </thead>
           <tbody>
-            {docxTemplate.table_entries?.map((tableEntry, index) => (
+            {tableEntries?.map((tableEntry, index) => (
               <tr key={index}>
                 <td>{tableEntry[0]}</td>
                 <td>
-                  {
-                    <Select
-                      options={tableOptions}
-                      formatOptionLabel={(option) => (
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                          {option.label}
-                        </div>
-                      )}
-                    />
-                  }
+                  <Select
+                    options={tableOptions}
+                    value={tableOptions.find(
+                      (option) => option.value === tableEntry[1],
+                    )}
+                    onChange={(selectedOption) =>
+                      handleTableEntryChange(index, selectedOption)
+                    }
+                    formatOptionLabel={(option) => (
+                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                        {option.label}
+                      </div>
+                    )}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-        {/* {JSON.stringify(docxTemplate)} */}
       </Accordion.Body>
     </Accordion>
   );
