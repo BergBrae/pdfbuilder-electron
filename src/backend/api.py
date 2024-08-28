@@ -67,8 +67,6 @@ def validate_docx_template(
 
     doc.needs_update = False
 
-    print(doc)
-
     return doc
 
 

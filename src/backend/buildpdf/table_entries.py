@@ -17,7 +17,7 @@ def get_table_entries_in_docx(docx_path, current_table_entries) -> List[str]:
     table_entries = get_table_entries(table)
 
     print("current_table_entries", current_table_entries)
-    if not current_table_entries:
+    if current_table_entries:
         current_table_entries = {name: _id for name, _id in current_table_entries}
     else:
         current_table_entries = {}

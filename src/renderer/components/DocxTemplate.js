@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
@@ -118,10 +118,6 @@ function DocxTemplate({
       table_entries: newTableEntries,
     });
   };
-
-  useEffect(() => {
-    setTableEntries(docxTemplate.table_entries);
-  });
 
   const hasTableEntries = tableEntries ? !!tableEntries[0].length : false;
 
