@@ -29,24 +29,26 @@ function DocxTemplate({
 }) {
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
 
-  const getTableOptions = (section, depth = 0) => {
+  const getTableOptions = (section, depth = 0, ignoreThisLevel = false) => {
     const depthSpaces = '  '.repeat(depth);
     let bookmarkName = section.bookmark_name
       ? section.bookmark_name
       : '(No bookmark name)';
     bookmarkName = `${depthSpaces}${bookmarkName}`;
     let tableOptions = []; // {value: _, label: _}
-    tableOptions.push({ value: section.id, label: bookmarkName });
+    if (!ignoreThisLevel) {
+      tableOptions.push({ value: section.id, label: bookmarkName });
+    }
 
     for (const child of section.children) {
       if (child.type === 'Section') {
         // Increase depth when calling recursively
-        tableOptions = tableOptions.concat(getTableOptions(child, depth + 1));
+        tableOptions = tableOptions.concat(getTableOptions(child, depth + 1 - ignoreThisLevel));
       } else {
         let childBookmarkName = child.bookmark_name
           ? child.bookmark_name
           : '(No bookmark name)';
-        childBookmarkName = `${'   '.repeat(depth + 1)}${childBookmarkName}`;
+        childBookmarkName = `${'   '.repeat(depth + 1 - ignoreThisLevel)}${childBookmarkName}`;
         tableOptions.push({ value: child.id, label: childBookmarkName });
       }
     }
@@ -55,7 +57,7 @@ function DocxTemplate({
   };
 
   console.log('report: ', JSON.stringify(report));
-  console.log('Table Options: ', getTableOptions(report));
+  console.log('Table Options: ', getTableOptions(report, 0, true));
 
   const handleBookmarkChange = (newBookmarkName) => {
     onTemplateChange({
