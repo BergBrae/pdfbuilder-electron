@@ -240,6 +240,7 @@ function App() {
               onSectionChange={handleSectionChange}
               onDelete={null}
               parentDirectory={null}
+              report={report}
             />
           </div>
           <pre>{JSON.stringify(report, null, 2)}</pre>

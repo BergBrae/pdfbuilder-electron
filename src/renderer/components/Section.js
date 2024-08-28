@@ -8,7 +8,7 @@ import { Row, Col, Accordion, Container, Button } from 'react-bootstrap'
 import { v4 as uuidv4 } from 'uuid'
 import { handleAPIUpdate, setFlags } from './utils'
 
-function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDirectory }) {
+function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDirectory, report }) {
   const directorySource = parentDirectory ? `${parentDirectory}\\${section.base_directory}` : section.base_directory
 
   const getUpdatedVariables = (section) => {
@@ -206,6 +206,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
                         onDelete={handleDelete}
                         onVariablesUpdate={handleVariablesUpdate}
                         parentDirectorySource={directorySource}
+                        report={report}
                       />
                     )
                   case 'FileType':
@@ -227,6 +228,7 @@ function Section ({ section, isRoot = false, onSectionChange, onDelete, parentDi
                         onSectionChange={(newSection) => handleChildChange(index, newSection)}
                         onDelete={handleDelete}
                         parentDirectory={directorySource}
+                        report={report}
                       />
                     )
                   default:

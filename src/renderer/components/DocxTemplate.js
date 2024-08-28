@@ -25,8 +25,37 @@ function DocxTemplate({
   onTemplateChange,
   onDelete,
   parentDirectorySource,
+  report,
 }) {
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
+
+  const getTableOptions = (section, depth = 0) => {
+    const depthSpaces = '  '.repeat(depth);
+    let bookmarkName = section.bookmark_name
+      ? section.bookmark_name
+      : '(No bookmark name)';
+    bookmarkName = `${depthSpaces}${bookmarkName}`;
+    let tableOptions = []; // {value: _, label: _}
+    tableOptions.push({ value: section.id, label: bookmarkName });
+
+    for (const child of section.children) {
+      if (child.type === 'Section') {
+        // Increase depth when calling recursively
+        tableOptions = tableOptions.concat(getTableOptions(child, depth + 1));
+      } else {
+        let childBookmarkName = child.bookmark_name
+          ? child.bookmark_name
+          : '(No bookmark name)';
+        childBookmarkName = `${'   '.repeat(depth + 1)}${childBookmarkName}`;
+        tableOptions.push({ value: child.id, label: childBookmarkName });
+      }
+    }
+
+    return tableOptions;
+  };
+
+  console.log('report: ', JSON.stringify(report));
+  console.log('Table Options: ', getTableOptions(report));
 
   const handleBookmarkChange = (newBookmarkName) => {
     onTemplateChange({
