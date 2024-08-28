@@ -30,7 +30,7 @@ class DocxTemplate(BaseModel):
     page_start_col: int = (
         3  # the col num of the start page number in the table. 0-indexed
     )
-    page_end_col: int = 4
+    page_end_col: Optional[int] = None
 
 
 class FileData(BaseModel):
