@@ -35,7 +35,9 @@ app.add_middleware(
 
 
 @app.post("/docxtemplate")
-def validate_docx_template(doc: DocxTemplate, parent_directory_source: str) -> DocxTemplate:
+def validate_docx_template(
+    doc: DocxTemplate, parent_directory_source: str
+) -> DocxTemplate:
     docx_path = os.path.join(parent_directory_source, doc.docx_path)
     docx_path = os.path.normpath(docx_path)
     doc.variables_in_doc = []
@@ -44,17 +46,28 @@ def validate_docx_template(doc: DocxTemplate, parent_directory_source: str) -> D
     if os.path.isdir(docx_path):
         doc.exists = False
         doc.variables_in_doc = []
+        doc.table_entries = []
         return doc
 
     doc.exists = os.path.exists(docx_path)
-    if docx_path.lower().endswith(".doc"):
-        doc.variables_in_doc = ["Please convert this file to .docx format (not .doc)"]
-    elif doc.exists:
+    if doc.exists:
+        if docx_path.lower().endswith(".doc"):
+            doc.variables_in_doc = [
+                "Please convert this file to .docx format (not .doc)"
+            ]
+            doc.table_entries = []
+            return doc
         doc.variables_in_doc = get_variables_in_docx(docx_path)
-
-    doc.table_entries = get_table_entries_in_docx(docx_path, current_table_entries=doc.table_entries)
+        doc.table_entries = get_table_entries_in_docx(
+            docx_path, current_table_entries=doc.table_entries
+        )
+    else:
+        doc.variables_in_doc = []
+        doc.table_entries = [[]]
 
     doc.needs_update = False
+
+    print(doc)
 
     return doc
 

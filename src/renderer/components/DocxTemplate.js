@@ -120,7 +120,6 @@ function DocxTemplate({
   };
 
    useEffect(() => {
-    setDocxPath(docxTemplate.docx_path);
     setTableEntries(docxTemplate.table_entries);
    })
 
@@ -176,7 +175,7 @@ function DocxTemplate({
           />
         </Container>
       </Accordion.Header>
-      <Accordion.Body>
+      {!!tableEntries[0].length &&  <Accordion.Body>
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
             Page Start Column:
@@ -236,7 +235,7 @@ function DocxTemplate({
             ))}
           </tbody>
         </Table>
-      </Accordion.Body>
+      </Accordion.Body>}
     </Accordion>
   );
 }
