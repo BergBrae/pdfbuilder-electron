@@ -32,7 +32,7 @@ function DocxTemplate({
   const [tableEntries, setTableEntries] = useState(docxTemplate.table_entries);
 
   const getTableOptions = (section, depth = 0, ignoreThisLevel = false) => {
-    const spacer = '        ';
+    const spacer = '    ';
     const depthSpaces = spacer.repeat(depth);
     let bookmarkName = section.bookmark_name
       ? section.bookmark_name
