@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
 import { FaCheck } from 'react-icons/fa';
@@ -55,9 +56,7 @@ function DocxTemplate({
 
     return tableOptions;
   };
-
-  console.log('report: ', JSON.stringify(report));
-  console.log('Table Options: ', getTableOptions(report, 0, true));
+  const tableOptions = getTableOptions(report, 0, true);
 
   const handleBookmarkChange = (newBookmarkName) => {
     onTemplateChange({
@@ -193,7 +192,7 @@ function DocxTemplate({
             {docxTemplate.table_entries?.map((tableEntry, index) => (
               <tr key={index}>
                 <td>{tableEntry[0]}</td>
-                <td>{tableEntry[1]}</td>
+                <td>{<Select options={tableOptions}/>}</td>
               </tr>
             ))}
           </tbody>
