@@ -121,7 +121,9 @@ function DocxTemplate({
 
   useEffect(() => {
     setTableEntries(docxTemplate.table_entries);
-  }, []);
+  });
+
+  const hasTableEntries = tableEntries ? tableEntries[0].length : false;
 
   return (
     <Accordion
@@ -175,7 +177,7 @@ function DocxTemplate({
           />
         </Container>
       </Accordion.Header>
-      {!!tableEntries[0].length && (
+      {hasTableEntries && (
         <Accordion.Body>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4">
