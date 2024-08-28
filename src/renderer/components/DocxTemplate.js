@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
@@ -118,6 +118,11 @@ function DocxTemplate({
       table_entries: newTableEntries,
     });
   };
+
+   useEffect(() => {
+    setDocxPath(docxTemplate.docx_path);
+    setTableEntries(docxTemplate.table_entries);
+   })
 
   return (
     <Accordion
