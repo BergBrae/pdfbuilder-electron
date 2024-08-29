@@ -3,18 +3,16 @@ from typing import List
 from pydantic import BaseModel
 
 
-def get_table_entries_in_docx(docx_path, current_table_entries) -> List[str]:
+def get_table_entries_in_docx(docx_path, current_table_entries, page_start_col, page_end_col) -> List[str]:
     try:
         doc = Document(docx_path)
     except Exception as e:
         return [[f"Error: {e}"]]
     if len(doc.tables) == 0:
-        return []
-    if len(doc.tables) > 1:
-        raise ValueError("Only one table is allowed in the document.")
+        return None
     table = doc.tables[0]
 
-    table_entries = get_table_entries(table)
+    table_entries = get_table_entries(table, page_start_col, page_end_col)
 
     if len(current_table_entries[-1]) > 1:
         current_table_entries = {name: _id for name, _id in current_table_entries}
@@ -49,13 +47,14 @@ class TableEntryData(BaseModel):
 
 
 class TableEntry:
-    PAGE_START_COL = 3
     PAGE_END_COL = 4
     NAME_COL = 0
 
-    def __init__(self, table, row_num):
+    def __init__(self, table, row_num, page_start_col, page_end_col):
         self.table = table
         self.row_num = row_num
+        self.page_start_col = page_start_col
+        self.page_end_col = page_end_col
         self.get_data()
 
     def __repr__(self):
@@ -63,17 +62,17 @@ class TableEntry:
 
     def get_data(self):
         self.name = self.table.cell(self.row_num, self.NAME_COL).text
-        self.page_start = self.table.cell(self.row_num, TableEntry.PAGE_START_COL).text
-        self.page_end = self.table.cell(self.row_num, TableEntry.PAGE_END_COL).text
+        self.page_start = self.table.cell(self.row_num, self.page_start_col).text
+        self.page_end = self.table.cell(self.row_num, self.page_end_col).text
 
     def set_page_start(self, page_start):
         set_cell_text(
-            self.table.cell(self.row_num, TableEntry.PAGE_START_COL), page_start
+            self.table.cell(self.row_num, self.page_start_col), page_start
         )
         self.page_start = page_start
 
     def set_page_end(self, page_end):
-        set_cell_text(self.table.cell(self.row_num, TableEntry.PAGE_END_COL), page_end)
+        set_cell_text(self.table.cell(self.row_num, self.page_end_col), page_end)
         self.page_end = page_end
 
     def to_pydantic(self):
@@ -84,12 +83,12 @@ class TableEntry:
         }
 
 
-def get_table_entries(table):
+def get_table_entries(table, page_start_col, page_end_col):
     SKIPROWS = 2
     num_rows = len(table.rows)
     entries = []
     for i in range(SKIPROWS, num_rows):
-        entry = TableEntry(table, i)
+        entry = TableEntry(table, i, page_start_col, page_end_col)
         if entry.page_start and entry.page_end:
             entries.append(entry)
     return entries

@@ -97,10 +97,14 @@ function DocxTemplate({
 
   const handlePageStartColChange = (event) => {
     const newPageStartCol = parseInt(event.target.value, 10) || 0;
-    onTemplateChange({
-      ...docxTemplate,
-      page_start_col: newPageStartCol,
-    });
+    handleAPIUpdate(
+      `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectorySource}`,
+      { ...docxTemplate, page_start_col: newPageStartCol - 1 }, // Backend is 0-indexed. User Interface is 1-indexed.
+      (data) => {
+        onTemplateChange(data);
+      },
+      (error) => console.log(error),
+    );
   };
 
   const handlePageEndColChange = (event) => {
@@ -108,7 +112,7 @@ function DocxTemplate({
       event.target.value === '' ? null : parseInt(event.target.value, 10) || 0;
     onTemplateChange({
       ...docxTemplate,
-      page_end_col: newPageEndCol,
+      page_end_col: newPageEndCol - 1, // Backend is 0-indexed. User Interface is 1-indexed.
     });
   };
 
@@ -124,6 +128,7 @@ function DocxTemplate({
     });
   };
 
+  const hasTable = !!tableEntries;
   const hasTableEntries = tableEntries ? !!tableEntries[0]?.length : false;
 
   return (
@@ -178,7 +183,7 @@ function DocxTemplate({
           />
         </Container>
       </Accordion.Header>
-      {hasTableEntries && (
+      {hasTable && (
         <Accordion.Body>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4">
@@ -188,7 +193,7 @@ function DocxTemplate({
               <Form.Control
                 type="number"
                 style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_start_col || ''}
+                value={docxTemplate.page_start_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
                 onChange={handlePageStartColChange}
                 placeholder="Enter start column"
               />
@@ -202,43 +207,45 @@ function DocxTemplate({
               <Form.Control
                 type="number"
                 style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_end_col || ''}
+                value={docxTemplate.page_end_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
                 onChange={handlePageEndColChange}
                 placeholder="Enter end column (or leave blank)"
               />
             </Col>
           </Form.Group>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Table Entry</th>
-                <th>Corresponding File/Section</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableEntries?.map((tableEntry, index) => (
-                <tr key={index}>
-                  <td>{tableEntry[0]}</td>
-                  <td>
-                    <Select
-                      options={tableOptions}
-                      value={tableOptions.find(
-                        (option) => option.value === tableEntry[1],
-                      )}
-                      onChange={(selectedOption) =>
-                        handleTableEntryChange(index, selectedOption)
-                      }
-                      formatOptionLabel={(option) => (
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                          {option.label}
-                        </div>
-                      )}
-                    />
-                  </td>
+          {hasTableEntries && (
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Table Entry</th>
+                  <th>Corresponding File/Section</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {tableEntries?.map((tableEntry, index) => (
+                  <tr key={index}>
+                    <td>{tableEntry[0]}</td>
+                    <td>
+                      <Select
+                        options={tableOptions}
+                        value={tableOptions.find(
+                          (option) => option.value === tableEntry[1],
+                        )}
+                        onChange={(selectedOption) =>
+                          handleTableEntryChange(index, selectedOption)
+                        }
+                        formatOptionLabel={(option) => (
+                          <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {option.label}
+                          </div>
+                        )}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </Accordion.Body>
       )}
     </Accordion>
