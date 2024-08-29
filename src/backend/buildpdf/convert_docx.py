@@ -3,6 +3,7 @@ from docx import Document
 from python_docx_replace import docx_replace, docx_get_keys
 from docx2pdf import convert
 from PyPDF2 import PdfReader
+from table_entries import TableEntry, TableEntryData
 
 
 def get_variables_in_docx(docx_path):
@@ -11,9 +12,9 @@ def get_variables_in_docx(docx_path):
 
     # Get the keys in the DOCX file
     try:
-      keys = docx_get_keys(document)
+        keys = docx_get_keys(document)
     except Exception as e:
-      keys = [f"Error: {e}"]
+        keys = [f"Error: {e}"]
     return keys
 
 
@@ -37,7 +38,27 @@ def convert_docx_to_pdf(docx_path):
     return pdf_path
 
 
-def convert_docx_template_to_pdf(docx_path, replacements=None):
+def update_table_of_contents(docx_path, table_entries, page_start_col, page_end_col):
+    doc = Document(docx_path)
+    table = doc.tables[0]
+    num_rows = len(table.rows)
+    for i in range(num_rows):
+        entry = TableEntry(table, i, page_start_col, page_end_col)
+        if entry.name in table_entries:
+            entry.set_page_start(str(table_entries[entry.name]))
+            entry.set_page_end("")
+    new_docx_path = docx_path.replace(".docx", "_updated_toc.docx")
+    doc.save(new_docx_path)
+    return new_docx_path
+
+
+def convert_docx_template_to_pdf(
+    docx_path,
+    replacements=None,
+    table_entries=None,
+    page_start_col=None,
+    page_end_col=None,
+):
     intermediate_files = []
 
     # If there are replacements to be made, do them in the DOCX file
@@ -46,6 +67,11 @@ def convert_docx_template_to_pdf(docx_path, replacements=None):
         intermediate_files.append(modified_docx_path)
     else:
         modified_docx_path = docx_path
+
+    if table_entries:
+        modified_docx_path = update_table_of_contents(
+            modified_docx_path, table_entries, page_start_col, page_end_col
+        )
 
     # Convert the modified DOCX file to PDF
     pdf_path = convert_docx_to_pdf(modified_docx_path)

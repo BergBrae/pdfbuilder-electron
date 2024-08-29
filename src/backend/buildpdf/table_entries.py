@@ -3,7 +3,9 @@ from typing import List
 from pydantic import BaseModel
 
 
-def get_table_entries_in_docx(docx_path, current_table_entries, page_start_col, page_end_col) -> List[str]:
+def get_table_entries_in_docx(
+    docx_path, current_table_entries, page_start_col, page_end_col
+) -> List[str]:
     try:
         doc = Document(docx_path)
     except Exception as e:
@@ -33,7 +35,7 @@ def set_cell_text(cell, text):
     Use the formatting of the first run. Delete all other runs.
     """
     paragraph = cell.paragraphs[0]
-    paragraph.runs[0].text = text
+    paragraph.runs[0].text = str(text) if text else ""
 
     if len(paragraph.runs) > 1:
         for run in paragraph.runs[1:]:
@@ -47,7 +49,6 @@ class TableEntryData(BaseModel):
 
 
 class TableEntry:
-    PAGE_END_COL = 4
     NAME_COL = 0
 
     def __init__(self, table, row_num, page_start_col, page_end_col):
@@ -66,9 +67,7 @@ class TableEntry:
         self.page_end = self.table.cell(self.row_num, self.page_end_col).text
 
     def set_page_start(self, page_start):
-        set_cell_text(
-            self.table.cell(self.row_num, self.page_start_col), page_start
-        )
+        set_cell_text(self.table.cell(self.row_num, self.page_start_col), page_start)
         self.page_start = page_start
 
     def set_page_end(self, page_end):
@@ -89,6 +88,6 @@ def get_table_entries(table, page_start_col, page_end_col):
     entries = []
     for i in range(SKIPROWS, num_rows):
         entry = TableEntry(table, i, page_start_col, page_end_col)
-        if entry.page_start and entry.page_end:
+        if entry.page_start:
             entries.append(entry)
     return entries
