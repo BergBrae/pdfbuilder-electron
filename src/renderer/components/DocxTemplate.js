@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
@@ -30,6 +30,11 @@ function DocxTemplate({
 }) {
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
   const [tableEntries, setTableEntries] = useState(docxTemplate.table_entries);
+
+  useEffect(() => {
+    setDocxPath(docxTemplate.docx_path);
+    setTableEntries(docxTemplate.table_entries);
+  }, [docxTemplate]);
 
   const getTableOptions = (section, depth = 0, ignoreThisLevel = false) => {
     const spacer = '    ';
