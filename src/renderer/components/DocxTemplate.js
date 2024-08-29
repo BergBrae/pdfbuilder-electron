@@ -124,7 +124,7 @@ function DocxTemplate({
     });
   };
 
-  const hasTableEntries = tableEntries ? !!tableEntries[0].length : false;
+  const hasTableEntries = tableEntries ? !!tableEntries[0]?.length : false;
 
   return (
     <Accordion
