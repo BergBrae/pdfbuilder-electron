@@ -1,469 +1,787 @@
 {
-    "type": "Section",
-    "bookmark_name": "BWL Report",
-    "base_directory": "C:/Users/guest2/Documents/Level.III/BWL/58313",
-    "variables": [
+  "type": "Section",
+  "bookmark_name": "BWL Report",
+  "base_directory": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313",
+  "variables": [
+    {
+      "template_text": "SDG Batch",
+      "is_constant": true,
+      "constant_value": "SDG Batch",
+      "id": "fcdf1b48-c998-4697-b3b7-57465104658a"
+    },
+    {
+      "template_text": "Month Day,  Year",
+      "is_constant": true,
+      "constant_value": "day month year",
+      "id": "cfab2ca8-c944-488f-8e1d-6ee2d8acbad6"
+    },
+    {
+      "template_text": "Attention name",
+      "is_constant": true,
+      "constant_value": "name",
+      "id": "520d808a-de37-41d9-b64b-4c383b78bf3f"
+    },
+    {
+      "template_text": "Max Page Number",
+      "is_constant": true,
+      "constant_value": "page num",
+      "id": "94f13371-a82b-4efd-8bef-3362d172db8b"
+    },
+    {
+      "template_text": "Project Name",
+      "is_constant": true,
+      "constant_value": "proj name",
+      "id": "00574615-be35-4c0a-a59a-8c4141643a0a"
+    },
+    {
+      "template_text": "Client Name",
+      "is_constant": true,
+      "constant_value": "client name",
+      "id": "969d887c-53e8-4254-ba67-5b6541e7d5c0"
+    }
+  ],
+  "children": [
+    {
+      "type": "DocxTemplate",
+      "id": "cf7b8fc9-f2c7-4938-99cb-5dd8c2bb79ff",
+      "bookmark_name": "",
+      "docx_path": "C:\\Users\\guest2\\Documents\\level3-docx-template.docx",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [
+        "SDG Batch",
+        "Month Day,  Year",
+        "Attention name",
+        "Max Page Number",
+        "Project Name",
+        "Client Name"
+      ],
+      "needs_update": false,
+      "table_entries": [
+        ["2. SDG Case Narrative", "cf7b8fc9-f2c7-4938-99cb-5dd8c2bb79ff"],
+        [
+          "3. Analytical Summary Report",
+          "349b1f84-0cb2-4b2a-a1ba-c80ddbeda2b8"
+        ],
+        ["4. ICP/MS Metals Data", "a4a2930e-e0c4-43ea-bdf2-5970cca636dd"],
+        ["5. Mercury Data", "94e1df98-b17d-41a5-8ad2-e775de28dc1e"],
+        ["6. Ion Chromatography Data", null],
+        ["7. Hardness Data", null],
+        ["8. Bicarbonate & Carbonate Data", null],
+        ["9. Total Suspended Solids Data", null],
+        ["10. Total Dissolved Solids Data", null],
+        ["11. Shipping / Receiving Documents", null]
+      ],
+      "page_start_col": 3,
+      "page_end_col": 4
+    },
+    {
+      "type": "FileType",
+      "id": "349b1f84-0cb2-4b2a-a1ba-c80ddbeda2b8",
+      "bookmark_name": "Analytical Report",
+      "directory_source": "./",
+      "filename_text_to_match": "RPT",
+      "will_have_page_numbers": true,
+      "files": [
         {
-            "type": "TemplateVariable",
-            "template_text": "{CLIENT_NAME}",
-            "is_constant": true,
-            "constant_value": "BOARD OF WATER & LIGHT",
-            "bookmark_for_page_number": null,
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{PROJECT_NAME}",
-            "is_constant": true,
-            "constant_value": "ERICKSON SEMI ANNUAL 16A-16D",
-            "bookmark_for_page_number": null,
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{BATCH}",
-            "is_constant": true,
-            "constant_value": "S58313",
-            "bookmark_for_page_number": null,
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{REPORT_DATE}",
-            "is_constant": true,
-            "constant_value": "March 13, 2024",
-            "bookmark_for_page_number": null,
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{PAGE_COUNT}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Analytical Report",
-            "use_beginning_of_bookmark": false
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{CASE_NARRATIVE_START}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "SDG Case Narrative",
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{CASE_NARRATIVE_END}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "SDG Case Narrative",
-            "use_beginning_of_bookmark": false
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{ANALYSIS_START}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Analytical Report",
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{ANALYSIS_END}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Analytical Report",
-            "use_beginning_of_bookmark": false
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{METALS_START}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Metals",
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{METALS_END}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Metals",
-            "use_beginning_of_bookmark": false
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{MERCURY_START}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Mercury",
-            "use_beginning_of_bookmark": true
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{MERCURY_END}",
-            "is_constant": false,
-            "constant_value": null,
-            "bookmark_for_page_number": "Mercury",
-            "use_beginning_of_bookmark": false
-        },
-        {
-            "type": "TemplateVariable",
-            "template_text": "{FIELD_SAMPLING}",
-            "is_constant": true,
-            "constant_value": "Marc Wahrer performed the fieldwork.",
-            "bookmark_for_page_number": null,
-            "use_beginning_of_bookmark": true
+          "type": "FileData",
+          "id": "e327c80b-b261-43e1-9c98-2bc2f3600e2b",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\RPT.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D(Brady).PDF",
+          "num_pages": 17,
+          "current_page_num": null
         }
-    ],
-    "children": [
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "a335bc15-b6ab-40dc-bacf-1fcbbcb40dd4",
+      "bookmark_name": "Quality Control Cover Page",
+      "directory_source": "./",
+      "filename_text_to_match": "QC.S",
+      "will_have_page_numbers": true,
+      "files": [
         {
-            "type": "DocxTemplate",
-            "bookmark_name": null,
-            "docx_path": "./COVER.58313.doc",
-            "exists": false,
-            "will_have_page_numbers": false,
-            "variables_in_doc": []
-        },
-        {
-            "type": "DocxTemplate",
-            "bookmark_name": null,
-            "docx_path": "./COVER.58313_pages.doc",
-            "exists": false,
-            "will_have_page_numbers": false,
-            "variables_in_doc": [
-                "{CLIENT_NAME}",
-                "{PROJECT_NAME}",
-                "{BATCH}"
-            ]
-        },
-        {
-            "type": "DocxTemplate",
-            "bookmark_name": "Inorganics Inventory Sheet",
-            "docx_path": "./Inorganic-Inventory-Sheet.58313.doc",
-            "exists": false,
-            "will_have_page_numbers": false,
-            "variables_in_doc": []
-        },
-        {
-            "type": "DocxTemplate",
-            "bookmark_name": "SDG Case Narrative",
-            "docx_path": "./CaseNarrative.58313.240313.doc",
-            "exists": false,
-            "will_have_page_numbers": true,
-            "variables_in_doc": []
-        },
-        {
-            "type": "FileType",
-            "bookmark_name": "Analytical Report",
-            "directory_source": "./",
-            "filename_text_to_match": "RPT",
-            "will_have_page_numbers": true,
-            "files": []
-        },
-        {
-            "type": "FileType",
-            "bookmark_name": "QC Cover Page",
-            "directory_source": "./",
-            "filename_text_to_match": "QC.S",
-            "will_have_page_numbers": true,
-            "files": []
-        },
-        {
-            "type": "FileType",
-            "bookmark_name": "QC Report",
-            "directory_source": "./",
-            "filename_text_to_match": "QC-S",
-            "will_have_page_numbers": true,
-            "files": []
-        },
-        {
-            "type": "Section",
-            "bookmark_name": "Metals",
-            "base_directory": "./MT",
-            "variables": [],
-            "children": [
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form5b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form0",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form1",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form1key",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form2a",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form2b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form3",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form4b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form5a",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form6",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form7",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form8",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form13",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "TUNE",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.form15",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "FORMS_9_11",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "mt.rawdata",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "MTD-",
-                    "will_have_page_numbers": true,
-                    "files": []
-                }
-            ]
-        },
-        {
-            "type": "Section",
-            "bookmark_name": "Mercury",
-            "base_directory": "./HG",
-            "variables": [],
-            "children": [
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form0",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form1",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form1key",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form2a",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form2b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form3",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form4b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form5a",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form5b",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form6",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form7",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form8",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form13",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.form15",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "hg.raw_hg2",
-                    "will_have_page_numbers": true,
-                    "files": []
-                },
-                {
-                    "type": "FileType",
-                    "bookmark_name": null,
-                    "directory_source": "./",
-                    "filename_text_to_match": "HGD-",
-                    "will_have_page_numbers": true,
-                    "files": []
-                }
-            ]
+          "type": "FileData",
+          "id": "d447d831-1303-4191-b76e-5bfee152f88a",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D.PDF",
+          "num_pages": 1,
+          "current_page_num": null
         }
-    ]
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "b23d8830-b336-4bd4-ba92-8ee98aa7e704",
+      "bookmark_name": "Quality Control Report",
+      "directory_source": "./",
+      "filename_text_to_match": "QC-S",
+      "will_have_page_numbers": true,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "7285df6a-f057-471b-b9a2-8271d8be5db6",
+          "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC-S58313-01.PDF",
+          "num_pages": 12,
+          "current_page_num": null
+        }
+      ],
+      "needs_update": false
+    },
+    {
+      "type": "Section",
+      "id": "a4a2930e-e0c4-43ea-bdf2-5970cca636dd",
+      "base_directory": "MT",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "21719974-83eb-497b-8309-a801fb1fd314",
+          "bookmark_name": "Form 5b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form5b.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "8c150997-18e8-4e45-a439-ab2776bd3167",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5b.mt4-24-0207a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "3347404d-8cda-4d16-a8b7-f67bf315ff2d",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5b.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "e41b1353-b3a2-4297-b47f-be081c43baaa",
+          "bookmark_name": "Form 0",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form0.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "806db610-6ea0-4881-948c-5c17d97ea88e",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form0.mt4-24-0207a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "51e44f10-de61-44e2-a498-ac45a5884377",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form0.mt4-24-0207b.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "1ff21409-9086-43b0-81ac-f8ff94773bd9",
+          "bookmark_name": "Form 1",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form1.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "5c58392b-309a-4195-a8da-3c2d5f6802d4",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1.mt4-24-0207a.pdf",
+              "num_pages": 6,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "4f6cffc0-ba11-4afe-b82f-f3732e089072",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1.mt4-24-0207b.pdf",
+              "num_pages": 6,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "06d3f216-e2c6-4d9f-a271-76f529af344d",
+          "bookmark_name": "Form 1 Key",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form1key.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "adb637cc-ac3c-48ac-8095-8506e7eec942",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1key.mt4-24-0207a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "bb2d2ac3-2daf-4be7-ae30-38e5b40ed5a7",
+          "bookmark_name": "Form 2a",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form2a.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "71f8b7e7-2a8e-42a1-8150-1fef0d48482e",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form2a.mt4-24-0207a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "ce7409eb-4379-4c61-ae4f-262e25254715",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form2a.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "d57ba1db-f203-4714-88e6-6c399191a89a",
+          "bookmark_name": "Form 2b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form2b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "4d619e3b-31a6-47c3-86ce-0e4c2217ab28",
+          "bookmark_name": "Form 3",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form3.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "1472fa66-6567-441a-97e7-e580377d75b4",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form3.mt4-24-0207a.pdf",
+              "num_pages": 3,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "f3b342a7-a393-4e2d-a3ff-633b5e52238b",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form3.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "0ecdbbd5-134d-428a-a39b-641ae4a06f7c",
+          "bookmark_name": "Form 4b",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form4b.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "680824d6-6dca-478a-a6bc-3a2ed33e8ac4",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form4b.mt4-24-0207a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "b5c9e818-0751-426a-b3ad-6360aa0ba1b2",
+          "bookmark_name": "Form 5a",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form5a.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "5112406a-865a-4293-b413-32a136f89ac9",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5a.mt4-24-0207a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "224b323a-9d88-4007-b7da-bfe25456fab7",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5a.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "cfdb78ff-99ec-4827-871e-421b5f086a8e",
+          "bookmark_name": "Form 6",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form6.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "d3478036-1a9d-492e-8055-8197fbc6d014",
+          "bookmark_name": "Form 7",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form7.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "0a9bbdd3-45bc-4878-8d2f-875e18d22534",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form7.mt4-24-0207a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "3dc42bed-5cc3-4ba0-9a12-de1952e66862",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form7.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "1dbc1271-bfa4-4ec0-a235-4aa7cf476cb6",
+          "bookmark_name": "Form 8",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form8.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "178bf5c2-8183-4deb-93de-b9e072343a44",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form8.mt4-24-0207a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "dcc79843-af65-4589-a2c5-ae7af61cc970",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form8.mt4-24-0207b.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "90d0c54c-0d75-495f-90ae-96b150ffa01e",
+          "bookmark_name": "Form 13",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form13.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "675a493b-b295-45e0-9128-4cb37a1725a1",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form13.mt4-24-0207a.pdf",
+              "num_pages": 3,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "035cb7d1-9242-4c50-b916-30c64682f26a",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form13.mt4-24-0207b.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "279439d4-82ca-4e9f-9d75-2dda78666dea",
+          "bookmark_name": "Tune",
+          "directory_source": "./",
+          "filename_text_to_match": "TUNE",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "fe1bf0a1-50a0-4767-8238-2716c4095a89",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\TUNE MT4 020724.pdf",
+              "num_pages": 4,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "ea8a528b-048a-4963-9813-d6ba31350959",
+          "bookmark_name": "Form 15",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.form15.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "c16061c3-28e2-45c0-a554-f83d4797d727",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form15.mt4-24-0207a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "db2ccc48-c891-4df7-b96b-9f70aaaccabe",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form15.mt4-24-0207b.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "dbd0b352-167f-45c5-b8eb-f68c968c6fab",
+          "bookmark_name": "Forms 9 and 11",
+          "directory_source": "./",
+          "filename_text_to_match": "FORMS_9_11",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "e2d4c2c6-7472-4cb3-bca0-6a19aea5c442",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\FORMS_9_11.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "ca273d28-02fd-4fac-b147-2dfccc4d67ba",
+          "bookmark_name": "Raw Data",
+          "directory_source": "./",
+          "filename_text_to_match": "mt.rawdata.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "1b5d60f8-7adc-4cca-9141-56de41e83cef",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.rawdata.mt4-24-0207a.pdf",
+              "num_pages": 31,
+              "current_page_num": null
+            },
+            {
+              "type": "FileData",
+              "id": "9296880d-1ec5-4bd4-b75e-4fc7b4e95355",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.rawdata.mt4-24-0207b.pdf",
+              "num_pages": 28,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "de5826af-7ad0-48a7-b220-bce9f2232204",
+          "bookmark_name": "Digestion",
+          "directory_source": "./",
+          "filename_text_to_match": "MTD-",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "82f072f0-2c77-4991-9b7c-e62d69e2ba83",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\MTD-020724-03.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        }
+      ],
+      "bookmark_name": "Metals",
+      "needs_update": false
+    },
+    {
+      "type": "Section",
+      "id": "94e1df98-b17d-41a5-8ad2-e775de28dc1e",
+      "base_directory": "HG",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "d3864d83-3599-4e1e-b0ee-dae8551c4119",
+          "bookmark_name": "Form 0",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form0.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "808ffa5c-3c47-41d9-ad0e-faaedf74b67c",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form0.hg-24-0209a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "568187de-eaf5-4bf7-87ff-4ba42077f8dc",
+          "bookmark_name": "Form 1",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form1.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "d194ee47-0ab7-4225-a13f-5bc331a2c1dd",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form1.hg-24-0209a.pdf",
+              "num_pages": 6,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "b47b6e82-321b-495b-96db-77483974a2af",
+          "bookmark_name": "Form 1 Key",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form1key.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "bc198910-ca77-45ff-a110-0b1ce34ca344",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form1key.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "52197cb8-8f28-4a2e-9331-2629c3cce5de",
+          "bookmark_name": "Form 2a",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form2a.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "2b01d609-fa4c-4cd6-8d28-6957dd8614d5",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form2a.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "194ef6fb-d5a0-4562-b58e-a28248723275",
+          "bookmark_name": "Form 2b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form2b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "b6516515-8e00-4d3f-ae5d-7141e43de0b0",
+          "bookmark_name": "Form 3",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form3.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "2fd7222b-7053-4587-a56f-56a3bc6e714f",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form3.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "9a20be21-bdd3-43f5-840c-57f32f0ce788",
+          "bookmark_name": "Form 4b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form4b.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "a6706704-ad83-422c-9e52-f9505a474384",
+          "bookmark_name": "Form 5a",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form5a.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "97a344b3-562a-45e4-8b17-5a18514685e8",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form5a.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "0d2cb920-3cbc-4815-b3c1-a5051b086a86",
+          "bookmark_name": "Form 5b",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form5b",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "cdba4046-21cc-4c20-8f6e-780faa3c9502",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form5b.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "7a9ccb56-0983-4a21-ba70-63e91c701632",
+          "bookmark_name": "Form 6",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form6.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "187154b1-2e7e-487a-b616-4c27451593b9",
+          "bookmark_name": "Form 7",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form7.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "d09d1e0d-4f5a-4f2a-b685-388eff2a5c88",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form7.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "c1ba440e-5b60-4bb7-b399-27f8b038f8f4",
+          "bookmark_name": "Form 8",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form8.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "f4edf12d-96ac-4182-b1a4-20fce9eca021",
+          "bookmark_name": "Form 13",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form13.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "d821b09c-506b-4830-b8da-d3960f3c5086",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form13.hg-24-0209a.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "64468d73-8e1a-4dfc-a6ab-5e3809ddc065",
+          "bookmark_name": "Form 15",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.form15.",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "5c2deb17-b04f-4e69-a32a-301baef1c4dc",
+          "bookmark_name": "Raw Data",
+          "directory_source": "./",
+          "filename_text_to_match": "hg.raw_hg.",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "55676b36-ab62-45b3-a329-05d4abd41bda",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.raw_hg.hg-24-0209a.pdf",
+              "num_pages": 1,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        },
+        {
+          "type": "FileType",
+          "id": "889df246-f57a-40e4-ad93-9f37ed8cbd82",
+          "bookmark_name": "Digestion",
+          "directory_source": "./",
+          "filename_text_to_match": "HGD",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "1e68e46d-d4ca-475d-8d13-7770c7945d28",
+              "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\HGD-020924-01.pdf",
+              "num_pages": 2,
+              "current_page_num": null
+            }
+          ],
+          "needs_update": false
+        }
+      ],
+      "bookmark_name": "Mercury",
+      "needs_update": false
+    }
+  ],
+  "needs_update": false
 }
