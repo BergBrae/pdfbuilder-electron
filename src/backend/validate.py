@@ -78,12 +78,18 @@ def validate_page_numbers(report):
 
     return True
 
+def validate_table_entries(report):
+    return True
+
 
 def validate_report(report):
     result = validate_paths(report)
     if result is not True:
         return result
     result = validate_page_numbers(report)
+    if result is not True:
+        return result
+    result = validate_table_entries(report)
     if result is not True:
         return result
     return True
