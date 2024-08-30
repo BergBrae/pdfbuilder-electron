@@ -14,9 +14,12 @@ def get_table_entries_in_docx(
         return None
     table = doc.tables[0]
 
+    if not page_start_col:
+        return [[]]
+
     table_entries = get_table_entries(table, page_start_col, page_end_col)
 
-    if len(current_table_entries[-1]) > 1:
+    if current_table_entries and len(current_table_entries[-1]) > 1:
         current_table_entries = {name: _id for name, _id in current_table_entries}
     else:
         current_table_entries = {}

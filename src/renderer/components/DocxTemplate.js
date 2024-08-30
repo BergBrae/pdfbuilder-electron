@@ -85,6 +85,9 @@ function DocxTemplate({
     const newDocxPath = event.target.value;
     setDocxPath(newDocxPath);
 
+    // temp
+    console.log({ ...docxTemplate, docx_path: newDocxPath })
+
     handleAPIUpdate(
       `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectorySource}`,
       { ...docxTemplate, docx_path: newDocxPath },
