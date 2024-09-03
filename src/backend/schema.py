@@ -26,7 +26,9 @@ class DocxTemplate(BaseModel):
     # Variables in the docx file. Determined by backend, not user.
     variables_in_doc: list[str] = []
     needs_update: bool = False
-    table_entries: Optional[list[list[Optional[str]]]] = []  # (table entry name, bookmark name)
+    table_entries: Optional[list[list[Optional[str]]]] = (
+        []
+    )  # (table entry name, bookmark name)
     page_start_col: int = (
         3  # the col num of the start page number in the table. 0-indexed
     )
@@ -39,6 +41,14 @@ class FileData(BaseModel):
     file_path: str
     num_pages: Optional[int] = None  # in this document
     current_page_num: Optional[int] = None  # in the parent document
+    bookmark_name: Optional[str] = None
+
+
+class BookmarkRule(BaseModel):
+    type: str = Field("BookmarkRule", Literal=True)
+    id: str
+    bookmark_name: str
+    rule: str  # same logic as FileType.filename_text_to_match except on a pdf's text rather than filename
 
 
 class FileType(BaseModel):
@@ -51,6 +61,7 @@ class FileType(BaseModel):
     # if is_found, at least one file has been found. These are/is the file(s)
     files: list[FileData] = []
     needs_update: bool = False
+    bookmark_rules: list[BookmarkRule] = []
 
 
 class Section(BaseModel):
