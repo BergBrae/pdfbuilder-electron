@@ -59,7 +59,7 @@ def validate_docx_template(
             return doc
         doc.variables_in_doc = get_variables_in_docx(docx_path)
         if not doc.page_start_col:
-            doc.table_entries = [[]]
+            doc.table_entries = []
         else:
             doc.table_entries = get_table_entries_in_docx(
                 docx_path,
@@ -69,7 +69,7 @@ def validate_docx_template(
             )
     else:
         doc.variables_in_doc = []
-        doc.table_entries = None
+        doc.table_entries = []
 
     doc.needs_update = False
 

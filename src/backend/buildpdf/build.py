@@ -149,8 +149,11 @@ def compose_pdf(writer_data: dict) -> PdfWriter:
         for data in writer_data:
             if data["type"] == "docxTemplate":
                 table_entries = {}
-                for entry_name, entry_id in data["table_entries"]:
-                    table_entries[entry_name] = id_to_page_start.get(entry_id)
+                if data["table_entries"]:
+                    for entry_name, entry_id in data["table_entries"]:
+                        table_entries[entry_name] = id_to_page_start.get(entry_id)
+                else:
+                    table_entries = {}
                 pdf, _ = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
@@ -182,7 +185,10 @@ def add_bookmarks(writer: PdfWriter, bookmarks: list):
 
 def generate_pdf(report: dict, output_path: str):
     writer_data, bookmark_data = generate_pdf_pass_one(report)
+    print("Pass one complete. Files are staged for processing. Processing files...")
     writer = compose_pdf(writer_data)
+    print("Pass two complete. Adding bookmarks...")
     writer = add_bookmarks(writer, bookmark_data)
+    print("Bookmarks added. Saving PDF...")
     writer.write(output_path)
     return True

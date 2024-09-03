@@ -15,7 +15,7 @@ def get_table_entries_in_docx(
     table = doc.tables[0]
 
     if not page_start_col:
-        return [[]]
+        return []
 
     table_entries = get_table_entries(table, page_start_col, page_end_col)
 
@@ -29,7 +29,7 @@ def get_table_entries_in_docx(
             [entry.name, current_table_entries.get(entry.name)]
             for entry in table_entries
         ]
-    return [[]]
+    return []
 
 
 def set_cell_text(cell, text):
@@ -67,14 +67,19 @@ class TableEntry:
     def get_data(self):
         self.name = self.table.cell(self.row_num, self.NAME_COL).text
         self.page_start = self.table.cell(self.row_num, self.page_start_col).text
-        self.page_end = (self.table.cell(self.row_num, self.page_end_col).text) if self.page_end_col else ""
+        self.page_end = (
+            (self.table.cell(self.row_num, self.page_end_col).text)
+            if self.page_end_col
+            else ""
+        )
 
     def set_page_start(self, page_start):
         set_cell_text(self.table.cell(self.row_num, self.page_start_col), page_start)
         self.page_start = page_start
 
     def set_page_end(self, page_end):
-        set_cell_text(self.table.cell(self.row_num, self.page_end_col), page_end)
+        if page_end:
+            set_cell_text(self.table.cell(self.row_num, self.page_end_col), page_end)
         self.page_end = page_end
 
     def to_pydantic(self):
