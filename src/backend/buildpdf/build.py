@@ -97,6 +97,8 @@ def generate_pdf_pass_one(report: dict):
                         parent=root_bookmark,
                     )
                     bookmark_data.append(file_type_bookmark)
+                else:
+                    file_type_bookmark = root_bookmark
 
                 directory_source = os.path.normpath(
                     os.path.join(base_directory, child["directory_source"])
@@ -112,6 +114,16 @@ def generate_pdf_pass_one(report: dict):
                     file_path = os.path.normpath(
                         os.path.join(directory_source, file["file_path"])
                     )
+
+                    if file.get("bookmark_name"):
+                        bookmark_data.append(
+                            BookmarkItem(
+                                title=file["bookmark_name"],
+                                page=current_page,
+                                parent=file_type_bookmark,
+                            )
+                        )
+
                     pdf, num_pages = get_pdf_and_page_count(file_path)
                     file_data = {
                         "type": "FileData",
