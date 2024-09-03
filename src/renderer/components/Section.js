@@ -215,40 +215,38 @@ function Section({
 
   return (
     <CustomAccordion
-      className="mb-3 section"
+      className="section"
       defaultActiveKey={isRoot ? '0' : ''}
       eventKey={section.id}
     >
-      <div>
-        <div className="section-header">
-          <div className="header-top">
-            <BookmarkIcon
-              isBookmarked={!!section.bookmark_name}
-              bookmarkName={section.bookmark_name}
-              onBookmarkChange={handleBookmarkChange}
-              includeIcon={!isRoot}
-            />
-            {!isRoot && (
-              <Button
-                className="x"
-                variant="danger"
-                size="sm"
-                onClick={() => onDelete(section.id)}
-              >
-                X
-              </Button>
-            )}
-          </div>
-          <div className="base-directory">
-            <p>Base Directory: {section.base_directory}</p>
+      <div className="section-header">
+        <div className="header-top">
+          <BookmarkIcon
+            isBookmarked={!!section.bookmark_name}
+            bookmarkName={section.bookmark_name}
+            onBookmarkChange={handleBookmarkChange}
+            includeIcon={!isRoot}
+          />
+          {!isRoot && (
             <Button
+              className="x"
+              variant="danger"
               size="sm"
-              variant="secondary"
-              onClick={() => handleBaseDirectoryChange(parentDirectory)}
+              onClick={() => onDelete(section.id)}
             >
-              Change Base Directory
+              X
             </Button>
-          </div>
+          )}
+        </div>
+        <div className="base-directory">
+          <p>Base Directory: {section.base_directory}</p>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleBaseDirectoryChange(parentDirectory)}
+          >
+            Change Base Directory
+          </Button>
         </div>
       </div>
 

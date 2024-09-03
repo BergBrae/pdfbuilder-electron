@@ -25,7 +25,7 @@ const CustomAccordion = ({ children, eventKey, className, defaultActiveKey }) =>
       </Card.Header>
       {children[1] && (
         <Accordion.Collapse eventKey={eventKey}>
-          <Card.Body>{children[1]}</Card.Body>
+          <Card.Body style={{marginInlineStart: '15px', marginInlineEnd: '15px'}}>{children[1]}</Card.Body>
         </Accordion.Collapse>
       )}
     </Card>
