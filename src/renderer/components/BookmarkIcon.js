@@ -3,13 +3,17 @@ import { IoBookmark as FilledBookmark, IoBookmarkOutline as EmptyBookmark } from
 
 export default function BookmarkIcon ({ isBookmarked, bookmarkName, onBookmarkChange, includeIcon = true }) {
   const [editing, setEditing] = useState(false)
-  const [newBookmarkName, setNewBookmarkName] = useState(bookmarkName)
+  const [newBookmarkName, setNewBookmarkName] = useState(bookmarkName || '')
 
   const handleDoubleClick = () => setEditing(true)
   const handleChange = (e) => setNewBookmarkName(e.target.value)
   const handleBlur = () => {
     setEditing(false)
-    onBookmarkChange(newBookmarkName.trim())
+    if (newBookmarkName) {
+      onBookmarkChange(newBookmarkName.trim())
+    } else {
+      setNewBookmarkName('')
+    }
   }
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
