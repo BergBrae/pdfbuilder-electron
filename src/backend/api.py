@@ -84,6 +84,9 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
     directory_source = os.path.join(parent_directory_source, file.directory_source)
     directory_source = os.path.normpath(directory_source)
 
+    previous_files = {
+        f.file_path: f for f in file.files
+    }  # use existing files if they are already in file.files
     file.files = []
     if os.path.isdir(directory_source):
         for path in glob.glob(directory_source + "/*"):
@@ -91,7 +94,10 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
             if not os.path.isdir(path) and filename.lower().endswith(".pdf"):
                 try:
                     if qualify_filename(file.filename_text_to_match, filename):
-                        file.files.append(FileData(file_path=path, id=createUUID()))
+                        if path in previous_files:
+                            file.files.append(previous_files[path])
+                        else:
+                            file.files.append(FileData(file_path=path, id=createUUID()))
                 except Exception as e:
                     pass
 
