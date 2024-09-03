@@ -48,6 +48,11 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
     onDelete(file.id)
   }
 
+  const handleFileDataChange = (updatedFileData) => {
+    const updatedFiles = file.files.map((fileData) => (fileData.id === updatedFileData.id ? updatedFileData : fileData))
+    onFileChange({ ...file, files: updatedFiles })
+  }
+
   return (
     <Accordion className={file.files.length ? 'file-found' : 'file-not-found'}>
       <Accordion.Header>
@@ -83,7 +88,7 @@ function FileType ({ file, onFileChange, onDelete, parentDirectorySource }) {
         <Accordion.Body>
           <Row>
             {file.files.map((fileData) => (
-              <FileData key={fileData.id} fileData={fileData} />
+              <FileData key={fileData.id} fileData={fileData} onFileDataChange={handleFileDataChange}/>
             ))}
           </Row>
         </Accordion.Body>
