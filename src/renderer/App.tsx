@@ -42,28 +42,6 @@ function App() {
   };
 
   const handleSave = async () => {
-    // clear report of data that may change
-    report.variables = [];
-
-    const cleanReport = (report) => {
-      for (const child of report.children) {
-        switch (child.type) {
-          case 'DocxTemplate':
-            child.variables_in_doc = [];
-            child.exists = false;
-            break;
-          case 'FileType':
-            child.files = [];
-            break;
-          case 'Section':
-            cleanReport(child);
-            break;
-        }
-      }
-    };
-
-    cleanReport(report);
-
     await window.electron.saveReport(report);
   };
 
