@@ -67,8 +67,9 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
       bookmark_name: path
         .basename(fileData.file_path.replaceAll('\\', '/'))
         .replaceAll('.pdf', '')
-        .replaceAll('-', ' ')
         .replaceAll('.PDF', '')
+        .replaceAll('-', ' ')
+        .replaceAll('.', ' ')
         .replaceAll('_', ' '),
     }));
     onFileChange({ ...file, files: updatedFiles });
@@ -134,7 +135,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
             className="mb-2"
             onClick={handleBookmarkFilesWithFilename}
           >
-            Bookmark Files with Filename
+            Bookmark Files with Filenames
           </Button>
           <Row>
             {file.files.map((fileData) => (

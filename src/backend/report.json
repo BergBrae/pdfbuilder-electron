@@ -2,60 +2,16 @@
   "type": "Section",
   "bookmark_name": "BWL Report",
   "base_directory": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313",
-  "variables": [
-    {
-      "template_text": "SDG Batch",
-      "is_constant": true,
-      "constant_value": "SDG Batch",
-      "id": "fcdf1b48-c998-4697-b3b7-57465104658a"
-    },
-    {
-      "template_text": "Month Day,  Year",
-      "is_constant": true,
-      "constant_value": "day month year",
-      "id": "cfab2ca8-c944-488f-8e1d-6ee2d8acbad6"
-    },
-    {
-      "template_text": "Attention name",
-      "is_constant": true,
-      "constant_value": "name",
-      "id": "520d808a-de37-41d9-b64b-4c383b78bf3f"
-    },
-    {
-      "template_text": "Max Page Number",
-      "is_constant": true,
-      "constant_value": "page num",
-      "id": "94f13371-a82b-4efd-8bef-3362d172db8b"
-    },
-    {
-      "template_text": "Project Name",
-      "is_constant": true,
-      "constant_value": "proj name",
-      "id": "00574615-be35-4c0a-a59a-8c4141643a0a"
-    },
-    {
-      "template_text": "Client Name",
-      "is_constant": true,
-      "constant_value": "client name",
-      "id": "969d887c-53e8-4254-ba67-5b6541e7d5c0"
-    }
-  ],
+  "variables": [],
   "children": [
     {
       "type": "DocxTemplate",
       "id": "cf7b8fc9-f2c7-4938-99cb-5dd8c2bb79ff",
       "bookmark_name": "",
-      "docx_path": "C:\\Users\\guest2\\Documents\\level3-docx-template.docx",
+      "docx_path": "C:\\Users\\guest2\\Documents\\Inorganic-Inventory-Sheet.example.docx",
       "exists": true,
       "will_have_page_numbers": false,
-      "variables_in_doc": [
-        "SDG Batch",
-        "Month Day,  Year",
-        "Attention name",
-        "Max Page Number",
-        "Project Name",
-        "Client Name"
-      ],
+      "variables_in_doc": [],
       "needs_update": false,
       "table_entries": [
         ["2. SDG Case Narrative", "cf7b8fc9-f2c7-4938-99cb-5dd8c2bb79ff"],
@@ -63,14 +19,12 @@
           "3. Analytical Summary Report",
           "349b1f84-0cb2-4b2a-a1ba-c80ddbeda2b8"
         ],
-        ["4. ICP/MS Metals Data", "a4a2930e-e0c4-43ea-bdf2-5970cca636dd"],
-        ["5. Mercury Data", "94e1df98-b17d-41a5-8ad2-e775de28dc1e"],
-        ["6. Ion Chromatography Data", null],
-        ["7. Hardness Data", null],
-        ["8. Bicarbonate & Carbonate Data", null],
-        ["9. Total Suspended Solids Data", null],
-        ["10. Total Dissolved Solids Data", null],
-        ["11. Shipping / Receiving Documents", null]
+        ["5. ICP/MS Metals Data", "a4a2930e-e0c4-43ea-bdf2-5970cca636dd"],
+        ["6. Mercury Data", "94e1df98-b17d-41a5-8ad2-e775de28dc1e"],
+        [
+          "8. Shipping / Receiving Documents",
+          "889df246-f57a-40e4-ad93-9f37ed8cbd82"
+        ]
       ],
       "page_start_col": 3,
       "page_end_col": 4
@@ -85,7 +39,7 @@
       "files": [
         {
           "type": "FileData",
-          "id": "e327c80b-b261-43e1-9c98-2bc2f3600e2b",
+          "id": "15047445-eb65-4392-aae4-168b9aef76a9",
           "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\RPT.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D(Brady).PDF",
           "num_pages": 17,
           "current_page_num": null
@@ -103,7 +57,7 @@
       "files": [
         {
           "type": "FileData",
-          "id": "d447d831-1303-4191-b76e-5bfee152f88a",
+          "id": "2cc73624-9839-419a-953a-863a2fe28939",
           "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC.S58313.01(01)_ERICKSON_SEMI_ANNUAL_16A-16D.PDF",
           "num_pages": 1,
           "current_page_num": null
@@ -121,7 +75,7 @@
       "files": [
         {
           "type": "FileData",
-          "id": "7285df6a-f057-471b-b9a2-8271d8be5db6",
+          "id": "83cc9f3b-87f3-4b51-a5b6-c57df6350f2a",
           "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\QC-S58313-01.PDF",
           "num_pages": 12,
           "current_page_num": null
@@ -145,14 +99,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "8c150997-18e8-4e45-a439-ab2776bd3167",
+              "id": "50288424-2cbf-4aeb-b874-f0e3ac7cc0a2",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5b.mt4-24-0207a.pdf",
               "num_pages": 1,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "3347404d-8cda-4d16-a8b7-f67bf315ff2d",
+              "id": "8121214f-2bb9-4b20-bf7b-650872f57840",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5b.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -170,14 +124,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "806db610-6ea0-4881-948c-5c17d97ea88e",
+              "id": "25ac6106-1c60-4435-9814-6b74cadb8783",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form0.mt4-24-0207a.pdf",
               "num_pages": 2,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "51e44f10-de61-44e2-a498-ac45a5884377",
+              "id": "f6e94df2-af7b-48b2-9f3a-02a919f82d0e",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form0.mt4-24-0207b.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -195,14 +149,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "5c58392b-309a-4195-a8da-3c2d5f6802d4",
+              "id": "2bf005bb-2cc7-428c-bc8d-61d4d7a2a541",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1.mt4-24-0207a.pdf",
               "num_pages": 6,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "4f6cffc0-ba11-4afe-b82f-f3732e089072",
+              "id": "7f65b1dd-7239-46f2-a4ba-a53e799baf2c",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1.mt4-24-0207b.pdf",
               "num_pages": 6,
               "current_page_num": null
@@ -220,7 +174,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "adb637cc-ac3c-48ac-8095-8506e7eec942",
+              "id": "6331bc6c-000b-4548-b323-4604800fbf90",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form1key.mt4-24-0207a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -238,14 +192,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "71f8b7e7-2a8e-42a1-8150-1fef0d48482e",
+              "id": "29dc3b6b-782a-4304-a519-a79694f52def",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form2a.mt4-24-0207a.pdf",
               "num_pages": 2,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "ce7409eb-4379-4c61-ae4f-262e25254715",
+              "id": "507fd6b4-86e0-41b5-a120-5f8e95d6da54",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form2a.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -273,14 +227,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "1472fa66-6567-441a-97e7-e580377d75b4",
+              "id": "657bd47e-8910-4576-bd29-ddaf999f0ee7",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form3.mt4-24-0207a.pdf",
               "num_pages": 3,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "f3b342a7-a393-4e2d-a3ff-633b5e52238b",
+              "id": "65ee52d1-7098-4924-a167-a09ca6ffb927",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form3.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -298,7 +252,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "680824d6-6dca-478a-a6bc-3a2ed33e8ac4",
+              "id": "e1e114ea-1880-444a-b82b-28fc6f82116c",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form4b.mt4-24-0207a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -316,14 +270,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "5112406a-865a-4293-b413-32a136f89ac9",
+              "id": "cc8bfb8d-0bd4-42a6-8d63-8cfc83cf1567",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5a.mt4-24-0207a.pdf",
               "num_pages": 2,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "224b323a-9d88-4007-b7da-bfe25456fab7",
+              "id": "1eaf887f-3080-4987-a8c9-4a22a6bd5035",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form5a.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -351,14 +305,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "0a9bbdd3-45bc-4878-8d2f-875e18d22534",
+              "id": "523b769c-c0d8-4aeb-872e-61e5b5e89123",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form7.mt4-24-0207a.pdf",
               "num_pages": 1,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "3dc42bed-5cc3-4ba0-9a12-de1952e66862",
+              "id": "98c8e19f-3ac7-461b-b2ee-a47f003d2b4e",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form7.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -376,14 +330,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "178bf5c2-8183-4deb-93de-b9e072343a44",
+              "id": "4e65d999-5631-47dd-88bf-6f45102553b1",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form8.mt4-24-0207a.pdf",
               "num_pages": 1,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "dcc79843-af65-4589-a2c5-ae7af61cc970",
+              "id": "427310ed-5e8f-4f59-b3fc-9e091c153146",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form8.mt4-24-0207b.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -401,14 +355,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "675a493b-b295-45e0-9128-4cb37a1725a1",
+              "id": "7194d18b-1498-4773-ac3b-e9ca0f091cf6",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form13.mt4-24-0207a.pdf",
               "num_pages": 3,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "035cb7d1-9242-4c50-b916-30c64682f26a",
+              "id": "489bf91a-00bb-49ee-9de2-0ed77b836072",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form13.mt4-24-0207b.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -426,7 +380,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "fe1bf0a1-50a0-4767-8238-2716c4095a89",
+              "id": "09f7e5e0-a146-4c94-9d1c-72b07258d68a",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\TUNE MT4 020724.pdf",
               "num_pages": 4,
               "current_page_num": null
@@ -444,14 +398,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "c16061c3-28e2-45c0-a554-f83d4797d727",
+              "id": "e3def49c-c9ce-4bd8-881f-2e5e536a0678",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form15.mt4-24-0207a.pdf",
               "num_pages": 2,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "db2ccc48-c891-4df7-b96b-9f70aaaccabe",
+              "id": "3ded4c7a-8323-4546-90f2-e4d16f176e5d",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.form15.mt4-24-0207b.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -469,7 +423,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "e2d4c2c6-7472-4cb3-bca0-6a19aea5c442",
+              "id": "b3421369-a4f3-46b6-82d8-9c36a1af8bf8",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\FORMS_9_11.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -487,14 +441,14 @@
           "files": [
             {
               "type": "FileData",
-              "id": "1b5d60f8-7adc-4cca-9141-56de41e83cef",
+              "id": "84c0ce94-2ada-421d-ac1a-9ed62ae842eb",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.rawdata.mt4-24-0207a.pdf",
               "num_pages": 31,
               "current_page_num": null
             },
             {
               "type": "FileData",
-              "id": "9296880d-1ec5-4bd4-b75e-4fc7b4e95355",
+              "id": "4eadec94-c2b2-43d0-982d-d6e7b06e05ed",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\mt.rawdata.mt4-24-0207b.pdf",
               "num_pages": 28,
               "current_page_num": null
@@ -512,7 +466,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "82f072f0-2c77-4991-9b7c-e62d69e2ba83",
+              "id": "cd6665ee-2acf-49ed-b030-8fdc7085a5a6",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\MT\\MTD-020724-03.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -540,7 +494,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "808ffa5c-3c47-41d9-ad0e-faaedf74b67c",
+              "id": "ec4f2c0e-e50d-4764-bbf8-db2bb1216017",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form0.hg-24-0209a.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -558,7 +512,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "d194ee47-0ab7-4225-a13f-5bc331a2c1dd",
+              "id": "265e07d6-30b9-42dd-8ccd-b758ab22218a",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form1.hg-24-0209a.pdf",
               "num_pages": 6,
               "current_page_num": null
@@ -576,7 +530,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "bc198910-ca77-45ff-a110-0b1ce34ca344",
+              "id": "b8600e9f-ddfa-4d12-b559-242094a82125",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form1key.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -594,7 +548,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "2b01d609-fa4c-4cd6-8d28-6957dd8614d5",
+              "id": "f5674d67-7f65-4b10-bba8-4852a81509f8",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form2a.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -622,7 +576,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "2fd7222b-7053-4587-a56f-56a3bc6e714f",
+              "id": "8639ba22-cc29-4cb9-b230-0942e3d1c314",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form3.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -650,7 +604,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "97a344b3-562a-45e4-8b17-5a18514685e8",
+              "id": "25134ade-f888-4fb7-a56f-c4c230fe437f",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form5a.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -668,7 +622,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "cdba4046-21cc-4c20-8f6e-780faa3c9502",
+              "id": "842ebbf1-0d66-41d8-8cd0-82e8d8fb8867",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form5b.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -696,7 +650,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "d09d1e0d-4f5a-4f2a-b685-388eff2a5c88",
+              "id": "7a0e2732-e2c8-4d1f-ac38-c13c691a4cfa",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form7.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -724,7 +678,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "d821b09c-506b-4830-b8da-d3960f3c5086",
+              "id": "a03fb71f-6949-4977-b26d-f150c1bb8c68",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.form13.hg-24-0209a.pdf",
               "num_pages": 2,
               "current_page_num": null
@@ -752,7 +706,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "55676b36-ab62-45b3-a329-05d4abd41bda",
+              "id": "ef4ba714-3842-4c69-812d-0646034ff970",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\hg.raw_hg.hg-24-0209a.pdf",
               "num_pages": 1,
               "current_page_num": null
@@ -770,7 +724,7 @@
           "files": [
             {
               "type": "FileData",
-              "id": "1e68e46d-d4ca-475d-8d13-7770c7945d28",
+              "id": "3b7b902a-dce3-435f-967a-8020bbe9c9c0",
               "file_path": "C:\\Users\\guest2\\Documents\\Level.III\\BWL\\58313\\HG\\HGD-020924-01.pdf",
               "num_pages": 2,
               "current_page_num": null
