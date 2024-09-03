@@ -1,7 +1,6 @@
 - Build new table in backend
 
   - remove intermediate files after creation
-  - Transfer jupyter code to regular backend code
   - test extensively
 - 
 - Auto-fill docx-templates with data from analytical report
@@ -12,3 +11,8 @@
 - Add allow specifiying page-level bookmarking rules. Rules are specified on FileType level. Consecutive pages with the same bookmark have [1:] removed.
 
   - if bookmarking rules are specified but File-level bookmarks are turned off, the page-level bookmarks' parent should be that of the FileType.
+
+
+- Write validate_table_entries()
+- Show failure detail in front end when building fails.
+- Create custom accordion that can hold buttons in the header.
