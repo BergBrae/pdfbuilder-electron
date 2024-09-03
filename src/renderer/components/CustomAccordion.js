@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Accordion, Card, useAccordionButton } from 'react-bootstrap';
 
-const CustomAccordion = ({ children, eventKey }) => {
+const CustomAccordion = ({ children, eventKey, className, defaultActiveKey }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggle = useAccordionButton(eventKey, () => {
@@ -9,14 +9,14 @@ const CustomAccordion = ({ children, eventKey }) => {
   });
 
   return (
-    <Card>
+    <Card className={className}>
       <Card.Header>
         <div className="d-flex justify-content-between">
           <div style={{ flex: 1 }}>
             {/* Header content */}
             {children[0]}
           </div>
-          {children[1] && (
+          {children[1] && defaultActiveKey != '0' && (
             <div style={{ cursor: 'pointer' }}>
               <span onClick={handleToggle}>{isExpanded ? '▲' : '▼'}</span>
             </div>
