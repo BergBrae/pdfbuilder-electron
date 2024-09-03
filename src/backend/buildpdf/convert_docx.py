@@ -1,3 +1,4 @@
+# convert_docx.py
 import os
 from docx import Document
 from python_docx_replace import docx_replace, docx_get_keys
@@ -45,7 +46,7 @@ def update_table_of_contents(docx_path, table_entries, page_start_col, page_end_
     for i in range(num_rows):
         entry = TableEntry(table, i, page_start_col, page_end_col)
         if entry.name in table_entries:
-            entry.set_page_start(str(table_entries[entry.name]))
+            entry.set_page_start(table_entries[entry.name])
             entry.set_page_end("")
     new_docx_path = docx_path.replace(".docx", "_updated_toc.docx")
     doc.save(new_docx_path)
@@ -66,15 +67,22 @@ def convert_docx_template_to_pdf(
         modified_docx_path = replace_text_in_docx(docx_path, replacements)
         intermediate_files.append(modified_docx_path)
     else:
-        modified_docx_path = docx_path
+        modified_docx_path = None
 
     if table_entries:
         modified_docx_path = update_table_of_contents(
-            modified_docx_path, table_entries, page_start_col, page_end_col
+            modified_docx_path if modified_docx_path else docx_path,
+            table_entries,
+            page_start_col,
+            page_end_col,
         )
 
     # Convert the modified DOCX file to PDF
-    pdf_path = convert_docx_to_pdf(modified_docx_path)
+    pdf_path = convert_docx_to_pdf(
+        modified_docx_path if modified_docx_path else docx_path
+    )
+
+    (os.remove(modified_docx_path) if modified_docx_path else None)
 
     # Cleanup intermediate files
     for file_path in intermediate_files:
@@ -89,22 +97,3 @@ def convert_docx_template_to_pdf(
         os.remove(pdf_reader_file_path)
 
     return (pdf_reader, len(pdf_reader.pages))
-
-
-# Example usage
-if __name__ == "__main__":
-    from PyPDF2 import PdfWriter
-
-    input_file = r"C:\Users\guest2\Documents\DocxTemplate-testing\testing-template.docx"
-    print(f"Variables in the DOCX file: {get_variables_in_docx(input_file)}")
-    replacements_dict = {
-        "VAR1": "Variable One",
-        "VAR2": "Variable Two",
-        "VAR3": "Variable Three",
-        "VAR4": "Variable Four",
-    }
-    pdf_reader, num_pages = convert_docx_template_to_pdf(input_file, replacements_dict)
-    writer = PdfWriter()
-    writer.append(pdf_reader)
-    output_path = input_file.replace(".docx", ".pdf")
-    writer.write(output_path)

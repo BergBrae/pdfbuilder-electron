@@ -200,7 +200,7 @@ function App() {
         <img
           src={logo}
           alt="Merit Logo"
-          style={{ maxWidth: '15vw', 'marginBottom': '30px' }}
+          style={{ maxWidth: '15vw', marginBottom: '30px' }}
         />
         <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <div className="buttons-container">
