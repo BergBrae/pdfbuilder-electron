@@ -67,7 +67,7 @@ class TableEntry:
     def get_data(self):
         self.name = self.table.cell(self.row_num, self.NAME_COL).text
         self.page_start = self.table.cell(self.row_num, self.page_start_col).text
-        self.page_end = self.table.cell(self.row_num, self.page_end_col).text
+        self.page_end = (self.table.cell(self.row_num, self.page_end_col).text) if self.page_end_col else ""
 
     def set_page_start(self, page_start):
         set_cell_text(self.table.cell(self.row_num, self.page_start_col), page_start)
