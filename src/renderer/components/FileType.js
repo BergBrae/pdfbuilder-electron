@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFilePdf } from 'react-icons/fa';
-import { Form, Container, Button, Row, Accordion } from 'react-bootstrap';
+import { Form, Container, Button, Row } from 'react-bootstrap';
+import CustomAccordion from './CustomAccordion';
 import FileData from './FileData';
 import { handleAPIUpdate } from './utils';
 const path = require('path');
@@ -76,8 +77,11 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   };
 
   return (
-    <Accordion className={file.files.length ? 'file-found' : 'file-not-found'}>
-      <Accordion.Header>
+    <CustomAccordion
+      className={file.files.length ? 'file-found' : 'file-not-found'}
+      eventKey={file.id}
+    >
+      <div>
         <Container>
           <div className="d-flex justify-content-between">
             <BookmarkIcon
@@ -126,9 +130,9 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
             />
           </span>
         </Container>
-      </Accordion.Header>
+      </div>
       {file.files.length > 0 && (
-        <Accordion.Body>
+        <div>
           <Button
             variant="secondary"
             size="sm"
@@ -146,9 +150,9 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
               />
             ))}
           </Row>
-        </Accordion.Body>
+        </div>
       )}
-    </Accordion>
+    </CustomAccordion>
   );
 }
 

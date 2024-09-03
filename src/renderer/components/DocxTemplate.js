@@ -3,15 +3,8 @@ import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
 import { FaCheck } from 'react-icons/fa';
-import {
-  Row,
-  Col,
-  Form,
-  Accordion,
-  Container,
-  Button,
-  Table,
-} from 'react-bootstrap';
+import { Row, Col, Form, Container, Button, Table } from 'react-bootstrap';
+import CustomAccordion from './CustomAccordion';
 import { handleAPIUpdate } from './utils';
 
 const docxIcon = (
@@ -85,9 +78,6 @@ function DocxTemplate({
     const newDocxPath = event.target.value;
     setDocxPath(newDocxPath);
 
-    // temp
-    console.log({ ...docxTemplate, docx_path: newDocxPath })
-
     handleAPIUpdate(
       `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectorySource}`,
       { ...docxTemplate, docx_path: newDocxPath },
@@ -135,14 +125,15 @@ function DocxTemplate({
   const hasTableEntries = tableEntries ? !!tableEntries[0]?.length : false;
 
   return (
-    <Accordion
+    <CustomAccordion
       className={
         docxTemplate.exists
           ? 'docx-template file-found'
           : 'docx-template file-not-found'
       }
+      eventKey={docxTemplate.id}
     >
-      <Accordion.Header>
+      <div>
         <Container>
           <div className="d-flex justify-content-between">
             <BookmarkIcon
@@ -185,9 +176,9 @@ function DocxTemplate({
             }
           />
         </Container>
-      </Accordion.Header>
+      </div>
       {hasTable && (
-        <Accordion.Body>
+        <div>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4">
               Page Start Column:
@@ -249,9 +240,9 @@ function DocxTemplate({
               </tbody>
             </Table>
           )}
-        </Accordion.Body>
+        </div>
       )}
-    </Accordion>
+    </CustomAccordion>
   );
 }
 

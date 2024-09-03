@@ -50,7 +50,7 @@ def validate_paths(report, cwd="/"):
 
 
 def validate_page_numbers(report):
-    def DFS(report):
+    def DFT(report):
         flattened = []
         for child in report["children"]:
             if child["type"] == "DocxTemplate":
@@ -58,10 +58,10 @@ def validate_page_numbers(report):
             if child["type"] == "FileType":
                 flattened.append(child)
             if child["type"] == "Section":
-                flattened.extend(DFS(child))
+                flattened.extend(DFT(child))
         return flattened
 
-    flattened = DFS(report)
+    flattened = DFT(report)
     page_numbers_started = (
         False  # start without page numbers. Can only tuen on and off once
     )
