@@ -4,7 +4,7 @@
 a = Analysis(
     ['api.py'],
     pathex=[],
-    binaries=[('python-env/Lib/site-packages/spire/doc/lib/Spire.Doc.Base.dll', './spire/doc/lib'), ('python-env/Lib/site-packages/spire/doc/lib/libSkiaSharp.dll', './spire/doc/lib')],
+    binaries=[],
     datas=[],
     hiddenimports=[],
     hookspath=[],

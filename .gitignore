@@ -31,6 +31,6 @@ npm-debug.log.*
 # Python
 *.pyc
 
-src/backend/python-env/*
+src/backend/.venv/*
 src/backend/build/*
 src/backend/output.pdf
