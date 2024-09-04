@@ -34,3 +34,4 @@ npm-debug.log.*
 src/backend/.venv/*
 src/backend/build/*
 src/backend/output.pdf
+*.exe
