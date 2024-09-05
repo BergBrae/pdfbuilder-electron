@@ -1,6 +1,7 @@
 // FileType.js
 import React, { useState, useEffect } from 'react';
 import BookmarkIcon from './BookmarkIcon';
+import BookmarkRules from './BookmarkRules';
 import { FaFilePdf } from 'react-icons/fa';
 import { Form, Container, Button, Row } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
@@ -141,6 +142,8 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
           >
             Bookmark Files with Filenames
           </Button>
+
+          <BookmarkRules fileType={file} onChange={onFileChange}/>
           <Row>
             {file.files.map((fileData) => (
               <FileData
