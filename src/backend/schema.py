@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Union, ClassVar
+from typing import Optional, Union, ClassVar, Any
 
 
 class TemplateVariable(BaseModel):
@@ -73,3 +73,15 @@ class Section(BaseModel):
     variables: list[TemplateVariable] = []
     # At the end so the json file it formated easier to read
     children: list[Union[FileType, DocxTemplate, "Section"]] = []
+
+
+## For Build Process
+
+
+class BookmarkItem(BaseModel):
+    title: str
+    page: int
+    parent: Optional["BookmarkItem"] = None
+    outline_element: Optional[Any] = (
+        None  # This is a placeholder for the outline element that will be created in the second pass
+    )

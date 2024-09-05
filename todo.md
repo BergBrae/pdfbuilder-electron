@@ -9,17 +9,15 @@ Add allow specifiying page-level bookmarking rules. Rules are specified on FileT
 - 
 - Write validate_table_entries()
 - Show failure detail in front end when building fails.
-- Create custom accordion that can hold buttons in the header properly.
+- Fill in page end fior table entries
 - Include file-level bookmarks in outline. Should they be selectable for table entries?
 
 ## Issues
 
-- Can't build backend api with pyinstaller in VM
-
 ## Todo Today
 
-- Get email from George
-- Check with Dorrine on paperwork
-- Transfer Data to HD
-- Be able to compile backend in VM
-- Accept Bookmark rules in frontend
+- Finish page-level bookmarks in backend
+- Find a pen?
+- Get a new wii game
+- Fill in page end for table entries
+- Compile and test

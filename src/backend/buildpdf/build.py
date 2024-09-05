@@ -5,6 +5,8 @@ from io import StringIO
 from typing import Optional, Any
 from pydantic import BaseModel
 from buildpdf.convert_docx import convert_docx_template_to_pdf
+from buildpdf.page_level_bookmarks import get_page_level_bookmarks
+from schema import BookmarkItem
 
 
 def get_pdf_and_page_count(file_path):
@@ -29,14 +31,6 @@ def section_has_files(section):
                 return True
     return False
 
-
-class BookmarkItem(BaseModel):
-    title: str
-    page: int
-    parent: Optional["BookmarkItem"] = None
-    outline_element: Optional[Any] = (
-        None  # This is a placeholder for the outline element that will be created in the second pass
-    )
 
 
 def generate_pdf_pass_one(report: dict):
@@ -116,15 +110,25 @@ def generate_pdf_pass_one(report: dict):
                     )
 
                     if file.get("bookmark_name"):
-                        bookmark_data.append(
-                            BookmarkItem(
-                                title=file["bookmark_name"],
-                                page=current_page,
-                                parent=file_type_bookmark,
-                            )
+                        file_bookmark = BookmarkItem(
+                            title=file["bookmark_name"],
+                            page=current_page,
+                            parent=file_type_bookmark,
                         )
+                        bookmark_data.append(file_bookmark)
+                    else:
+                        file_bookmark = file_type_bookmark
 
                     pdf, num_pages = get_pdf_and_page_count(file_path)
+
+                    page_level_bookmarks = get_page_level_bookmarks(
+                        pdf=pdf,
+                        rules=child["bookmark_rules"],
+                        parent_bookmark=file_bookmark,
+                        parent_page_num=current_page,
+                    )
+                    bookmark_data.extend(page_level_bookmarks)
+
                     file_data = {
                         "type": "FileData",
                         "id": file["id"],
