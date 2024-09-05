@@ -27,13 +27,6 @@ export default function BookmarkRules({ fileType, onChange }) {
     }
   };
 
-  const handleHide = () => {
-    // Prevent modal from closing unless validation passes
-    if (validateRules()) {
-      setShow(false);
-    }
-  };
-
   const handleShow = () => {
     setError(''); // Reset any previous error messages when showing the modal
     setShow(true);
@@ -81,7 +74,7 @@ export default function BookmarkRules({ fileType, onChange }) {
         Set Bookmark Rules ({numRules})
       </Button>
 
-      <Modal show={show} size="lg" onHide={handleHide}>
+      <Modal show={show} size="lg" onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>
             Bookmark Rules:{' '}
@@ -148,7 +141,7 @@ export default function BookmarkRules({ fileType, onChange }) {
             onClick={addSpecialRule}
             disabled={specialRuleExists} // Disable if special rule already exists
           >
-            Add Special Rule
+            Add Merit Sample ID Rule
           </Button>
         </Modal.Body>
         <Modal.Footer>
