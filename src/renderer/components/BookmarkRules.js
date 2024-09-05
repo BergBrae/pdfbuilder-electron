@@ -85,7 +85,7 @@ export default function BookmarkRules({ fileType, onChange }) {
           <p>
             These rules are used to set bookmarks on a page level. Consecutive
             pages with the same bookmark will be ignored. These bookmarks will
-            be children of the closest parent.
+            be children of their closest parent.
           </p>
           <hr/>
           {error && <Alert variant="danger">{error}</Alert>}
