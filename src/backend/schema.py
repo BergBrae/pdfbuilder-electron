@@ -45,8 +45,6 @@ class FileData(BaseModel):
 
 
 class BookmarkRule(BaseModel):
-    type: str = Field("BookmarkRule", Literal=True)
-    id: str
     bookmark_name: str
     rule: str  # same logic as FileType.filename_text_to_match except on a pdf's text rather than filename
     # NOTE: if bookmark_name and rule are "SAMPLEID", then Merit Sample IDs are found and bookmarked
