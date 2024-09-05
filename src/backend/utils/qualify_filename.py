@@ -22,7 +22,7 @@ def create_expression(input_string, filename):
     # Function to replace matches with filename.contains(...)
     def replacer(match):
         quote, content, _ = match.groups()
-        return f'{quote}{content}{quote} in r"{filename}"'
+        return f'{quote}{content}{quote} in r"""{filename}"""'
 
     # Replace all occurrences using the replacer function
     output_string = pattern.sub(replacer, input_string)
