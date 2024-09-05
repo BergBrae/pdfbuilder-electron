@@ -9,7 +9,7 @@ export default function BookmarkRules({ fileType, onChange }) {
   const validateRules = () => {
     // Validate all rules before allowing the modal to close
     for (const rule of rules) {
-      if (!rule.rule || !rule.bookmark_name) {
+      if (!rule.isSpecial && (!rule.rule || !rule.bookmark_name)) {
         setError('All fields must be filled out.');
         return false; // Validation failed
       }
@@ -50,12 +50,29 @@ export default function BookmarkRules({ fileType, onChange }) {
     setRules(newRules);
   };
 
+  const addSpecialRule = () => {
+    // Add the special rule with static values
+    const specialRule = {
+      bookmark_name: 'SAMPLEID',
+      rule: 'SAMPLEID',
+      isSpecial: true,
+    };
+    setRules([...rules, specialRule]);
+  };
+
   const deleteRule = (index) => {
     const newRules = rules.filter((_, i) => i !== index);
     setRules(newRules);
   };
 
+  // Check if the special rule is already present
+  const specialRuleExists = rules.some((rule) => rule.isSpecial);
+
   const numRules = rules.length;
+
+  // Separate normal rules and special rule
+  const normalRules = rules.filter((rule) => !rule.isSpecial);
+  const specialRule = rules.find((rule) => rule.isSpecial);
 
   return (
     <>
@@ -69,11 +86,9 @@ export default function BookmarkRules({ fileType, onChange }) {
       </Button>
 
       <Modal show={show} size="lg" onHide={handleHide}>
-        {' '}
-        {/* Use handleHide here */}
         <Modal.Header closeButton>
           <Modal.Title>
-            Bookmark Rules:{' '}
+            Page-Level Bookmark Rules:{' '}
             {fileType.bookmark_name ? fileType.bookmark_name : ''}
           </Modal.Title>
         </Modal.Header>
@@ -83,9 +98,9 @@ export default function BookmarkRules({ fileType, onChange }) {
             pages with the same bookmark will be ignored. These bookmarks will
             be children of the closest parent.
           </p>
-          {error && <Alert variant="danger">{error}</Alert>}{' '}
-          {/* Error message display */}
-          {rules.map((rule, index) => (
+          {error && <Alert variant="danger">{error}</Alert>}
+
+          {normalRules.map((rule, index) => (
             <Row key={index} className="mb-3">
               <Col>
                 <Form.Control
@@ -114,8 +129,38 @@ export default function BookmarkRules({ fileType, onChange }) {
               </Col>
             </Row>
           ))}
+
+          {/* Display special rule last, if it exists */}
+          {specialRule && (
+            <Row key="special-rule" className="mb-3">
+              <Col>
+                <Form.Control
+                  plaintext
+                  readOnly
+                  defaultValue="When a page includes a Merit Sample ID, bookmark as the Sample ID"
+                />
+              </Col>
+              <Col xs="auto">
+                <Button
+                  variant="danger"
+                  onClick={() => deleteRule(rules.indexOf(specialRule))}
+                >
+                  Delete
+                </Button>
+              </Col>
+            </Row>
+          )}
+
           <Button variant="success" onClick={addRule}>
             Add Rule
+          </Button>
+          <Button
+            variant="info"
+            className="ms-2"
+            onClick={addSpecialRule}
+            disabled={specialRuleExists} // Disable if special rule already exists
+          >
+            Add Merit Sample ID Bookmarks
           </Button>
         </Modal.Body>
         <Modal.Footer>
