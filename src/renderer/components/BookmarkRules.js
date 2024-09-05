@@ -27,6 +27,13 @@ export default function BookmarkRules({ fileType, onChange }) {
     }
   };
 
+  const handleHide = () => {
+    // Prevent modal from closing unless validation passes
+    if (validateRules()) {
+      setShow(false);
+    }
+  };
+
   const handleShow = () => {
     setError(''); // Reset any previous error messages when showing the modal
     setShow(true);
@@ -63,10 +70,6 @@ export default function BookmarkRules({ fileType, onChange }) {
 
   const numRules = rules.length;
 
-  // Separate normal rules and special rule
-  const normalRules = rules.filter((rule) => !rule.isSpecial);
-  const specialRule = rules.find((rule) => rule.isSpecial);
-
   return (
     <>
       <Button
@@ -78,10 +81,10 @@ export default function BookmarkRules({ fileType, onChange }) {
         Set Bookmark Rules ({numRules})
       </Button>
 
-      <Modal show={show} size="lg" onHide={handleClose}>
+      <Modal show={show} size="lg" onHide={handleHide}>
         <Modal.Header closeButton>
           <Modal.Title>
-            Page-Level Bookmark Rules:{' '}
+            Bookmark Rules:{' '}
             {fileType.bookmark_name ? fileType.bookmark_name : ''}
           </Modal.Title>
         </Modal.Header>
@@ -91,30 +94,43 @@ export default function BookmarkRules({ fileType, onChange }) {
             pages with the same bookmark will be ignored. These bookmarks will
             be children of the closest parent.
           </p>
+          <hr/>
           {error && <Alert variant="danger">{error}</Alert>}
 
-          {normalRules.map((rule, index) => (
+          {rules.map((rule, index) => (
             <Row key={index} className="mb-3">
-              <Col>
-                <Form.Control
-                  type="text"
-                  placeholder="If page includes..."
-                  value={rule.rule}
-                  onChange={(e) =>
-                    handleRuleChange(index, 'rule', e.target.value)
-                  }
-                />
-              </Col>
-              <Col>
-                <Form.Control
-                  type="text"
-                  placeholder="Bookmark as..."
-                  value={rule.bookmark_name}
-                  onChange={(e) =>
-                    handleRuleChange(index, 'bookmark_name', e.target.value)
-                  }
-                />
-              </Col>
+              {rule.isSpecial ? (
+                <Col>
+                  <Form.Control
+                    plaintext
+                    readOnly
+                    defaultValue="When a page includes a Merit Sample ID, bookmark as the Sample ID"
+                  />
+                </Col>
+              ) : (
+                <>
+                  <Col>
+                    <Form.Control
+                      type="text"
+                      placeholder="If page includes..."
+                      value={rule.rule}
+                      onChange={(e) =>
+                        handleRuleChange(index, 'rule', e.target.value)
+                      }
+                    />
+                  </Col>
+                  <Col>
+                    <Form.Control
+                      type="text"
+                      placeholder="Bookmark as..."
+                      value={rule.bookmark_name}
+                      onChange={(e) =>
+                        handleRuleChange(index, 'bookmark_name', e.target.value)
+                      }
+                    />
+                  </Col>
+                </>
+              )}
               <Col xs="auto">
                 <Button variant="danger" onClick={() => deleteRule(index)}>
                   Delete
@@ -122,27 +138,6 @@ export default function BookmarkRules({ fileType, onChange }) {
               </Col>
             </Row>
           ))}
-
-          {/* Display special rule last, if it exists */}
-          {specialRule && (
-            <Row key="special-rule" className="mb-3">
-              <Col>
-                <Form.Control
-                  plaintext
-                  readOnly
-                  defaultValue="When a page includes a Merit Sample ID, bookmark as the Sample ID"
-                />
-              </Col>
-              <Col xs="auto">
-                <Button
-                  variant="danger"
-                  onClick={() => deleteRule(rules.indexOf(specialRule))}
-                >
-                  Delete
-                </Button>
-              </Col>
-            </Row>
-          )}
 
           <Button variant="success" onClick={addRule}>
             Add Rule
@@ -153,7 +148,7 @@ export default function BookmarkRules({ fileType, onChange }) {
             onClick={addSpecialRule}
             disabled={specialRuleExists} // Disable if special rule already exists
           >
-            Add Merit Sample ID Bookmarks
+            Add Special Rule
           </Button>
         </Modal.Body>
         <Modal.Footer>
