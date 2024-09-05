@@ -28,34 +28,32 @@ function Section({
     const updatedVariables = [];
 
     for (const child of section.children) {
-      if (child) {
-        if (child.variables_in_doc) {
-          for (const templateText of child.variables_in_doc) {
-            if (
-              !currentTemplateTexts.includes(templateText) &&
-              !updatedVariables
-                .map((variable) => variable.template_text)
-                .includes(templateText)
-            ) {
-              // Then it is a new variable
-              updatedVariables.push({
-                template_text: templateText,
-                is_constant: true,
-                constant_value: '',
-                id: uuidv4(),
-              });
-            } else if (
-              !updatedVariables
-                .map((variable) => variable.template_text)
-                .includes(templateText)
-            ) {
-              // existing variable
-              updatedVariables.push(
-                section.variables.find(
-                  (variable) => variable.template_text === templateText,
-                ),
-              );
-            }
+      if (child.variables_in_doc) {
+        for (const templateText of child.variables_in_doc) {
+          if (
+            !currentTemplateTexts.includes(templateText) &&
+            !updatedVariables
+              .map((variable) => variable.template_text)
+              .includes(templateText)
+          ) {
+            // Then it is a new variable
+            updatedVariables.push({
+              template_text: templateText,
+              is_constant: true,
+              constant_value: '',
+              id: uuidv4(),
+            });
+          } else if (
+            !updatedVariables
+              .map((variable) => variable.template_text)
+              .includes(templateText)
+          ) {
+            // existing variable
+            updatedVariables.push(
+              section.variables.find(
+                (variable) => variable.template_text === templateText,
+              ),
+            );
           }
         }
       }
