@@ -36,7 +36,7 @@ def generate_pdf_pass_one(report: dict):
 
     writer_data = []
     bookmark_data = []
-    current_page = 0
+    current_page = 1
 
     def build_pdf_data(section, base_directory="./", root_bookmark=None):
         nonlocal current_page
@@ -49,7 +49,7 @@ def generate_pdf_pass_one(report: dict):
                 title=section["bookmark_name"],
                 page=current_page,
                 parent=root_bookmark,
-                id=section["id"],
+                id=section["id"] if section.get("id") else "root",
             )
             bookmark_data.append(root_bookmark)
 
@@ -172,7 +172,9 @@ def compose_pdf(writer_data: dict, bookmark_data: list[BookmarkItem]) -> PdfWrit
                 table_entries = {}
                 if data["table_entries"]:
                     for entry_name, entry_id in data["table_entries"]:
-                        table_entries[entry_name] = id_to_page_start_and_end.get(entry_id, ("", ""))
+                        table_entries[entry_name] = id_to_page_start_and_end.get(
+                            entry_id, ("", "")
+                        )
                 else:
                     table_entries = {}
                 pdf, _ = convert_docx_template_to_pdf(
@@ -199,7 +201,7 @@ def add_bookmarks(writer: PdfWriter, bookmarks: list[BookmarkItem]):
         else:
             parent = None
         bookmark.outline_element = writer.add_outline_item(
-            bookmark.title, bookmark.page, parent
+            bookmark.title, bookmark.page - 1, parent  # -1 because PyPDF2 is 0-indexed
         )
     return writer
 
@@ -208,10 +210,8 @@ def add_page_end_to_bookmarks(bookmark_data: list[BookmarkItem]):
     for i in range(len(bookmark_data)):
         for j in range(i + 1, len(bookmark_data)):
             if bookmark_data[i].parent == bookmark_data[j].parent:
-                bookmark_data[i].page_end = bookmark_data[j].page
+                bookmark_data[i].page_end = bookmark_data[j].page - 1
                 break
-        if not bookmark_data[i].page_end:
-            bookmark_data[i].page_end = bookmark_data[-1].page
     return bookmark_data
 
 
