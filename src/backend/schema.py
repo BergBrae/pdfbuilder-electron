@@ -79,6 +79,8 @@ class Section(BaseModel):
 class BookmarkItem(BaseModel):
     title: str
     page: int
+    id: str
+    page_end: Optional[int] = None
     parent: Optional["BookmarkItem"] = None
     outline_element: Optional[Any] = (
         None  # This is a placeholder for the outline element that will be created in the second pass

@@ -32,7 +32,6 @@ def section_has_files(section):
     return False
 
 
-
 def generate_pdf_pass_one(report: dict):
 
     writer_data = []
@@ -47,7 +46,10 @@ def generate_pdf_pass_one(report: dict):
         base_directory = os.path.normpath(base_directory)
         if section.get("bookmark_name") and section_has_files(section):
             root_bookmark = BookmarkItem(
-                title=section["bookmark_name"], page=current_page, parent=root_bookmark
+                title=section["bookmark_name"],
+                page=current_page,
+                parent=root_bookmark,
+                id=section["id"],
             )
             bookmark_data.append(root_bookmark)
 
@@ -59,6 +61,7 @@ def generate_pdf_pass_one(report: dict):
                             title=child["bookmark_name"],
                             page=current_page,
                             parent=root_bookmark,
+                            id=child["id"],
                         )
                     )
 
@@ -89,6 +92,7 @@ def generate_pdf_pass_one(report: dict):
                         title=child["bookmark_name"],
                         page=current_page,
                         parent=root_bookmark,
+                        id=child["id"],
                     )
                     bookmark_data.append(file_type_bookmark)
                 else:
@@ -114,6 +118,7 @@ def generate_pdf_pass_one(report: dict):
                             title=file["bookmark_name"],
                             page=current_page,
                             parent=file_type_bookmark,
+                            id=file["id"],
                         )
                         bookmark_data.append(file_bookmark)
                     else:
@@ -153,21 +158,21 @@ def generate_pdf_pass_one(report: dict):
     return writer_data, bookmark_data
 
 
-def compose_pdf(writer_data: dict) -> PdfWriter:
+def compose_pdf(writer_data: dict, bookmark_data: list[BookmarkItem]) -> PdfWriter:
     writer = PdfWriter()
-    id_to_page_start = {
-        data["id"]: data["page_start"] + 1 for data in writer_data
+    id_to_page_start_and_end = {
+        bookmark.id: (bookmark.page, bookmark.page_end) for bookmark in bookmark_data
     }  # sections are not included in this mapping
 
     def compose_pdf_inner(writer_data):
         nonlocal writer
-        nonlocal id_to_page_start
+        nonlocal id_to_page_start_and_end
         for data in writer_data:
             if data["type"] == "docxTemplate":
                 table_entries = {}
                 if data["table_entries"]:
                     for entry_name, entry_id in data["table_entries"]:
-                        table_entries[entry_name] = id_to_page_start.get(entry_id)
+                        table_entries[entry_name] = id_to_page_start_and_end.get(entry_id, ("", ""))
                 else:
                     table_entries = {}
                 pdf, _ = convert_docx_template_to_pdf(
@@ -187,7 +192,7 @@ def compose_pdf(writer_data: dict) -> PdfWriter:
     return writer
 
 
-def add_bookmarks(writer: PdfWriter, bookmarks: list):
+def add_bookmarks(writer: PdfWriter, bookmarks: list[BookmarkItem]):
     for bookmark in bookmarks:
         if bookmark.parent:
             parent = bookmark.parent.outline_element
@@ -199,10 +204,22 @@ def add_bookmarks(writer: PdfWriter, bookmarks: list):
     return writer
 
 
+def add_page_end_to_bookmarks(bookmark_data: list[BookmarkItem]):
+    for i in range(len(bookmark_data)):
+        for j in range(i + 1, len(bookmark_data)):
+            if bookmark_data[i].parent == bookmark_data[j].parent:
+                bookmark_data[i].page_end = bookmark_data[j].page
+                break
+        if not bookmark_data[i].page_end:
+            bookmark_data[i].page_end = bookmark_data[-1].page
+    return bookmark_data
+
+
 def generate_pdf(report: dict, output_path: str):
     writer_data, bookmark_data = generate_pdf_pass_one(report)
+    bookmark_data = add_page_end_to_bookmarks(bookmark_data)
     print("Pass one complete. Files are staged for processing. Processing files...")
-    writer = compose_pdf(writer_data)
+    writer = compose_pdf(writer_data, bookmark_data)
     print("Pass two complete. Adding bookmarks...")
     writer = add_bookmarks(writer, bookmark_data)
     print("Bookmarks added. Saving PDF...")

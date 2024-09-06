@@ -46,8 +46,8 @@ def update_table_of_contents(docx_path, table_entries, page_start_col, page_end_
     for i in range(num_rows):
         entry = TableEntry(table, i, page_start_col, page_end_col)
         if entry.name in table_entries:
-            entry.set_page_start(table_entries[entry.name])
-            entry.set_page_end("")
+            entry.set_page_start(table_entries[entry.name][0])
+            entry.set_page_end(table_entries[entry.name][1])
     new_docx_path = docx_path.replace(".docx", "_updated_toc.docx")
     doc.save(new_docx_path)
     return new_docx_path
