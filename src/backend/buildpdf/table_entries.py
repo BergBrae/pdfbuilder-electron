@@ -38,7 +38,10 @@ def set_cell_text(cell, text):
     Use the formatting of the first run. Delete all other runs.
     """
     paragraph = cell.paragraphs[0]
-    paragraph.runs[0].text = str(text) if text else ""
+    try:
+        paragraph.runs[0].text = str(text) if text else ""
+    except IndexError:
+        paragraph.add_run(str(text) if text else "")
 
     if len(paragraph.runs) > 1:
         for run in paragraph.runs[1:]:
