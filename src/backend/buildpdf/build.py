@@ -163,10 +163,12 @@ def compose_pdf(writer_data: dict, bookmark_data: list[BookmarkItem]) -> PdfWrit
     id_to_page_start_and_end = {
         bookmark.id: (bookmark.page, bookmark.page_end) for bookmark in bookmark_data
     }  # sections are not included in this mapping
+    total_pages = sum([d.get("num_pages", 0) for d in writer_data])
 
     def compose_pdf_inner(writer_data):
         nonlocal writer
         nonlocal id_to_page_start_and_end
+        nonlocal total_pages
         for data in writer_data:
             if data["type"] == "docxTemplate":
                 table_entries = {}
@@ -183,6 +185,7 @@ def compose_pdf(writer_data: dict, bookmark_data: list[BookmarkItem]) -> PdfWrit
                     table_entries=table_entries,
                     page_start_col=data["page_start_col"],
                     page_end_col=data["page_end_col"],
+                    total_pages=total_pages,
                 )
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
@@ -212,6 +215,10 @@ def add_page_end_to_bookmarks(bookmark_data: list[BookmarkItem]):
             if bookmark_data[i].parent == bookmark_data[j].parent:
                 bookmark_data[i].page_end = bookmark_data[j].page - 1
                 break
+
+            bookmark_data[i].page_end = (
+                -1
+            )  # signifies that the bookmark goes to the end of the document
     return bookmark_data
 
 
