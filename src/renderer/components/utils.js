@@ -27,8 +27,13 @@ export const setFlags = (report) => {
   const newReport = { ...report, needs_update: true };
   for (let i = 0; i < newReport.children.length; i++) {
     newReport.children[i].needs_update = true;
+    if (newReport.children[i].files) {
+      newReport.children[i].files = [];
+    }
     if (newReport.children[i].type === 'Section') {
       newReport.children[i] = setFlags(newReport.children[i]);
+    } else {
+      newReport.children[i].exists = false;
     }
   }
   return newReport;
