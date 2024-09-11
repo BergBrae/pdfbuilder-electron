@@ -2,6 +2,7 @@ from PyPDF2 import PdfReader
 from schema import BookmarkItem
 from utils.qualify_filename import qualify_filename
 import re
+import uuid
 
 
 def remove_consecutive_bookmarks(bookmarks):
@@ -19,7 +20,7 @@ def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
     for page in range(len(pdf.pages)):
         text = pdf.pages[page].extract_text()
         for rule in rules:
-            if rule["rule"] == "SAMPLEID" == rule["bookmark_name"]:
+            if (rule["rule"] == "SAMPLEID") and (rule["bookmark_name"] == "SAMPLEID"):
                 expression = re.compile(r"S\d{5}\.\d{2}")
                 match = expression.search(text)
                 if match:
@@ -27,6 +28,7 @@ def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
                         title=match.group(),
                         page=parent_page_num + page,
                         parent=parent_bookmark,
+                        id=str(uuid.uuid4()),
                     )
                     bookmarks.append(bookmark)
             elif qualify_filename(rule["rule"], text):
@@ -34,6 +36,7 @@ def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
                     title=rule["bookmark_name"],
                     page=parent_page_num + page,
                     parent=parent_bookmark,
+                    id=str(uuid.uuid4()),
                 )
                 bookmarks.append(bookmark)
 
