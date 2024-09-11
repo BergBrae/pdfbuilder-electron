@@ -36,6 +36,7 @@ function App() {
   const [showBuildModal, setShowBuildModal] = useState(false); // New state for build modal
   const [buildStatus, setBuildStatus] = useState(''); // New state for build status
   const [zoom, setZoom] = useState(1); // New state for zoom level
+  const [error, setError] = useState(null);
 
   const handleSectionChange = (newSection) => {
     setReport(newSection);
@@ -77,9 +78,16 @@ function App() {
           },
         );
         const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
         setBuiltPDF(data);
         setBuildStatus('success'); // Set status to success
-      } catch (error) {
+      } catch (error_object) {
+        console.error(error_object);
+        setError(error_object);
         setBuildStatus('failure'); // Set status to failure
       } finally {
         setIsLoading(false);
@@ -162,7 +170,7 @@ function App() {
           ) : buildStatus === 'success' ? (
             <p>PDF built successfully!</p>
           ) : buildStatus === 'failure' ? (
-            <p>Failed to build PDF. Please try again.</p>
+            <p>{error.message}</p>
           ) : null}
         </Modal.Body>
         <Modal.Footer>
