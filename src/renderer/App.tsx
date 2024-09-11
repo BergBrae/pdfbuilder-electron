@@ -229,7 +229,7 @@ function App() {
               report={report}
             />
           </div>
-          <pre>{JSON.stringify(report, null, 2)}</pre>
+          {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
         </Col>
       </Row>
     </Container>
