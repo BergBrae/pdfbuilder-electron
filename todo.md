@@ -1,23 +1,26 @@
 # TODO
 
-Add allow specifiying page-level bookmarking rules. Rules are specified on FileType level. Consecutive pages with the same bookmark have [1:] removed.
-
-- if bookmarking rules are specified but File-level bookmarks are turned off, the page-level bookmarks' parent should be that of the FileType.
-- Auto-fill docx-templates with data from analytical report
-
-  - Remove page number toggle and update schema to not use page nums in variables. Use table method instead.
-- 
 - Write validate_table_entries()
-- Show failure detail in front end when building fails.
-- Fill in page end fior table entries
-- Include file-level bookmarks in outline. Should they be selectable for table entries?
+- Fix table entries build in ICF report
 
 ## Issues
 
-## Todo Today
+- Two table entries cannot have the same name.
+- Debug and fix Patrick's ICF tepmplate. Builds fine when there are no table entries, but fails when there are.
+- When loading template that has SAMPLEID special rule, it does not show as the special rule.
 
-- Finish page-level bookmarks in backend
-- Find a pen?
-- Get a new wii game
-- Fill in page end for table entries
-- Compile and test
+
+### Commits to do from meeting on 9/19
+
+[Meeting Notes](https://docs.google.com/document/d/1KNUOfTx2cZitwFIFhohV-zp3E4agBitj4SXuCxOgKug/edit?pli=1 "Google Docs")
+
+- Update merit ID special bookmark rule.
+  - “########.d" bookmark as " S#####.##**.
+  - not "Report Id: S#####.##".
+- Allow PDF to build when a section's base directory is not present.
+  - e.g. There is no PFAS folder but there is a PFAS section.
+- Build table of contents from the outline.
+  - i.e. when a section does not exist it should not be in the table of contents.
+- Rearrange metals form 1 by sort(SampleID, file).
+  - Meaning the files will be interwoven, where each change in sample ID is a breakable point.
+- Update Help Section
