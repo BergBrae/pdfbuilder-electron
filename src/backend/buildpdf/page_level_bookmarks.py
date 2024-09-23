@@ -32,7 +32,9 @@ def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
         text = convert_sample_id_forms(text)
         for rule in rules:
             if (rule["rule"] == "SAMPLEID") and (rule["bookmark_name"] == "SAMPLEID"):
-                expression = re.compile(r"S\d{5}\.\d{2}")
+                expression = re.compile(
+                    r"(?<!(Report Id: ))(S\d{5}\.\d{2})"
+                )  # Negative lookbehind to exclude "Report Id: S12345.67"
                 match = expression.search(text)
                 if match:
                     bookmark = BookmarkItem(
