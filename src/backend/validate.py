@@ -6,8 +6,6 @@ import glob
 
 def validate_paths(report, cwd="/"):
     base_directory = os.path.join(cwd, report["base_directory"])
-    if not os.path.isdir(base_directory):
-        return f"Error: base_directory ({base_directory}) is not a directory in section {report['bookmark_name']}"
 
     for child in report["children"]:
         if child["type"] == "DocxTemplate":
@@ -77,6 +75,7 @@ def validate_page_numbers(report):
                 page_numbers_ended = True
 
     return True
+
 
 def validate_table_entries(report):
     return True

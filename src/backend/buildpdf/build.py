@@ -44,6 +44,14 @@ def generate_pdf_pass_one(report: dict):
         nonlocal bookmark_data
         base_directory = os.path.join(base_directory, section["base_directory"])
         base_directory = os.path.normpath(base_directory)
+
+        # Add a check to see if the base_directory exists
+        if not os.path.exists(base_directory):
+            print(
+                f"Directory {base_directory} does not exist. Skipping section {section.get('id', '')}"
+            )
+            return  # Skip this section if the directory does not exist
+
         if section.get("bookmark_name") and section_has_files(section):
             root_bookmark = BookmarkItem(
                 title=section["bookmark_name"],
