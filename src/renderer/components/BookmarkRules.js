@@ -9,7 +9,10 @@ export default function BookmarkRules({ fileType, onChange }) {
   const validateRules = () => {
     // Validate all rules before allowing the modal to close
     for (const rule of rules) {
-      if (!rule.isSpecial && (!rule.rule || !rule.bookmark_name)) {
+      const isSpecial =
+        rule.isSpecial ||
+        (rule.bookmark_name === 'SAMPLEID' && rule.rule === 'SAMPLEID');
+      if (!isSpecial && (!rule.rule || !rule.bookmark_name)) {
         setError('All fields must be filled out.');
         return false; // Validation failed
       }
@@ -29,6 +32,7 @@ export default function BookmarkRules({ fileType, onChange }) {
 
   const handleShow = () => {
     setError(''); // Reset any previous error messages when showing the modal
+    setRules(fileType.bookmark_rules || []);
     setShow(true);
   };
 
@@ -59,7 +63,11 @@ export default function BookmarkRules({ fileType, onChange }) {
   };
 
   // Check if the special rule is already present
-  const specialRuleExists = rules.some((rule) => rule.isSpecial);
+  const specialRuleExists = rules.some(
+    (rule) =>
+      rule.isSpecial ||
+      (rule.bookmark_name === 'SAMPLEID' && rule.rule === 'SAMPLEID'),
+  );
 
   const numRules = rules.length;
 
@@ -87,50 +95,59 @@ export default function BookmarkRules({ fileType, onChange }) {
             pages with the same bookmark will be ignored. These bookmarks will
             be children of their closest parent.
           </p>
-          <hr/>
+          <hr />
           {error && <Alert variant="danger">{error}</Alert>}
 
-          {rules.map((rule, index) => (
-            <Row key={index} className="mb-3">
-              {rule.isSpecial ? (
-                <Col>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    defaultValue="When a page includes a Merit Sample ID, bookmark as the Sample ID"
-                  />
+          {rules.map((rule, index) => {
+            const isSpecial =
+              rule.isSpecial ||
+              (rule.bookmark_name === 'SAMPLEID' && rule.rule === 'SAMPLEID');
+            return (
+              <Row key={index} className="mb-3">
+                {isSpecial ? (
+                  <Col>
+                    <Form.Control
+                      plaintext
+                      readOnly
+                      defaultValue="When a page includes a Merit Sample ID, bookmark as the Sample ID"
+                    />
+                  </Col>
+                ) : (
+                  <>
+                    <Col>
+                      <Form.Control
+                        type="text"
+                        placeholder="If page includes..."
+                        value={rule.rule}
+                        onChange={(e) =>
+                          handleRuleChange(index, 'rule', e.target.value)
+                        }
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Control
+                        type="text"
+                        placeholder="Bookmark as..."
+                        value={rule.bookmark_name}
+                        onChange={(e) =>
+                          handleRuleChange(
+                            index,
+                            'bookmark_name',
+                            e.target.value,
+                          )
+                        }
+                      />
+                    </Col>
+                  </>
+                )}
+                <Col xs="auto">
+                  <Button variant="danger" onClick={() => deleteRule(index)}>
+                    Delete
+                  </Button>
                 </Col>
-              ) : (
-                <>
-                  <Col>
-                    <Form.Control
-                      type="text"
-                      placeholder="If page includes..."
-                      value={rule.rule}
-                      onChange={(e) =>
-                        handleRuleChange(index, 'rule', e.target.value)
-                      }
-                    />
-                  </Col>
-                  <Col>
-                    <Form.Control
-                      type="text"
-                      placeholder="Bookmark as..."
-                      value={rule.bookmark_name}
-                      onChange={(e) =>
-                        handleRuleChange(index, 'bookmark_name', e.target.value)
-                      }
-                    />
-                  </Col>
-                </>
-              )}
-              <Col xs="auto">
-                <Button variant="danger" onClick={() => deleteRule(index)}>
-                  Delete
-                </Button>
-              </Col>
-            </Row>
-          ))}
+              </Row>
+            );
+          })}
 
           <Button variant="success" onClick={addRule}>
             Add Rule
