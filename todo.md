@@ -19,15 +19,12 @@
   - Meaning the files will be interwoven, where each change in sample ID is a breakable point.
 - Update Help Section
 
-
 # Todo Today
 
-
-- Update merit ID special bookmark rule.
-  - “########.d" bookmark as " S#####.##**.
-  - not "Report Id: S#####.##".
-- Allow PDF to build when a section's base directory is not present.
-  - e.g. There is no PFAS folder but there is a PFAS section.
-- When loading template with special rule, fix showing as merit special rule.
-- Send Email to May asking for a time to meet
 - remove auto update function
+
+# Need to test
+
+- ########.d" bookmark as " S#####.##**
+- "Report Id: S#####.##"
+- Somewhat tested: allow section's base dir to be missing.
