@@ -31,10 +31,12 @@ const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], { stdio: 'pipe' });
 // Pipe stdout and stderr to the log file
 exeProcess.stdout.on('data', (data) => {
   logFile.write(`stdout: ${data}\n`);
+  console.log(`stdout: ${data}`);
 });
 
 exeProcess.stderr.on('data', (data) => {
   logFile.write(`stderr: ${data}\n`);
+  console.log(`stderr: ${data}`);
 });
 
 exeProcess.on('close', (code) => {
