@@ -6,8 +6,7 @@
 ## Issues
 
 - Two table entries cannot have the same name.
-- Debug and fix Patrick's ICF tepmplate. Builds fine when there are no table entries, but fails when there are.
-- When loading template that has SAMPLEID special rule, it does not show as the special rule.
+- Debug and fix Patrick's ICF tepmplate. Builds fine when t here are no table entries, but fails when there are.
 
 ### Commits to do from meeting on 9/19
 
@@ -21,7 +20,11 @@
 
 # Todo Today
 
-- remove auto update function
+- Rearrange metals form 1 by sort(sampleID, file)
+
+  - See already made reports for example
+- Update help section
+- Check in with May
 
 # Need to test
 
