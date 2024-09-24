@@ -18,7 +18,7 @@ def remove_consecutive_bookmarks(bookmarks):
 def convert_sample_id_forms(text):
     # In some of the socuments, the sample id is listed as 1234567.d instead of S12345.01
     # This function converts the sample id to the correct format
-    pattern = r"\d{7}\.d"
+    pattern = r"\b\d{7}\.d\b"
     matches = re.findall(pattern, text)
     for match in matches:
         text = text.replace(match, f"S{match[:5]}.{match[5:7]}")
@@ -33,12 +33,14 @@ def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
         for rule in rules:
             if (rule["rule"] == "SAMPLEID") and (rule["bookmark_name"] == "SAMPLEID"):
                 expression = re.compile(
-                    r"(?<!(Report Id: ))(S\d{5}\.\d{2})"
+                    r"(?<!-)(?<!Report ID: )(S\d{5}\.\d{2})(?!-)"
                 )  # Negative lookbehind to exclude "Report Id: S12345.67"
-                match = expression.search(text)
-                if match:
+                matches = expression.findall(text)
+                if (
+                    matches and len(set(matches)) == 1
+                ):  # Ensure all matches are the same
                     bookmark = BookmarkItem(
-                        title=match.group(),
+                        title=matches[0],
                         page=parent_page_num + page,
                         parent=parent_bookmark,
                         id=str(uuid.uuid4()),
