@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from buildpdf.convert_docx import convert_docx_template_to_pdf
 from buildpdf.page_level_bookmarks import get_page_level_bookmarks
 from schema import BookmarkItem
+from utils.reorder_metals_form1 import reorder_metals_form1
 
 
 def get_pdf_and_page_count(file_path):
@@ -30,6 +31,118 @@ def section_has_files(section):
             if section_has_files(child):
                 return True
     return False
+
+
+def process_file_type_without_reorder(
+    child, base_directory, root_bookmark, current_page, writer_data, bookmark_data
+):
+    if child["bookmark_name"] and child["files"]:
+        file_type_bookmark = BookmarkItem(
+            title=child["bookmark_name"],
+            page=current_page,
+            parent=root_bookmark,
+            id=child["id"],
+        )
+        bookmark_data.append(file_type_bookmark)
+    else:
+        file_type_bookmark = root_bookmark
+
+    directory_source = os.path.normpath(
+        os.path.join(base_directory, child["directory_source"])
+    )
+    file_type_data = {
+        "type": "FileType",
+        "id": child["id"],
+        "directory_source": directory_source,
+        "page_start": current_page,
+    }
+    writer_data.append(file_type_data)
+    for file in child["files"]:
+        file_path = os.path.normpath(os.path.join(directory_source, file["file_path"]))
+
+        if file.get("bookmark_name"):
+            file_bookmark = BookmarkItem(
+                title=file["bookmark_name"],
+                page=current_page,
+                parent=file_type_bookmark,
+                id=file["id"],
+            )
+            bookmark_data.append(file_bookmark)
+        else:
+            file_bookmark = file_type_bookmark
+
+        pdf, num_pages = get_pdf_and_page_count(file_path)
+
+        page_level_bookmarks = get_page_level_bookmarks(
+            pdf=pdf,
+            rules=child["bookmark_rules"],
+            parent_bookmark=file_bookmark,
+            parent_page_num=current_page,
+            reorder_pages=child.get("reorder_pages", False),
+        )
+        bookmark_data.extend(page_level_bookmarks)
+
+        file_data = {
+            "type": "FileData",
+            "id": file["id"],
+            "path": file_path,
+            "num_pages": num_pages,
+            "pdf": pdf,
+            "page_start": current_page,
+        }
+        writer_data.append(file_data)
+        current_page += num_pages
+
+    return current_page, writer_data, bookmark_data
+
+
+def process_file_type_with_reorder(
+    child, base_directory, root_bookmark, current_page, writer_data, bookmark_data
+):
+    if child["bookmark_name"] and child["files"]:
+        file_type_bookmark = BookmarkItem(
+            title=child["bookmark_name"],
+            page=current_page,
+            parent=root_bookmark,
+            id=child["id"],
+        )
+        bookmark_data.append(file_type_bookmark)
+    else:
+        file_type_bookmark = root_bookmark
+
+    directory_source = os.path.normpath(
+        os.path.join(base_directory, child["directory_source"])
+    )
+    file_type_data = {
+        "type": "FileType",
+        "id": child["id"],
+        "directory_source": directory_source,
+        "page_start": current_page,
+    }
+    writer_data.append(file_type_data)
+
+    pdf, num_pages = reorder_metals_form1(child["files"])
+
+    page_level_bookmarks = get_page_level_bookmarks(
+        pdf=pdf,
+        rules=child["bookmark_rules"],
+        parent_bookmark=file_type_bookmark,
+        parent_page_num=current_page,
+    )
+    bookmark_data.extend(page_level_bookmarks)
+
+    file_data = {
+        "type": "FileData",
+        "id": child["id"],
+        "path": "None - Reordered",
+        "num_pages": num_pages,
+        "pdf": pdf,
+        "page_start": current_page,
+    }
+    writer_data.append(file_data)
+    current_page += num_pages
+
+    return current_page, writer_data, bookmark_data
 
 
 def generate_pdf_pass_one(report: dict):
@@ -95,64 +208,29 @@ def generate_pdf_pass_one(report: dict):
                     current_page += num_pages
 
             if child["type"] == "FileType":
-                if child["bookmark_name"] and child["files"]:
-                    file_type_bookmark = BookmarkItem(
-                        title=child["bookmark_name"],
-                        page=current_page,
-                        parent=root_bookmark,
-                        id=child["id"],
-                    )
-                    bookmark_data.append(file_type_bookmark)
-                else:
-                    file_type_bookmark = root_bookmark
-
-                directory_source = os.path.normpath(
-                    os.path.join(base_directory, child["directory_source"])
-                )
-                file_type_data = {
-                    "type": "FileType",
-                    "id": child["id"],
-                    "directory_source": directory_source,
-                    "page_start": current_page,
-                }
-                writer_data.append(file_type_data)
-                for file in child["files"]:
-                    file_path = os.path.normpath(
-                        os.path.join(directory_source, file["file_path"])
-                    )
-
-                    if file.get("bookmark_name"):
-                        file_bookmark = BookmarkItem(
-                            title=file["bookmark_name"],
-                            page=current_page,
-                            parent=file_type_bookmark,
-                            id=file["id"],
+                # here we need to reorder the pages if child["reorder_pages"] is true
+                if not child["reorder_pages"]:
+                    current_page, writer_data, bookmark_data = (
+                        process_file_type_without_reorder(
+                            child,
+                            base_directory,
+                            root_bookmark,
+                            current_page,
+                            writer_data,
+                            bookmark_data,
                         )
-                        bookmark_data.append(file_bookmark)
-                    else:
-                        file_bookmark = file_type_bookmark
-
-                    pdf, num_pages = get_pdf_and_page_count(file_path)
-
-                    page_level_bookmarks = get_page_level_bookmarks(
-                        pdf=pdf,
-                        rules=child["bookmark_rules"],
-                        parent_bookmark=file_bookmark,
-                        parent_page_num=current_page,
-                        reorder_pages=child.get("reorder_pages", False),
                     )
-                    bookmark_data.extend(page_level_bookmarks)
-
-                    file_data = {
-                        "type": "FileData",
-                        "id": file["id"],
-                        "path": file_path,
-                        "num_pages": num_pages,
-                        "pdf": pdf,
-                        "page_start": current_page,
-                    }
-                    writer_data.append(file_data)
-                    current_page += num_pages
+                else:
+                    current_page, writer_data, bookmark_data = (
+                        process_file_type_with_reorder(
+                            child,
+                            base_directory,
+                            root_bookmark,
+                            current_page,
+                            writer_data,
+                            bookmark_data,
+                        )
+                    )
 
             if child["type"] == "Section":
                 section_data = {
