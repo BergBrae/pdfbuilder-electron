@@ -135,7 +135,8 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     type="switch"
                     id="page-numbers-switch"
                     label="Add Page Numbers"
-                    checked={file.will_have_page_numbers}
+                    checked={false} // file.will_have_page_numbers
+                    disabled
                     onChange={() =>
                       updateFile({
                         ...file,

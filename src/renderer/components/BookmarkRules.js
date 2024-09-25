@@ -76,7 +76,6 @@ export default function BookmarkRules({ fileType, onChange }) {
       <Button
         variant="secondary"
         size="sm"
-        className="mb-2 ms-1"
         onClick={handleShow}
       >
         Set Bookmark Rules ({numRules})

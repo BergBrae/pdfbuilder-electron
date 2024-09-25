@@ -163,11 +163,16 @@ function DocxTemplate({
               <p>{docxTemplate.exists ? <FaCheck /> : 'Does not exist'}</p>
             </div>
           </div>
+        </Container>
+      </div>
+      <div>
+        <Container className="table-container">
           <Form.Check
             type="switch"
             id="page-numbers-switch"
             label="Add Page Numbers"
-            checked={docxTemplate.will_have_page_numbers}
+            checked={false} // docxTemplate.will_have_page_numbers
+            disabled
             onChange={() =>
               onTemplateChange({
                 ...docxTemplate,
@@ -175,73 +180,74 @@ function DocxTemplate({
               })
             }
           />
+
         </Container>
-      </div>
-      {hasTable && (
-        <div>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4">
-              Page Start Column:
-            </Form.Label>
-            <Col sm="8">
-              <Form.Control
-                type="number"
-                style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_start_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
-                onChange={handlePageStartColChange}
-                placeholder="Enter start column"
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4">
-              Page End Column:
-            </Form.Label>
-            <Col sm="8">
-              <Form.Control
-                type="number"
-                style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_end_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
-                onChange={handlePageEndColChange}
-                placeholder="Enter end column (or leave blank)"
-              />
-            </Col>
-          </Form.Group>
-          {hasTableEntries && (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Table Entry</th>
-                  <th>Corresponding File/Section</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableEntries?.map((tableEntry, index) => (
-                  <tr key={index}>
-                    <td>{tableEntry[0]}</td>
-                    <td>
-                      <Select
-                        options={tableOptions}
-                        value={tableOptions.find(
-                          (option) => option.value === tableEntry[1],
-                        )}
-                        onChange={(selectedOption) =>
-                          handleTableEntryChange(index, selectedOption)
-                        }
-                        formatOptionLabel={(option) => (
-                          <div style={{ whiteSpace: 'pre-wrap' }}>
-                            {option.label}
-                          </div>
-                        )}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+          {hasTable && (
+            <>
+              <Form.Group as={Row} className="mb-3 mt-3">
+                <Form.Label column sm="4">
+                  Page Start Column:
+                </Form.Label>
+                <Col sm="8">
+                  <Form.Control
+                    type="number"
+                    style={{ maxWidth: '300px' }}
+                    value={docxTemplate.page_start_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                    onChange={handlePageStartColChange}
+                    placeholder="Enter start column"
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3">
+                <Form.Label column sm="4">
+                  Page End Column:
+                </Form.Label>
+                <Col sm="8">
+                  <Form.Control
+                    type="number"
+                    style={{ maxWidth: '300px' }}
+                    value={docxTemplate.page_end_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                    onChange={handlePageEndColChange}
+                    placeholder="Enter end column (or leave blank)"
+                  />
+                </Col>
+              </Form.Group>
+              {hasTableEntries && (
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Table Entry</th>
+                      <th>Corresponding File/Section</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableEntries?.map((tableEntry, index) => (
+                      <tr key={index}>
+                        <td>{tableEntry[0]}</td>
+                        <td>
+                          <Select
+                            options={tableOptions}
+                            value={tableOptions.find(
+                              (option) => option.value === tableEntry[1],
+                            )}
+                            onChange={(selectedOption) =>
+                              handleTableEntryChange(index, selectedOption)
+                            }
+                            formatOptionLabel={(option) => (
+                              <div style={{ whiteSpace: 'pre-wrap' }}>
+                                {option.label}
+                              </div>
+                            )}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              )}
+            </>
           )}
-        </div>
-      )}
+      </div>
     </CustomAccordion>
   );
 }
