@@ -232,3 +232,23 @@
 .buttons-container button {
   margin: 3px;
 }
+
+.table-container {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-table {
+  width: auto;
+  border-collapse: collapse;
+}
+
+.custom-table td {
+  border: none;
+  text-align: left;
+  padding: 2px;
+}
+
+.left-align {
+  text-align: left;
+}

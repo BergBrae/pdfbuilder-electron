@@ -24,7 +24,7 @@
 
   - See already made reports for example
 - Update help section
-- Check in with May
+- Add a loading status and show a loading icon. Keep this state in the root object
 
 # Need to test
 
