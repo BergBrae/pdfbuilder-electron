@@ -139,6 +139,7 @@ def generate_pdf_pass_one(report: dict):
                         rules=child["bookmark_rules"],
                         parent_bookmark=file_bookmark,
                         parent_page_num=current_page,
+                        reorder_pages=child.get("reorder_pages", False),
                     )
                     bookmark_data.extend(page_level_bookmarks)
 

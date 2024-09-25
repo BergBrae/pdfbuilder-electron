@@ -19,14 +19,16 @@ const FileIcon = (
 function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   const [directorySource, setDirectorySource] = useState(file.directory_source);
   const [filenameText, setFilenameText] = useState(file.filename_text_to_match);
+  const [reorderPages, setReorderPages] = useState(file.reorder_pages);
 
   useEffect(() => {
     updateFile({
       ...file,
       directory_source: directorySource,
       filename_text_to_match: filenameText,
+      reorder_pages: reorderPages,
     });
-  }, [directorySource, filenameText]);
+  }, [directorySource, filenameText, reorderPages]);
 
   const updateFile = (updatedFile) => {
     handleAPIUpdate(
@@ -75,6 +77,10 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
         .replaceAll('_', ' '),
     }));
     onFileChange({ ...file, files: updatedFiles });
+  };
+
+  const handleReorderPagesChange = () => {
+    setReorderPages(!reorderPages);
   };
 
   return (
@@ -127,6 +133,15 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                   will_have_page_numbers: !file.will_have_page_numbers,
                 })
               }
+              className="ms-5"
+            />
+            <Form.Check
+              inline
+              type="switch"
+              id="reorder-pages-switch"
+              label="Reorder Pages"
+              checked={reorderPages}
+              onChange={handleReorderPagesChange}
               className="ms-5"
             />
           </span>

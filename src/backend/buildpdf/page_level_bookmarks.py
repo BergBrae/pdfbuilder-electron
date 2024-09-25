@@ -25,11 +25,21 @@ def convert_sample_id_forms(text):
     return text
 
 
-def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num):
+def get_page_level_bookmarks(pdf, rules, parent_bookmark, parent_page_num, reorder_pages=False):
     bookmarks = []
+    page_data = []
+
     for page in range(len(pdf.pages)):
         text = pdf.pages[page].extract_text()
         text = convert_sample_id_forms(text)
+        lab_sample_id = re.search(r"Lab Sample ID: (\S+)", text)
+        data_set_id = re.search(r"Data Set ID: (\S+)", text)
+        page_data.append((page, lab_sample_id.group(1) if lab_sample_id else "", data_set_id.group(1) if data_set_id else "", text))
+
+    if reorder_pages:
+        page_data.sort(key=lambda x: (x[1], x[2]))
+
+    for page, lab_sample_id, data_set_id, text in page_data:
         for rule in rules:
             if (rule["rule"] == "SAMPLEID") and (rule["bookmark_name"] == "SAMPLEID"):
                 expression = re.compile(

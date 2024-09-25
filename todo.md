@@ -28,6 +28,4 @@
 
 # Need to test
 
-- ########.d" bookmark as " S#####.##**
-- "Report Id: S#####.##"
 - Somewhat tested: allow section's base dir to be missing.
