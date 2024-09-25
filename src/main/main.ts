@@ -205,6 +205,10 @@ app.on('before-quit', () => {
 app
   .whenReady()
   .then(() => {
+    // Set AppUserModelId for Windows notifications
+    if (process.platform === 'win32') {
+      app.setAppUserModelId("PDFBuilder");
+    }
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

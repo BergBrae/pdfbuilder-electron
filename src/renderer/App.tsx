@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Section from './components/Section';
 import Help from './components/Help';
 import Zoom from './components/Zoom';
@@ -17,6 +17,7 @@ import { IoHammer } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
 import logo from '../../assets/merit-logo.jpeg';
+import appIcon from '../../assets/icon.png';
 
 function App() {
   const emptyReport = {
@@ -85,10 +86,23 @@ function App() {
 
         setBuiltPDF(data);
         setBuildStatus('success'); // Set status to success
+
+        // Send notification
+        console.log('Sending notification...');
+        new Notification('Complete', {
+          body: 'PDF built successfully!',
+          icon: appIcon,
+        });
       } catch (error_object) {
         console.error(error_object);
         setError(error_object);
         setBuildStatus('failure'); // Set status to failure
+
+        // Send error notification
+        new Notification('Error', {
+          body: `Failed to build PDF: ${error_object.message}`,
+          icon: appIcon,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -124,6 +138,14 @@ function App() {
   const handleZoomOut = () => {
     setZoom((prevZoom) => Math.max(prevZoom * 0.9, 0.3));
   };
+
+  useEffect(() => {
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission().then((permission) => {
+        console.log('Notification permission:', permission);
+      });
+    }
+  }, []);
 
   return (
     <Container fluid className="App">
