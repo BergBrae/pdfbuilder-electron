@@ -1,114 +1,160 @@
 import React from 'react';
+import { Tabs, Tab } from 'react-bootstrap';
 
 export default function Help() {
   return (
-    <div>
-      <h4>Docx Template</h4>
-      <p>
-        Docx templates are useful for making pages that have text that varies
-        between reports.
-      </p>
-      <p>How to use:</p>
-      <ol>
-        <li>
-          In the Word document, use this notation to flag a variable to be
-          replaced:{' '}
-          <code>
-            {'${'}variable_name{'}'}
-          </code>
-          .
-        </li>
-        <li>
-          Then when you add the file to PDFBuilder, <code>variable_name</code>{' '}
-          will show as a field where you can specify the value for the current
-          report.
-        </li>
-        <li>
-          When the report is built,{' '}
-          <code>
-            {'${'}variable_name{'}'}
-          </code>{' '}
-          is replaced with the text you specified and converted to a pdf.
-        </li>
-      </ol>
-
-      <h4>PDF Type</h4>
-      <p>A PDF type is specified by the content of file names.</p>
-      <p>How to use:</p>
-      <ul>
-        <li>
-          To match a file that contains a certain text, enter the text with or
-          without quotes.
-        </li>
-        <li>
-          For more complex matching, you can use the <b>and</b>, <b>or</b> and{' '}
-          <b>not</b> keywords and parentheses. Quotes must be around text to
-          match when using keywords.
-        </li>
-        <li>
-          Examples:
+    <Tabs defaultActiveKey="docxTemplate" id="help-tabs" className="mb-3">
+      <Tab eventKey="docxTemplate" title="Docx Template">
+        <div style={{ marginTop: '20px' }}>
+          {' '}
+          {/* Added marginTop for separation */}
+          <h4>Docx Template</h4>
+          <p>
+            Docx templates are useful for making pages that have text that
+            varies between reports.
+          </p>
+          <p>How to use:</p>
+          <ol>
+            <li>
+              In the Word document, use this notation to flag a variable to be
+              replaced:{' '}
+              <code>
+                {'${'}variable_name{'}'}
+              </code>
+              .
+            </li>
+            <li>
+              Then when you add the file to PDFBuilder,{' '}
+              <code>variable_name</code> will show as a field where you can
+              specify the value for the current report.
+            </li>
+            <li>
+              When the report is built,{' '}
+              <code>
+                {'${'}variable_name{'}'}
+              </code>{' '}
+              is replaced with the text you specified and converted to a pdf.
+            </li>
+          </ol>
+        </div>
+      </Tab>
+      <Tab eventKey="pdfType" title="PDF Type">
+        <div style={{ marginTop: '20px' }}>
+          {' '}
+          {/* Added marginTop for separation */}
+          <h4>PDF Type</h4>
+          <p>A PDF type is specified by the content of file names.</p>
+          <p>How to use:</p>
           <ul>
             <li>
-              <code>"report"</code>/<code>report</code> match all files
-              containing the word "report"
+              To match a file that contains a certain text, enter the text with
+              or without quotes.
             </li>
             <li>
-              <code>"report" and "2020"</code> matches all files containing both
-              "report" and "2020"
+              For more complex matching, you can use the <b>and</b>, <b>or</b>{' '}
+              and <b>not</b> keywords and parentheses. Quotes must be around
+              text to match when using keywords.
             </li>
             <li>
-              <code>"report" or "2020"</code> matches all files containing
-              either "report" or "2020"
+              Examples:
+              <ul>
+                <li>
+                  <code>"report"</code>/<code>report</code> match all files
+                  containing the word "report"
+                </li>
+                <li>
+                  <code>"report" and "2020"</code> matches all files containing
+                  both "report" and "2020"
+                </li>
+                <li>
+                  <code>"report" or "2020"</code> matches all files containing
+                  either "report" or "2020"
+                </li>
+                <li>
+                  <code>"report" and not "2020"</code> matches all files
+                  containing "report" but not "2020"
+                </li>
+                <li>
+                  <code>("report" or "2020") and not "2021"</code> matches all
+                  files containing either "report" or "2020" but not "2021"
+                </li>
+              </ul>
             </li>
             <li>
-              <code>"report" and not "2020"</code> matches all files containing
-              "report" but not "2020"
-            </li>
-            <li>
-              <code>("report" or "2020") and not "2021"</code> matches all files
-              containing either "report" or "2020" but not "2021"
+              When a PDF Type matches an existing file, it will turn green and
+              display the matching files below sorted alphabetically. PDF Types
+              are allowed to not have any matches. In this case, the PDF Type
+              will be red and ignored when building.
             </li>
           </ul>
-        </li>
-        <li>
-          When a PDF Type matches an existing file, it will turn green and
-          display the matching files below sorted alphabetically.
-        </li>
-      </ul>
-
-      <h6>Page-Level Bookmarks</h6>
-      <p>
-        Within a PDF Type, you may configure page-level bookmarking rules. You
-        must specify the matching logic using the same as above, as well as a
-        bookmark title. The matching logic will apply to the text in the PDFs
-        rather than the filename.
-      </p>
-      <p>
-        There is a special bookmark rule for Merit sample IDs. This can be used
-        to set bookmarks based on the sample id on each page.
-      </p>
-
-      <h4>Section</h4>
-      <p>
-        Sections are used to nest bookmarks and/or specify files from a nested
-        directory.
-      </p>
-      <p>How to use:</p>
-      <ul>
-        <li>
-          Each section's base directory is relative to its parent section except
-          for the top-level section which uses an absolute path.
-        </li>
-        <li>
-          When a section does not have a bookmark, the files inside will be
-          bookmarked on the same level as the parent.
-        </li>
-        <li>
-          When a template is created for a report, only one section's directory
-          should need to be changed for the template to point at the new
-          report's files.
-        </li>
-      </ul>
-    </div>
+          <div>
+            <h5>Bookmark Rules</h5>
+            <p>
+              Within a PDF Type, you may configure page-level bookmarking rules.
+              You must specify the matching logic using the same as above (e.g.
+              <code>"report" and not "form"</code>), as well as a bookmark
+              title. The matching logic will apply to the text in the PDFs
+              rather than the filename.
+            </p>
+            <p>
+              There is a special bookmark rule for Merit sample IDs. This can be
+              used to set bookmarks based on the sample ID on each page. When
+              multiple different IDs are found on the same page, none are
+              considered valid. IDs are ignored when the are preceded
+            </p>
+          </div>
+          <div>
+            <h5>Bookmark as File Name</h5>
+            <p>
+              The button "Bookmark Files with Filenames" will create a bookmark
+              for each file in the PDF Type. This also applies simple formatting such
+              as replacing underscores with spaces.
+            </p>
+            <p>
+              Important: This is equavelent to editing via double-clicking the
+              PDF's bookmark in the PDF Type. This cannot be saved in a
+              template. If the File Type is changed, the bookmark file names
+              will be lost.
+            </p>
+          </div>
+          <div>
+            <h5>Reorder Pages</h5>
+            <p>
+              This option was created to solve the ordering of Metals Form 1.
+              When enabled, the pages of every PDF in the PDF Type will be
+              reordered based on the "Lab Sample ID: ", breaking ties with the
+              "Data Set ID: ". Files can end up interwoven when this is enabled.
+            </p>
+          </div>
+        </div>
+      </Tab>
+      <Tab eventKey="section" title="Section">
+        <div style={{ marginTop: '20px' }}>
+          {' '}
+          {/* Added marginTop for separation */}
+          <h4>Section</h4>
+          <p>
+            Sections are used to nest bookmarks and/or specify files from a
+            nested directory.
+          </p>
+          <p>How to use:</p>
+          <ul>
+            <li>
+              Each section's base directory is relative to its parent section
+              except for the top-level section which uses an absolute path.
+            </li>
+            <li>
+              When a section does not have a bookmark, the files inside will be
+              bookmarked on the same level as the parent.
+            </li>
+            <li>
+              When a template is created for a report, only one section's
+              directory should need to be changed for the template to point at
+              the new report's files.
+            </li>
+          </ul>
+        </div>
+      </Tab>
+    </Tabs>
   );
 }
