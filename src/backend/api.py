@@ -12,7 +12,7 @@ from utils.qualify_filename import qualify_filename
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
-from buildpdf.table_entries import get_table_entries_in_docx
+from buildpdf.table_entries.table_entries import get_table_entries_in_docx
 
 
 def createUUID():

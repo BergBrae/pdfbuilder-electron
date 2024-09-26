@@ -4,7 +4,7 @@ from docx import Document
 from python_docx_replace import docx_replace, docx_get_keys
 from docx2pdf import convert
 from PyPDF2 import PdfReader
-from buildpdf.table_entries import TableEntry, TableEntryData
+from buildpdf.table_entries.table_entries import TableEntry, TableEntryData
 
 
 def get_variables_in_docx(docx_path):
