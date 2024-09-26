@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import PyPDF2
 import uuid
 import json
-from buildpdf.build import generate_pdf
+from buildpdf.build import PDFBuilder
 from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
 
@@ -135,7 +135,8 @@ def build_pdf(data: dict, output_path: str):
     if isinstance(problem, str):
         return {"error": problem}
 
-    generate_pdf(data, output_path)
+    builder = PDFBuilder()  # Instantiate the PDFBuilder
+    builder.generate_pdf(data, output_path)  # Generate the PDF
 
     return {"success": True, "output_path": output_path}
 

@@ -1,86 +1,193 @@
-# build.py
-from PyPDF2 import PdfWriter, PdfReader
 import os
-from io import StringIO
-from typing import Optional, Any
-from pydantic import BaseModel
+from typing import List, Dict, Any, Tuple
+from PyPDF2 import PdfWriter, PdfReader
 from buildpdf.convert_docx import convert_docx_template_to_pdf
 from buildpdf.page_level_bookmarks import get_page_level_bookmarks
 from schema import BookmarkItem
 from utils.reorder_metals_form1 import reorder_metals_form1
 
+class PDFBuilder:
+    def __init__(self):
+        self.writer_data: List[Dict[str, Any]] = []
+        self.bookmark_data: List[BookmarkItem] = []
+        self.current_page: int = 1
 
-def get_pdf_and_page_count(file_path):
-    pdf = PdfReader(file_path)
-    return pdf, len(pdf.pages)
+    def generate_pdf(self, report: Dict[str, Any], output_path: str) -> bool:
+        """
+        Generates a PDF from the given report data and writes it to the output path.
 
+        :param report: Dictionary containing report structure and data.
+        :param output_path: Path where the generated PDF will be saved.
+        :return: True if PDF generation is successful.
+        """
+        self._generate_pdf_pass_one(report)
+        self._add_page_end_to_bookmarks()
+        print("Pass one complete. Files are staged for processing. Processing files...")
+        writer = self._compose_pdf()
+        print("Pass two complete. Adding bookmarks...")
+        self._add_bookmarks(writer)
+        print("Bookmarks added. Saving PDF...")
+        writer.write(output_path)
+        return True
 
-def vars_to_mapping(variables):
-    return {var["template_text"]: var["constant_value"] for var in variables}
+    def _generate_pdf_pass_one(self, report: Dict[str, Any]) -> None:
+        """
+        First pass through the report data to process and collect writer and bookmark data.
+        """
+        self._build_pdf_data(report)
 
+    def _build_pdf_data(self, section: Dict[str, Any], base_directory: str = "./", root_bookmark: BookmarkItem = None) -> None:
+        """
+        Recursively builds the PDF data from the report's sections and files.
 
-def section_has_files(section):
-    for child in section["children"]:
-        if child["type"] == "docxTemplate":
-            if child["exists"]:
-                return True
-        if child["type"] == "FileType":
-            if len(child["files"]) > 0:
-                return True
-        if child["type"] == "Section":
-            if section_has_files(child):
-                return True
-    return False
+        :param section: The current section of the report.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        base_directory = self._get_normalized_base_directory(base_directory, section)
+        if not self._directory_exists(base_directory, section):
+            return
+        root_bookmark = self._create_root_bookmark_if_needed(section, root_bookmark)
+        for child in section["children"]:
+            self._process_child(child, base_directory, root_bookmark)
 
+    def _process_child(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes individual children of a section, handling docxTemplates, FileTypes, and Sections.
 
-def process_file_type_without_reorder(
-    child, base_directory, root_bookmark, current_page, writer_data, bookmark_data
-):
-    if child["bookmark_name"] and child["files"]:
-        file_type_bookmark = BookmarkItem(
-            title=child["bookmark_name"],
-            page=current_page,
-            parent=root_bookmark,
-            id=child["id"],
-        )
-        bookmark_data.append(file_type_bookmark)
-    else:
-        file_type_bookmark = root_bookmark
+        :param child: The child element to process.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if child["type"] == "DocxTemplate":
+            self._process_docx_template(child, base_directory, root_bookmark)
+        elif child["type"] == "FileType":
+            self._process_file_type(child, base_directory, root_bookmark)
+        elif child["type"] == "Section":
+            self._process_section(child, base_directory, root_bookmark)
 
-    directory_source = os.path.normpath(
-        os.path.join(base_directory, child["directory_source"])
-    )
-    file_type_data = {
-        "type": "FileType",
-        "id": child["id"],
-        "directory_source": directory_source,
-        "page_start": current_page,
-    }
-    writer_data.append(file_type_data)
-    for file in child["files"]:
-        file_path = os.path.normpath(os.path.join(directory_source, file["file_path"]))
+    def _process_docx_template(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes a docxTemplate child, converting it to a PDF and adding the relevant metadata.
 
-        if file.get("bookmark_name"):
-            file_bookmark = BookmarkItem(
-                title=file["bookmark_name"],
-                page=current_page,
-                parent=file_type_bookmark,
-                id=file["id"],
-            )
-            bookmark_data.append(file_bookmark)
+        :param child: The child element representing a docxTemplate.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if child["exists"]:
+            if child["bookmark_name"]:
+                self.bookmark_data.append(BookmarkItem(
+                    title=child["bookmark_name"],
+                    page=self.current_page,
+                    parent=root_bookmark,
+                    id=child["id"]
+                ))
+
+            docx_path = os.path.normpath(os.path.join(base_directory, child["docx_path"]))
+            _, num_pages = convert_docx_template_to_pdf(docx_path)
+            docx_data = {
+                "type": "docxTemplate",
+                "id": child["id"],
+                "path": docx_path,
+                "replacements": self._map_template_variables(child.get("variables", [])),
+                "num_pages": num_pages,
+                "table_entries": child.get("table_entries", []),
+                "page_start": self.current_page,
+                "page_start_col": child.get("page_start_col"),
+                "page_end_col": child.get("page_end_col"),
+            }
+            self.writer_data.append(docx_data)
+            self.current_page += num_pages
+
+    def _process_file_type(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes a FileType child, optionally reordering pages if required.
+
+        :param child: The child element representing a FileType.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if child.get("reorder_pages"):
+            self._process_file_type_with_reorder(child, base_directory, root_bookmark)
         else:
-            file_bookmark = file_type_bookmark
+            self._process_file_type_without_reorder(child, base_directory, root_bookmark)
 
-        pdf, num_pages = get_pdf_and_page_count(file_path)
+    def _process_file_type_without_reorder(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes a FileType without reordering pages, adding metadata for the PDF.
+
+        :param child: The child element representing a FileType.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if not child["files"]:
+            return  # Skip if there are no files
+
+        file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
+        directory_source = os.path.normpath(os.path.join(base_directory, child["directory_source"]))
+        file_type_data = {
+            "type": "FileType",
+            "id": child["id"],
+            "directory_source": directory_source,
+            "page_start": self.current_page,
+        }
+        self.writer_data.append(file_type_data)
+
+        for file in child["files"]:
+            self._process_file(file, directory_source, file_type_bookmark)
+
+    def _process_file_type_with_reorder(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes a FileType with page reordering, using reorder_metals_form1.
+
+        :param child: The child element representing a FileType.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if not child["files"]:
+            return  # Skip if there are no files
+
+        file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
+        pdf, num_pages = reorder_metals_form1(child["files"])
 
         page_level_bookmarks = get_page_level_bookmarks(
             pdf=pdf,
             rules=child["bookmark_rules"],
-            parent_bookmark=file_bookmark,
-            parent_page_num=current_page,
-            reorder_pages=child.get("reorder_pages", False),
+            parent_bookmark=file_type_bookmark,
+            parent_page_num=self.current_page,
         )
-        bookmark_data.extend(page_level_bookmarks)
+        self.bookmark_data.extend(page_level_bookmarks)
+
+        file_data = {
+            "type": "FileData",
+            "id": child["id"],
+            "path": "None - Reordered",
+            "num_pages": num_pages,
+            "pdf": pdf,
+            "page_start": self.current_page,
+        }
+        self.writer_data.append(file_data)
+        self.current_page += num_pages
+
+    def _process_file(self, file: Dict[str, Any], directory_source: str, parent_bookmark: BookmarkItem) -> None:
+        """
+        Processes an individual file within a FileType, adding its data to the writer.
+
+        :param file: The file element to process.
+        :param directory_source: The base directory for resolving the file path.
+        :param parent_bookmark: The parent bookmark for the file.
+        """
+        file_path = os.path.normpath(os.path.join(directory_source, file["file_path"]))
+        file_bookmark = self._create_bookmark_if_needed(file, parent_bookmark)
+        pdf, num_pages = self._get_pdf_and_page_count(file_path)
+
+        page_level_bookmarks = get_page_level_bookmarks(
+            pdf=pdf,
+            rules=file.get("bookmark_rules", []),
+            parent_bookmark=file_bookmark,
+            parent_page_num=self.current_page,
+        )
+        self.bookmark_data.extend(page_level_bookmarks)
 
         file_data = {
             "type": "FileData",
@@ -88,234 +195,168 @@ def process_file_type_without_reorder(
             "path": file_path,
             "num_pages": num_pages,
             "pdf": pdf,
-            "page_start": current_page,
+            "page_start": self.current_page,
         }
-        writer_data.append(file_data)
-        current_page += num_pages
+        self.writer_data.append(file_data)
+        self.current_page += num_pages
 
-    return current_page, writer_data, bookmark_data
+    def _process_section(self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem) -> None:
+        """
+        Processes a Section child, building PDF data recursively.
 
+        :param child: The child element representing a Section.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        section_data = {
+            "type": "Section",
+            "id": child["id"],
+            "page_start": self.current_page,
+        }
+        self.writer_data.append(section_data)
+        self._build_pdf_data(child, base_directory, root_bookmark)
 
-def process_file_type_with_reorder(
-    child, base_directory, root_bookmark, current_page, writer_data, bookmark_data
-):
-    if child["bookmark_name"] and child["files"]:
-        file_type_bookmark = BookmarkItem(
-            title=child["bookmark_name"],
-            page=current_page,
-            parent=root_bookmark,
-            id=child["id"],
-        )
-        bookmark_data.append(file_type_bookmark)
-    else:
-        file_type_bookmark = root_bookmark
+    def _get_pdf_and_page_count(self, file_path: str) -> Tuple[PdfReader, int]:
+        """
+        Reads a PDF file and returns the PdfReader object and the number of pages.
 
-    directory_source = os.path.normpath(
-        os.path.join(base_directory, child["directory_source"])
-    )
-    file_type_data = {
-        "type": "FileType",
-        "id": child["id"],
-        "directory_source": directory_source,
-        "page_start": current_page,
-    }
-    writer_data.append(file_type_data)
+        :param file_path: Path to the PDF file.
+        :return: Tuple containing PdfReader object and number of pages.
+        """
+        pdf = PdfReader(file_path)
+        return pdf, len(pdf.pages)
 
-    pdf, num_pages = reorder_metals_form1(child["files"])
+    def _map_template_variables(self, variables: List[Dict[str, Any]]) -> Dict[str, str]:
+        """
+        Maps template variables to their replacement values.
 
-    page_level_bookmarks = get_page_level_bookmarks(
-        pdf=pdf,
-        rules=child["bookmark_rules"],
-        parent_bookmark=file_type_bookmark,
-        parent_page_num=current_page,
-    )
-    bookmark_data.extend(page_level_bookmarks)
+        :param variables: List of variable dictionaries with template_text and constant_value.
+        :return: Dictionary mapping template text to its constant value.
+        """
+        return {var["template_text"]: var["constant_value"] for var in variables}
 
-    file_data = {
-        "type": "FileData",
-        "id": child["id"],
-        "path": "None - Reordered",
-        "num_pages": num_pages,
-        "pdf": pdf,
-        "page_start": current_page,
-    }
-    writer_data.append(file_data)
-    current_page += num_pages
+    def _get_normalized_base_directory(self, base_directory: str, section: Dict[str, Any]) -> str:
+        """
+        Normalizes the base directory path.
 
-    return current_page, writer_data, bookmark_data
+        :param base_directory: The base directory for resolving paths.
+        :param section: The section containing a base_directory key.
+        :return: Normalized base directory path.
+        """
+        return os.path.normpath(os.path.join(base_directory, section["base_directory"]))
 
+    def _directory_exists(self, base_directory: str, section: Dict[str, Any]) -> bool:
+        """
+        Checks if a directory exists.
 
-def generate_pdf_pass_one(report: dict):
-
-    writer_data = []
-    bookmark_data = []
-    current_page = 1
-
-    def build_pdf_data(section, base_directory="./", root_bookmark=None):
-        nonlocal current_page
-        nonlocal writer_data
-        nonlocal bookmark_data
-        base_directory = os.path.join(base_directory, section["base_directory"])
-        base_directory = os.path.normpath(base_directory)
-
-        # Add a check to see if the base_directory exists
+        :param base_directory: The directory to check.
+        :param section: The section being processed.
+        :return: True if the directory exists, False otherwise.
+        """
         if not os.path.exists(base_directory):
-            print(
-                f"Directory {base_directory} does not exist. Skipping section {section.get('id', '')}"
-            )
-            return  # Skip this section if the directory does not exist
+            print(f"Directory {base_directory} does not exist. Skipping section {section.get('id', '')}")
+            return False
+        return True
 
-        if section.get("bookmark_name") and section_has_files(section):
-            root_bookmark = BookmarkItem(
+    def _create_root_bookmark_if_needed(self, section: Dict[str, Any], root_bookmark: BookmarkItem = None) -> BookmarkItem:
+        """
+        Creates a root bookmark if the section has a bookmark_name and contains files.
+
+        :param section: The section to create a bookmark for.
+        :param root_bookmark: The parent bookmark, if any.
+        :return: The newly created or existing root bookmark.
+        """
+        if section.get("bookmark_name") and self._section_has_files(section):
+            new_bookmark = BookmarkItem(
                 title=section["bookmark_name"],
-                page=current_page,
+                page=self.current_page,
                 parent=root_bookmark,
-                id=section["id"] if section.get("id") else "root",
+                id=section["id"] if section.get("id") else "root"
             )
-            bookmark_data.append(root_bookmark)
+            self.bookmark_data.append(new_bookmark)
+            return new_bookmark
+        return root_bookmark
 
+    def _section_has_files(self, section: Dict[str, Any]) -> bool:
+        """
+        Checks if a section contains files to process.
+
+        :param section: The section to check.
+        :return: True if the section contains files, False otherwise.
+        """
         for child in section["children"]:
-            if child["type"] == "DocxTemplate":
-                if child["bookmark_name"] and child["exists"]:
-                    bookmark_data.append(
-                        BookmarkItem(
-                            title=child["bookmark_name"],
-                            page=current_page,
-                            parent=root_bookmark,
-                            id=child["id"],
-                        )
-                    )
+            if child["type"] == "docxTemplate" and child["exists"]:
+                return True
+            if child["type"] == "FileType" and len(child["files"]) > 0:
+                return True
+            if child["type"] == "Section" and self._section_has_files(child):
+                return True
+        return False
 
-                if child["exists"]:
-                    docx_path = os.path.normpath(
-                        os.path.join(base_directory, child["docx_path"])
-                    )
-                    _, num_pages = convert_docx_template_to_pdf(docx_path)
-                    docx = {
-                        "type": "docxTemplate",
-                        "id": child["id"],
-                        "path": docx_path,
-                        "replacements": vars_to_mapping(section["variables"]),
-                        "num_pages": num_pages,
-                        "table_entries": child.get(
-                            "table_entries"
-                        ),  # or []?. Copilot suggested so maybe it's better.
-                        "page_start": current_page,
-                        "page_start_col": child.get("page_start_col"),
-                        "page_end_col": child.get("page_end_col"),
-                    }
-                    writer_data.append(docx)
-                    current_page += num_pages
+    def _create_bookmark_if_needed(self, item: Dict[str, Any], root_bookmark: BookmarkItem) -> BookmarkItem:
+        """
+        Creates a bookmark if the item has a bookmark_name.
 
-            if child["type"] == "FileType":
-                # here we need to reorder the pages if child["reorder_pages"] is true
-                if not child["reorder_pages"]:
-                    current_page, writer_data, bookmark_data = (
-                        process_file_type_without_reorder(
-                            child,
-                            base_directory,
-                            root_bookmark,
-                            current_page,
-                            writer_data,
-                            bookmark_data,
-                        )
-                    )
-                else:
-                    current_page, writer_data, bookmark_data = (
-                        process_file_type_with_reorder(
-                            child,
-                            base_directory,
-                            root_bookmark,
-                            current_page,
-                            writer_data,
-                            bookmark_data,
-                        )
-                    )
+        :param item: The item to create a bookmark for.
+        :param root_bookmark: The parent bookmark.
+        :return: The newly created or existing root bookmark.
+        """
+        if item["bookmark_name"]:
+            bookmark = BookmarkItem(
+                title=item["bookmark_name"],
+                page=self.current_page,
+                parent=root_bookmark,
+                id=item["id"]
+            )
+            self.bookmark_data.append(bookmark)
+            return bookmark
+        return root_bookmark
 
-            if child["type"] == "Section":
-                section_data = {
-                    "type": "Section",
-                    "id": child["id"],
-                    "page_start": current_page,
-                }
-                writer_data.append(section_data)
-                build_pdf_data(child, base_directory, root_bookmark)
+    def _compose_pdf(self) -> PdfWriter:
+        """
+        Composes the final PDF using the writer data and bookmark data.
 
-    build_pdf_data(report)
-    return writer_data, bookmark_data
-
-
-def compose_pdf(writer_data: dict, bookmark_data: list[BookmarkItem]) -> PdfWriter:
-    writer = PdfWriter()
-    id_to_page_start_and_end = {
-        bookmark.id: (bookmark.page, bookmark.page_end) for bookmark in bookmark_data
-    }  # sections are not included in this mapping
-    total_pages = sum([d.get("num_pages", 0) for d in writer_data])
-
-    def compose_pdf_inner(writer_data):
-        nonlocal writer
-        nonlocal id_to_page_start_and_end
-        nonlocal total_pages
-        for data in writer_data:
+        :return: PdfWriter object containing the composed PDF.
+        """
+        writer = PdfWriter()
+        for data in self.writer_data:
             if data["type"] == "docxTemplate":
-                table_entries = {}
-                if data["table_entries"]:
-                    for entry_name, entry_id in data["table_entries"]:
-                        table_entries[entry_name] = id_to_page_start_and_end.get(
-                            entry_id, ("", "")
-                        )
-                else:
-                    table_entries = {}
                 pdf, _ = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
-                    table_entries=table_entries,
-                    page_start_col=data["page_start_col"],
-                    page_end_col=data["page_end_col"],
-                    total_pages=total_pages,
+                    table_entries=data["table_entries"],
+                    page_start_col=data.get("page_start_col"),
+                    page_end_col=data.get("page_end_col"),
                 )
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
                 writer.append(data["pdf"], import_outline=False)
-            # if data["type"] == "Section":
-            #     compose_pdf_inner(data)
+        return writer
 
-    compose_pdf_inner(writer_data)
-    return writer
+    def _add_bookmarks(self, writer: PdfWriter) -> None:
+        """
+        Adds bookmarks to the PDF writer.
 
+        :param writer: The PdfWriter object where the bookmarks will be added.
+        """
+        for bookmark in self.bookmark_data:
+            parent = bookmark.parent.outline_element if bookmark.parent else None
+            bookmark.outline_element = writer.add_outline_item(
+                bookmark.title, bookmark.page - 1, parent  # -1 because PyPDF2 is 0-indexed
+            )
 
-def add_bookmarks(writer: PdfWriter, bookmarks: list[BookmarkItem]):
-    for bookmark in bookmarks:
-        if bookmark.parent:
-            parent = bookmark.parent.outline_element
-        else:
-            parent = None
-        bookmark.outline_element = writer.add_outline_item(
-            bookmark.title, bookmark.page - 1, parent  # -1 because PyPDF2 is 0-indexed
-        )
-    return writer
+    def _add_page_end_to_bookmarks(self) -> None:
+        """
+        Adds the end page number to each bookmark.
+        """
+        for i in range(len(self.bookmark_data)):
+            for j in range(i + 1, len(self.bookmark_data)):
+                if self.bookmark_data[i].parent == self.bookmark_data[j].parent:
+                    self.bookmark_data[i].page_end = self.bookmark_data[j].page - 1
+                    break
+                self.bookmark_data[i].page_end = -1  # signifies that the bookmark goes to the end
 
-
-def add_page_end_to_bookmarks(bookmark_data: list[BookmarkItem]):
-    for i in range(len(bookmark_data)):
-        for j in range(i + 1, len(bookmark_data)):
-            if bookmark_data[i].parent == bookmark_data[j].parent:
-                bookmark_data[i].page_end = bookmark_data[j].page - 1
-                break
-
-            bookmark_data[i].page_end = (
-                -1
-            )  # signifies that the bookmark goes to the end of the document
-    return bookmark_data
-
-
-def generate_pdf(report: dict, output_path: str):
-    writer_data, bookmark_data = generate_pdf_pass_one(report)
-    bookmark_data = add_page_end_to_bookmarks(bookmark_data)
-    print("Pass one complete. Files are staged for processing. Processing files...")
-    writer = compose_pdf(writer_data, bookmark_data)
-    print("Pass two complete. Adding bookmarks...")
-    writer = add_bookmarks(writer, bookmark_data)
-    print("Bookmarks added. Saving PDF...")
-    writer.write(output_path)
-    return True
+# Usage
+# report_data = {...}  # Report data dictionary
+# builder = PDFBuilder()
+# builder.generate_pdf(report_data, "output.pdf")
