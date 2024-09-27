@@ -38,6 +38,8 @@ function App() {
   const [buildStatus, setBuildStatus] = useState(''); // New state for build status
   const [zoom, setZoom] = useState(1); // New state for zoom level
   const [error, setError] = useState(null);
+  const [apiStatus, setApiStatus] = useState(''); // New state for API status
+  const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
 
   const isCurrentlyLoading = (report: any) => {
     for (const child of report.children) {
@@ -153,12 +155,24 @@ function App() {
     setZoom((prevZoom) => Math.max(prevZoom * 0.9, 0.3));
   };
 
+  const checkApiConnection = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/');
+      if (!response.ok) {
+        setShowApiErrorModal(true); // Show modal if API connection fails
+      }
+    } catch (error) {
+      setShowApiErrorModal(true); // Show modal if API connection fails
+    }
+  };
+
   useEffect(() => {
     if (Notification.permission !== 'granted') {
       Notification.requestPermission().then((permission) => {
         console.log('Notification permission:', permission);
       });
     }
+    checkApiConnection(); // Check API connection when component mounts
   }, []);
 
   return (
@@ -226,6 +240,25 @@ function App() {
         </Modal.Footer>
       </Modal>
 
+      <Modal
+        show={showApiErrorModal}
+        onHide={() => setShowApiErrorModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>API Connection Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            There was an error starting the app. Please try restarting the app.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowApiErrorModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <div className="floating-buttons">
         <img
           src={logo}
@@ -260,6 +293,9 @@ function App() {
         </div>
       </div>
 
+      <div className="api-status d-flex justify-content-center">
+        <p>{apiStatus}</p>
+      </div>
       <Row className="justify-content-center">
         <Col md={8}>
           <div className="mt-3" />

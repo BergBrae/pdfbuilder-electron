@@ -33,6 +33,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+@app.get("/")
+async def root():
+    return {"message": "API is running"}
+
 
 @app.post("/docxtemplate")
 def validate_docx_template(
