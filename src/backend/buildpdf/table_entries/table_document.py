@@ -100,6 +100,11 @@ class TableDocument:
         os.remove(temp_path_pdf)
         return reader
 
+    def save(self):
+        path = "output.docx"
+        self.doc.save(path)
+        return path
+
 
 if __name__ == "__main__":
     # example data
