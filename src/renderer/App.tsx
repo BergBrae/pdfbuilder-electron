@@ -39,6 +39,20 @@ function App() {
   const [zoom, setZoom] = useState(1); // New state for zoom level
   const [error, setError] = useState(null);
 
+  const isCurrentlyLoading = (report: any) => {
+    for (const child of report.children) {
+      if (child.type === 'FileType' || child.type === 'DocxTemplate') {
+        if (child.needs_update) {
+          return true;
+        }
+      }
+      if (child.type === 'Section') {
+        return isCurrentlyLoading(child);
+      }
+    }
+    return false;
+  };
+
   const handleSectionChange = (newSection) => {
     setReport(newSection);
   };
@@ -149,6 +163,12 @@ function App() {
 
   return (
     <Container fluid className="App">
+      {isCurrentlyLoading(report) && (
+        <div className="loading-overlay">
+          <Spinner animation="border" className="loading-spinner" />
+        </div>
+      )}
+
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm New Report</Modal.Title>
