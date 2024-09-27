@@ -208,7 +208,9 @@ function App() {
         </Modal.Header>
         <Modal.Body>
           {isLoading ? (
-            <Spinner animation="border" />
+            <div className="d-flex justify-content-center">
+              <Spinner animation="border" />
+            </div>
           ) : buildStatus === 'success' ? (
             <p>PDF built successfully!</p>
           ) : buildStatus === 'failure' ? (
