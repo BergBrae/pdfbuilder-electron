@@ -151,6 +151,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     size="sm"
                     className="mb-2"
                     onClick={handleBookmarkFilesWithFilename}
+                    disabled={reorderPages} // Disable button when reorderPages is true
                   >
                     Bookmark Files with Filenames
                   </Button>
@@ -181,6 +182,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                 key={fileData.id}
                 fileData={fileData}
                 onFileDataChange={handleFileDataChange}
+                showBookmark={!reorderPages}
               />
             ))}
           </Row>
