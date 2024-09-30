@@ -172,7 +172,7 @@ function App() {
         console.log('Notification permission:', permission);
       });
     }
-    checkApiConnection(); // Check API connection when component mounts
+    setTimeout(checkApiConnection, 5000); // Add a 5-second delay before checking API connection
   }, []);
 
   return (
