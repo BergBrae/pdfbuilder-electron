@@ -56,7 +56,7 @@ function DocxTemplate({
     const newPageStartCol = parseInt(event.target.value, 10) || 0;
     onTemplateChange({
       ...docxTemplate,
-      page_start_col: newPageStartCol - 1, // Backend is 0-indexed. User Interface is 1-indexed.
+      page_start_col: newPageStartCol,
     });
   };
 
@@ -65,7 +65,7 @@ function DocxTemplate({
       event.target.value === '' ? null : parseInt(event.target.value, 10) || 0;
     onTemplateChange({
       ...docxTemplate,
-      page_end_col: newPageEndCol - 1, // Backend is 0-indexed. User Interface is 1-indexed.
+      page_end_col: newPageEndCol,
     });
   };
 
@@ -147,7 +147,7 @@ function DocxTemplate({
               <Form.Control
                 type="number"
                 style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_start_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                value={docxTemplate.page_start_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
                 onChange={handlePageStartColChange}
                 placeholder="Enter start column"
               />
@@ -161,7 +161,7 @@ function DocxTemplate({
               <Form.Control
                 type="number"
                 style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_end_col + 1 || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                value={docxTemplate.page_end_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
                 onChange={handlePageEndColChange}
                 placeholder="Enter end column (or leave blank)"
               />
