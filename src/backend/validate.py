@@ -77,7 +77,14 @@ def validate_page_numbers(report):
     return True
 
 
-def validate_table_entries(report):
+def validate_table(report):
+    # Make sure there is only one table of contents
+    table_of_contents_count = 0
+    for child in report["children"]:
+        if child["type"] == "DocxTemplate" and child["is_table_of_contents"]:
+            table_of_contents_count += 1
+    if table_of_contents_count > 1:
+        return "Error: There is more than one table of contents"
     return True
 
 
@@ -88,7 +95,7 @@ def validate_report(report):
     result = validate_page_numbers(report)
     if result is not True:
         return result
-    result = validate_table_entries(report)
+    result = validate_table(report)
     if result is not True:
         return result
     return True

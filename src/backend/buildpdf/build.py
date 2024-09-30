@@ -91,7 +91,7 @@ class PDFBuilder:
                 "path": docx_path,
                 "replacements": self._map_template_variables(child.get("variables", [])),
                 "num_pages": num_pages,
-                "table_entries": child.get("table_entries", []),
+                "is_table_of_contents": child.get("is_table_of_contents", False),
                 "page_start": self.current_page,
                 "page_start_col": child.get("page_start_col"),
                 "page_end_col": child.get("page_end_col"),
@@ -324,9 +324,10 @@ class PDFBuilder:
                 pdf, _ = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
-                    table_entries=data["table_entries"],
                     page_start_col=data.get("page_start_col"),
                     page_end_col=data.get("page_end_col"),
+                    is_table_of_contents=data.get("is_table_of_contents", False),
+                    bookmark_data=self.bookmark_data,
                 )
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":

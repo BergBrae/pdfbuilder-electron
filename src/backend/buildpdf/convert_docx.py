@@ -4,7 +4,10 @@ from docx import Document
 from python_docx_replace import docx_replace, docx_get_keys
 from docx2pdf import convert
 from PyPDF2 import PdfReader
-from buildpdf.table_entries.table_entries import TableEntry, TableEntryData
+
+# from buildpdf.table_entries.table_entries import TableEntry, TableEntryData
+from buildpdf.table_entries.table_document import TableDocument, TableEntry
+from schema import BookmarkItem
 
 
 def get_variables_in_docx(docx_path):
@@ -59,13 +62,37 @@ def update_table_of_contents(
     return new_docx_path
 
 
+def convert_bookmark_data_to_table_entries(
+    bookmark_data: list[BookmarkItem],
+) -> list[TableEntry]:
+    def get_level(bookmark: BookmarkItem, level: int = 0) -> int:
+        if bookmark.parent is None:
+            return level
+        return get_level(bookmark.parent, level + 1)
+
+    table_entries = []
+    for bookmark in bookmark_data:
+        level = get_level(bookmark)
+        table_entry = TableEntry(
+            title=bookmark.title,
+            page_start=bookmark.page,
+            page_end=(
+                bookmark.page_end if bookmark.page_end is not None else bookmark.page
+            ),
+            level=level,
+        )
+        table_entries.append(table_entry)
+    return table_entries
+
+
 def convert_docx_template_to_pdf(
     docx_path,
     replacements=None,
-    table_entries=None,
     page_start_col=None,
     page_end_col=None,
     total_pages=None,
+    is_table_of_contents=False,
+    bookmark_data=None,
 ):
     intermediate_files = []
 
@@ -76,14 +103,15 @@ def convert_docx_template_to_pdf(
     else:
         modified_docx_path = None
 
-    if table_entries:
-        modified_docx_path = update_table_of_contents(
-            modified_docx_path if modified_docx_path else docx_path,
-            table_entries,
-            page_start_col,
-            page_end_col,
-            total_pages,
+    if is_table_of_contents:
+        table_doc = TableDocument(
+            docx_path=modified_docx_path if modified_docx_path else docx_path,
+            page_start_col=page_start_col,
+            page_end_col=page_end_col,
         )
+        table_entries = convert_bookmark_data_to_table_entries(bookmark_data)
+        table_doc.set_table_entries(table_entries)
+        modified_docx_path = table_doc.save()
 
     # Convert the modified DOCX file to PDF
     pdf_path = convert_docx_to_pdf(

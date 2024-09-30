@@ -25,6 +25,9 @@ class DocxTemplate(BaseModel):
     will_have_page_numbers: bool = True
     # Variables in the docx file. Determined by backend, not user.
     variables_in_doc: list[str] = []
+    is_table_of_contents: bool = (
+        False  # Used to flag the docx file as a table of contents
+    )
     needs_update: bool = False
     page_start_col: int = (
         3  # the col num of the start page number in the table. 0-indexed

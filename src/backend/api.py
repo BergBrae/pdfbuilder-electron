@@ -9,6 +9,7 @@ import json
 from buildpdf.build import PDFBuilder
 from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
+import pythoncom
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
@@ -115,14 +116,20 @@ def save_file(path, data: Section):
 
 @app.post("/buildpdf")
 def build_pdf(data: dict, output_path: str):
-    problem = validate_report(data)
-    if isinstance(problem, str):
-        return {"error": problem}
+    pythoncom.CoInitialize()  # Initialize COM library
+    try:
+        problem = validate_report(data)
+        if isinstance(problem, str):
+            return {"error": problem}
 
-    builder = PDFBuilder()  # Instantiate the PDFBuilder
-    builder.generate_pdf(data, output_path)  # Generate the PDF
+        builder = PDFBuilder()  # Instantiate the PDFBuilder
+        builder.generate_pdf(data, output_path)  # Generate the PDF
 
-    return {"success": True, "output_path": output_path}
+        return {"success": True, "output_path": output_path}
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        pythoncom.CoUninitialize()  # Uninitialize COM library
 
 if __name__ == "__main__":
     import uvicorn
