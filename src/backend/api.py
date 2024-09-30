@@ -12,12 +12,9 @@ from utils.qualify_filename import qualify_filename
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
-from buildpdf.table_entries.table_entries import get_table_entries_in_docx
-
 
 def createUUID():
     return str(uuid.uuid4())
-
 
 app = FastAPI()
 
@@ -37,7 +34,6 @@ app.add_middleware(
 async def root():
     return {"message": "API is running"}
 
-
 @app.post("/docxtemplate")
 def validate_docx_template(
     doc: DocxTemplate, parent_directory_source: str
@@ -50,7 +46,6 @@ def validate_docx_template(
     if os.path.isdir(docx_path):
         doc.exists = False
         doc.variables_in_doc = []
-        doc.table_entries = []
         return doc
 
     doc.exists = os.path.exists(docx_path)
@@ -59,26 +54,14 @@ def validate_docx_template(
             doc.variables_in_doc = [
                 "Please convert this file to .docx format (not .doc)"
             ]
-            doc.table_entries = []
             return doc
         doc.variables_in_doc = get_variables_in_docx(docx_path)
-        if not doc.page_start_col:
-            doc.table_entries = []
-        else:
-            doc.table_entries = get_table_entries_in_docx(
-                docx_path,
-                current_table_entries=doc.table_entries,
-                page_start_col=doc.page_start_col,
-                page_end_col=doc.page_end_col,
-            )
     else:
         doc.variables_in_doc = []
-        doc.table_entries = []
 
     doc.needs_update = False
 
     return doc
-
 
 @app.post("/filetype")
 def validate_file_type(file: FileType, parent_directory_source: str) -> FileType:
@@ -119,19 +102,16 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
 
     return file
 
-
 @app.post("/loadfile")
 def load_file(path) -> Section:
     with open(path, "r") as f:
         data = json.load(f)
         return Section(**data)
 
-
 @app.post("/savefile")
 def save_file(path, data: Section):
     with open(path, "w") as f:
         json.dump(data.model_dump(), f, indent=4)
-
 
 @app.post("/buildpdf")
 def build_pdf(data: dict, output_path: str):
@@ -143,7 +123,6 @@ def build_pdf(data: dict, output_path: str):
     builder.generate_pdf(data, output_path)  # Generate the PDF
 
     return {"success": True, "output_path": output_path}
-
 
 if __name__ == "__main__":
     import uvicorn
