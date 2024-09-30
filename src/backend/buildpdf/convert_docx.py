@@ -108,6 +108,7 @@ def convert_docx_template_to_pdf(
             docx_path=modified_docx_path if modified_docx_path else docx_path,
             page_start_col=page_start_col,
             page_end_col=page_end_col,
+            skiprows=2,
         )
         table_entries = convert_bookmark_data_to_table_entries(bookmark_data)
         table_doc.set_table_entries(table_entries)

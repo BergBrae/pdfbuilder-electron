@@ -69,6 +69,13 @@ function DocxTemplate({
     });
   };
 
+  const handleTableOfContentsToggle = () => {
+    onTemplateChange({
+      ...docxTemplate,
+      is_table_of_contents: !docxTemplate.is_table_of_contents,
+    });
+  };
+
   return (
     <CustomAccordion
       className={
@@ -111,12 +118,12 @@ function DocxTemplate({
         </Container>
       </div>
       <div>
-        <Container className="table-container">
+        <Container className="table-container p-3 border rounded">
           <Form.Check
             type="switch"
             id="page-numbers-switch"
             label="Add Page Numbers"
-            checked={false} // docxTemplate.will_have_page_numbers
+            checked={docxTemplate.will_have_page_numbers}
             disabled
             onChange={() =>
               onTemplateChange({
@@ -125,7 +132,14 @@ function DocxTemplate({
               })
             }
           />
-          <Form.Group as={Row} className="mb-3 mt-3">
+          <Form.Check
+            type="switch"
+            id="table-of-contents-switch"
+            label="Include Table of Contents"
+            checked={docxTemplate.is_table_of_contents}
+            onChange={handleTableOfContentsToggle}
+          />
+          <Form.Group as={Row} className="mb-3 mt-1">
             <Form.Label column sm="4">
               Page Start Column:
             </Form.Label>
@@ -139,7 +153,7 @@ function DocxTemplate({
               />
             </Col>
           </Form.Group>
-          <Form.Group as={Row} className="mb-3">
+          <Form.Group as={Row} className="mb-3 ms-3 mt-1">
             <Form.Label column sm="4">
               Page End Column:
             </Form.Label>

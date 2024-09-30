@@ -19,7 +19,7 @@ class TableDocument:
         page_start_col: int,
         level_delimiter: str = "   ",
         page_end_col: int | None = None,
-        skiprows: int = 0,
+        skiprows: int = 2,
     ):
         self.docx_path = docx_path
         self.doc = Document(docx_path)
