@@ -40,8 +40,11 @@ class TableDocument:
         self.adjust_num_rows()
         self.update_cells()
 
-    def adjust_num_rows(self):
-        num_rows = len(self.table_entries)
+    def adjust_num_rows(self, num_rows=None):
+        if num_rows is None:
+            num_rows = len(self.table_entries)
+
+        print(num_rows)
         additional_rows = sum(
             1
             for i in range(num_rows - 1)
