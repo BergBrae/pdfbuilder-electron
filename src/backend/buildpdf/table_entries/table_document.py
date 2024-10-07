@@ -44,12 +44,11 @@ class TableDocument:
         if num_rows is None:
             num_rows = len(self.table_entries)
 
-        print(num_rows)
         additional_rows = sum(
             1
             for i in range(num_rows - 1)
             if self.table_entries[i].level > self.table_entries[i + 1].level
-        )
+        ) if self.table_entries else 0
         total_rows_needed = num_rows + additional_rows
         num_rows_to_add = total_rows_needed - len(self.table.rows) + self.skiprows
         if num_rows_to_add > 0:

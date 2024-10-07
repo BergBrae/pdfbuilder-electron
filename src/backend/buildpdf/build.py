@@ -54,7 +54,10 @@ class PDFBuilder:
             for child in section.get("children", []):
                 if child["type"] == "Section":
                     count += count_recursive(child)
-                elif child["type"] in ["DocxTemplate", "FileType"]:
+                elif (
+                    child["type"] in ["DocxTemplate", "FileType"]
+                    and child["bookmark_name"] is not None
+                ):
                     count += 1
             return count
 
@@ -126,6 +129,8 @@ class PDFBuilder:
                 docx_path,
                 num_rows=self.num_bookmarks,
                 is_table_of_contents=child.get("is_table_of_contents", False),
+                page_start_col=child.get("page_start_col"),
+                page_end_col=child.get("page_end_col"),
             )  # needs data to determine num_pages
             docx_data = {
                 "type": "docxTemplate",
