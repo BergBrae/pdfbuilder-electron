@@ -425,14 +425,28 @@ class PDFBuilder:
         """
         Adds the end page number to each bookmark.
         """
+        total_pages = self.current_page - 1  # Assuming current_page is the next page after the last
+
+        # Precompute levels for each bookmark
+        bookmark_levels = []
+        for bookmark in self.bookmark_data:
+            level = 0
+            parent = bookmark.parent
+            while parent is not None:
+                level += 1
+                parent = parent.parent
+            bookmark_levels.append(level)
+
+        # Compute page_end for each bookmark
         for i in range(len(self.bookmark_data)):
+            level_i = bookmark_levels[i]
+            page_end = total_pages  # Default to the end of the document
             for j in range(i + 1, len(self.bookmark_data)):
-                if self.bookmark_data[i].parent == self.bookmark_data[j].parent:
-                    self.bookmark_data[i].page_end = self.bookmark_data[j].page - 1
+                level_j = bookmark_levels[j]
+                if level_j <= level_i:
+                    page_end = self.bookmark_data[j].page - 1
                     break
-                self.bookmark_data[i].page_end = (
-                    -1
-                )  # signifies that the bookmark goes to the end
+            self.bookmark_data[i].page_end = page_end
 
 
 # Usage
