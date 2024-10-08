@@ -4,6 +4,8 @@
   border: 1px solid #2b579a;
   border-radius: 4px;
   padding: 2px;
+  display: flex;
+  align-items: center;
 }
 
 .bookmark-container {
@@ -13,10 +15,8 @@
 
 .bookmark-icon {
   margin-right: 8px;
-  /* Adjust the spacing as needed. Next change size */
   margin-bottom: 5px;
   font-size: 24px;
-  /* Increase the font size to make the icon larger. */
 }
 
 .greyed-out {
@@ -235,18 +235,27 @@
 
 .table-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
 }
 
-.custom-table {
-  width: auto;
-  border-collapse: collapse;
+.form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.custom-table td {
-  border: none;
-  text-align: left;
-  padding: 2px;
+.form-group label {
+  flex: 1;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.form-group .form-control {
+  flex: 2;
+  max-width: 300px;
 }
 
 .left-align {

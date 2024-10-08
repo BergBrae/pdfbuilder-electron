@@ -135,11 +135,11 @@ function DocxTemplate({
           <Form.Check
             type="switch"
             id="table-of-contents-switch"
-            label="Include Table of Contents"
+            label="Has Table of Contents"
             checked={docxTemplate.is_table_of_contents}
             onChange={handleTableOfContentsToggle}
           />
-          <Form.Group as={Row} className="mb-3 mt-1">
+          <Form.Group as={Row} className="mb-3 mt-1 form-group">
             <Form.Label column sm="4">
               Page Start Column:
             </Form.Label>
@@ -153,7 +153,7 @@ function DocxTemplate({
               />
             </Col>
           </Form.Group>
-          <Form.Group as={Row} className="mb-3 ms-3 mt-1">
+          <Form.Group as={Row} className="mb-3 mt-1 form-group">
             <Form.Label column sm="4">
               Page End Column:
             </Form.Label>
