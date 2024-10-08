@@ -47,7 +47,7 @@ class TableDocument:
         additional_rows = sum(
             1
             for i in range(num_rows - 1)
-            if self.table_entries[i].level > self.table_entries[i + 1].level
+            if self.table_entries[i + 1].level == 0
         ) if self.table_entries else 0
         total_rows_needed = num_rows + additional_rows
         num_rows_to_add = total_rows_needed - len(self.table.rows) + self.skiprows
@@ -81,10 +81,10 @@ class TableDocument:
             if self.page_end_col is not None:
                 row.cells[self.page_end_col].text = str(entry.page_end)
             row_index += 1
-            # Add a blank row if the current level is greater than the next level
+            # Add a blank row if the next entry is a level 0
             if (
-                i < len(self.table_entries) - 1
-                and entry.level > self.table_entries[i + 1].level
+                i < len(self.table_entries) - 1 
+                and self.table_entries[i + 1].level == 0
             ):
                 row_idx_to_clear.append(row_index)
                 row_index += 1
