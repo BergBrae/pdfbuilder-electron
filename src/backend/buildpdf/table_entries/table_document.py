@@ -73,6 +73,8 @@ class TableDocument:
             self.page_end_col = None
 
     def update_cells(self):
+        from docx.shared import Pt  # Import the Pt class for setting font size
+
         row_idx_to_clear = []
         row_index = self.skiprows
         max_chars_per_line = 50  # Adjust this value based on your document's formatting
@@ -81,10 +83,29 @@ class TableDocument:
             row = self.table.rows[row_index]
             indented_title = self.level_delimiter * entry.level + entry.title
             wrapped_title = self.wrap_text(indented_title, max_chars_per_line)
-            row.cells[0].text = wrapped_title
-            row.cells[self.page_start_col].text = str(entry.page_start)
+
+            # Set text and font size for the title
+            title_cell = row.cells[0]
+            title_cell.text = wrapped_title
+            for paragraph in title_cell.paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(8)  # Set the font size to 8 points
+
+            # Set text and font size for the page start
+            page_start_cell = row.cells[self.page_start_col]
+            page_start_cell.text = str(entry.page_start)
+            for paragraph in page_start_cell.paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(8)  # Set the font size to 8 points
+
+            # Set text and font size for the page end if applicable
             if self.page_end_col is not None:
-                row.cells[self.page_end_col].text = str(entry.page_end)
+                page_end_cell = row.cells[self.page_end_col]
+                page_end_cell.text = str(entry.page_end)
+                for paragraph in page_end_cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.size = Pt(8)  # Set the font size to 8 points
+
             row_index += 1
             # Add a blank row if the next entry is a level 0
             if i < len(self.table_entries) - 1 and self.table_entries[i + 1].level == 0:
