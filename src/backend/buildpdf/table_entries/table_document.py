@@ -96,7 +96,7 @@ class TableDocument:
             title_cell.text = wrapped_title
             for paragraph in title_cell.paragraphs:
                 for run in paragraph.runs:
-                    run.font.size = Pt(8)  # Set the font size to 8 points
+                    run.font.size = Pt(10)  # Set the font size to 8 points
                     # Bold the text for top-level bookmarks
                     run.font.bold = entry.level == 0
 
