@@ -3,6 +3,7 @@ from docx import Document
 from docx2pdf import convert
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import re
 
 
 class TableEntry(BaseModel):
@@ -74,9 +75,13 @@ class TableDocument:
     def update_cells(self):
         row_idx_to_clear = []
         row_index = self.skiprows
+        max_chars_per_line = 50  # Adjust this value based on your document's formatting
+
         for i, entry in enumerate(self.table_entries):
             row = self.table.rows[row_index]
-            row.cells[0].text = self.level_delimiter * entry.level + entry.title
+            indented_title = self.level_delimiter * entry.level + entry.title
+            wrapped_title = self.wrap_text(indented_title, max_chars_per_line)
+            row.cells[0].text = wrapped_title
             row.cells[self.page_start_col].text = str(entry.page_start)
             if self.page_end_col is not None:
                 row.cells[self.page_end_col].text = str(entry.page_end)
@@ -88,6 +93,38 @@ class TableDocument:
         for row_idx in row_idx_to_clear:
             for cell in self.table.rows[row_idx].cells:
                 cell.text = ""
+
+    def wrap_text(self, text, max_chars_per_line):
+        import re
+
+        # Extract indentation from the beginning of the text
+        match = re.match(r"^(\s*)(.*)", text)
+        base_indentation = match.group(1)
+        text_without_indent = match.group(2)
+
+        additional_indent = (
+            "  "  # One-space additional indentation for subsequent lines
+        )
+        lines = []
+        indentation = base_indentation
+
+        first_line = True
+        while len(text_without_indent) > max_chars_per_line - len(indentation):
+            split_index = text_without_indent.rfind(
+                " ", 0, max_chars_per_line - len(indentation)
+            )
+            if split_index == -1:
+                split_index = max_chars_per_line - len(indentation)
+            lines.append(indentation + text_without_indent[:split_index])
+            text_without_indent = text_without_indent[split_index:].lstrip()
+
+            if first_line:
+                # Update indentation for subsequent lines
+                indentation = base_indentation + additional_indent
+                first_line = False
+
+        lines.append(indentation + text_without_indent)
+        return "\n".join(lines)
 
     def to_pdf(self) -> PdfReader:
         temp_path_docx = "intermediate.docx"
