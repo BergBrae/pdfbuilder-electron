@@ -78,10 +78,17 @@ class TableDocument:
         row_idx_to_clear = []
         row_index = self.skiprows
         max_chars_per_line = 50  # Adjust this value based on your document's formatting
+        top_level_counter = 1  # Initialize counter for top-level entries
 
         for i, entry in enumerate(self.table_entries):
             row = self.table.rows[row_index]
             indented_title = self.level_delimiter * entry.level + entry.title
+
+            # Add numbering for top-level bookmarks
+            if entry.level == 0:
+                indented_title = f"{top_level_counter}. {indented_title}"
+                top_level_counter += 1
+
             wrapped_title = self.wrap_text(indented_title, max_chars_per_line)
 
             # Set text and font size for the title
@@ -90,6 +97,8 @@ class TableDocument:
             for paragraph in title_cell.paragraphs:
                 for run in paragraph.runs:
                     run.font.size = Pt(8)  # Set the font size to 8 points
+                    # Bold the text for top-level bookmarks
+                    run.font.bold = entry.level == 0
 
             # Set text and font size for the page start
             page_start_cell = row.cells[self.page_start_col]
@@ -111,6 +120,8 @@ class TableDocument:
             if i < len(self.table_entries) - 1 and self.table_entries[i + 1].level == 0:
                 row_idx_to_clear.append(row_index)
                 row_index += 1
+
+        # Clear the text in rows designated to separate top-level entries
         for row_idx in row_idx_to_clear:
             for cell in self.table.rows[row_idx].cells:
                 cell.text = ""
