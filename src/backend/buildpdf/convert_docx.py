@@ -125,6 +125,12 @@ def convert_docx_template_to_pdf(
         modified_docx_path if modified_docx_path else docx_path
     )
 
+    if is_table_of_contents:
+        # Load the modified docx so it can be exported alongside the PDF
+        modified_docx_reader = Document(modified_docx_path)
+    else:
+        modified_docx_reader = None
+
     (os.remove(modified_docx_path) if modified_docx_path else None)
 
     # Cleanup intermediate files
@@ -139,4 +145,4 @@ def convert_docx_template_to_pdf(
     if os.path.exists(pdf_reader_file_path):
         os.remove(pdf_reader_file_path)
 
-    return (pdf_reader, len(pdf_reader.pages))
+    return (pdf_reader, len(pdf_reader.pages), modified_docx_reader)

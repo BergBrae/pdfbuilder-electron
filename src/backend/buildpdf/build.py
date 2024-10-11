@@ -22,6 +22,10 @@ class PDFBuilder:
         :param output_path: Path where the generated PDF will be saved.
         :return: True if PDF generation is successful.
         """
+
+        def toc_filename(pdf_path: str) -> str:
+            return pdf_path.replace(".pdf", "_table_of_contents.docx")
+
         self.num_bookmarks = self._count_bookmarks(report)
         self._generate_pdf_pass_one(report)
         self._add_page_end_to_bookmarks()
@@ -31,6 +35,8 @@ class PDFBuilder:
         self._add_bookmarks(writer)
         print("Bookmarks added. Saving PDF...")
         writer.write(output_path)
+        if self.table_of_contents_docx:
+            self.table_of_contents_docx.save(toc_filename(output_path))
         return True
 
     def _generate_pdf_pass_one(self, report: Dict[str, Any]) -> None:
@@ -125,7 +131,7 @@ class PDFBuilder:
             docx_path = os.path.normpath(
                 os.path.join(base_directory, child["docx_path"])
             )
-            _, num_pages = convert_docx_template_to_pdf(
+            _, num_pages, _ = convert_docx_template_to_pdf(
                 docx_path,
                 num_rows=self.num_bookmarks,
                 is_table_of_contents=child.get("is_table_of_contents", False),
@@ -394,7 +400,7 @@ class PDFBuilder:
         writer = PdfWriter()
         for data in self.writer_data:
             if data["type"] == "docxTemplate":
-                pdf, _ = convert_docx_template_to_pdf(
+                pdf, _, modified_docx = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
                     page_start_col=data.get("page_start_col"),
@@ -402,6 +408,8 @@ class PDFBuilder:
                     is_table_of_contents=data.get("is_table_of_contents", False),
                     bookmark_data=self.bookmark_data,
                 )
+                if modified_docx:
+                    self.table_of_contents_docx = modified_docx
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
                 writer.append(data["pdf"], import_outline=False)
@@ -425,7 +433,9 @@ class PDFBuilder:
         """
         Adds the end page number to each bookmark.
         """
-        total_pages = self.current_page - 1  # Assuming current_page is the next page after the last
+        total_pages = (
+            self.current_page - 1
+        )  # Assuming current_page is the next page after the last
 
         # Precompute levels for each bookmark
         bookmark_levels = []
