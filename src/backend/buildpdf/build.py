@@ -14,6 +14,10 @@ class PDFBuilder:
         self.current_page: int = 1
         self.num_bookmarks: Union[int, None] = None
 
+        self.page_number_offset: int = (
+            0  # used for table of contents. Adds a specified number to each page number
+        )
+
     def generate_pdf(self, report: Dict[str, Any], output_path: str) -> bool:
         """
         Generates a PDF from the given report data and writes it to the output path.
@@ -138,6 +142,7 @@ class PDFBuilder:
                 page_start_col=child.get("page_start_col"),
                 page_end_col=child.get("page_end_col"),
             )  # needs data to determine num_pages
+            self.page_number_offset = child.get("page_number_offset", 0)
             docx_data = {
                 "type": "docxTemplate",
                 "id": child["id"],
@@ -407,6 +412,7 @@ class PDFBuilder:
                     page_end_col=data.get("page_end_col"),
                     is_table_of_contents=data.get("is_table_of_contents", False),
                     bookmark_data=self.bookmark_data,
+                    page_number_offset=self.page_number_offset,
                 )
                 if modified_docx:
                     self.table_of_contents_docx = modified_docx

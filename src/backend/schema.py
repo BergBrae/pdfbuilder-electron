@@ -28,6 +28,7 @@ class DocxTemplate(BaseModel):
     is_table_of_contents: bool = (
         False  # Used to flag the docx file as a table of contents
     )
+    page_number_offset: Optional[int] = 0  # For when there will be additional pages prepended to the built pdf
     needs_update: bool = False
     page_start_col: int = (
         3  # the col num of the start page number in the table. 0-indexed

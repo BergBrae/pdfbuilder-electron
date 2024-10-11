@@ -90,6 +90,7 @@ def convert_docx_template_to_pdf(
     replacements=None,
     page_start_col=None,
     page_end_col=None,
+    page_number_offset=0,
     total_pages=None,
     is_table_of_contents=False,
     bookmark_data=None,
@@ -110,6 +111,7 @@ def convert_docx_template_to_pdf(
             page_start_col=page_start_col,
             page_end_col=page_end_col,
             skiprows=2,
+            page_number_offset=page_number_offset,
         )
         if bookmark_data:
             table_entries = convert_bookmark_data_to_table_entries(bookmark_data)

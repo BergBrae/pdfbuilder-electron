@@ -21,6 +21,7 @@ class TableDocument:
         level_delimiter: str = "   ",
         page_end_col: int | None = None,
         skiprows: int = 2,
+        page_number_offset: int = 0,
     ):
         self.docx_path = docx_path
         self.doc = Document(docx_path)
@@ -30,6 +31,7 @@ class TableDocument:
         self.set_page_end_col(page_end_col)
         self.level_delimiter = level_delimiter
         self.skiprows = skiprows
+        self.page_number_offset = page_number_offset
 
     def delete_row(self, row_index: int):
         tbl = self.table._tbl
@@ -75,6 +77,9 @@ class TableDocument:
     def update_cells(self):
         from docx.shared import Pt  # Import the Pt class for setting font size
 
+        if self.page_number_offset is None:
+            self.page_number_offset = 0
+
         row_idx_to_clear = []
         row_index = self.skiprows
         max_chars_per_line = 50  # Adjust this value based on your document's formatting
@@ -102,7 +107,7 @@ class TableDocument:
 
             # Set text and font size for the page start
             page_start_cell = row.cells[self.page_start_col]
-            page_start_cell.text = str(entry.page_start)
+            page_start_cell.text = str(entry.page_start + self.page_number_offset)
             for paragraph in page_start_cell.paragraphs:
                 for run in paragraph.runs:
                     run.font.size = Pt(8)  # Set the font size to 8 points
@@ -110,7 +115,7 @@ class TableDocument:
             # Set text and font size for the page end if applicable
             if self.page_end_col is not None:
                 page_end_cell = row.cells[self.page_end_col]
-                page_end_cell.text = str(entry.page_end)
+                page_end_cell.text = str(entry.page_end + self.page_number_offset)
                 for paragraph in page_end_cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(8)  # Set the font size to 8 points
