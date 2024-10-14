@@ -64,8 +64,15 @@ class PDFBuilder:
             for child in section.get("children", []):
                 if child["type"] == "Section":
                     count += count_recursive(child)
+                elif child["type"] == "FileType" and len(child["files"]) > 0:
+                    if child["bookmark_name"] is not None:
+                        count += 1
+                    for file in child["files"]:
+                        if file["bookmark_name"] is not None:
+                            count += 1
                 elif (
-                    child["type"] in ["DocxTemplate", "FileType"]
+                    child["type"] == "DocxTemplate"
+                    and child["exists"]
                     and child["bookmark_name"] is not None
                 ):
                     count += 1
