@@ -13,7 +13,7 @@ class PDFBuilder:
         self.bookmark_data: List[BookmarkItem] = []
         self.current_page: int = 1
         self.num_bookmarks: Union[int, None] = None
-
+        self.table_of_contents_docx = None
         self.page_number_offset: int = (
             0  # used for table of contents. Adds a specified number to each page number
         )
@@ -26,6 +26,7 @@ class PDFBuilder:
         :param output_path: Path where the generated PDF will be saved.
         :return: True if PDF generation is successful.
         """
+        report["bookmark_name"] = None  # Remove top-level bookmark
 
         def toc_filename(pdf_path: str) -> str:
             return pdf_path.replace(".pdf", "_table_of_contents.docx")
@@ -421,7 +422,7 @@ class PDFBuilder:
                     bookmark_data=self.bookmark_data,
                     page_number_offset=self.page_number_offset,
                 )
-                if modified_docx:
+                if data.get("is_table_of_contents"):
                     self.table_of_contents_docx = modified_docx
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
