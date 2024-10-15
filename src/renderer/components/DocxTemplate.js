@@ -151,22 +151,6 @@ function DocxTemplate({
           {docxTemplate.is_table_of_contents && (
             <Form.Group as={Row} className="mb-3 mt-1 form-group">
               <Form.Label column sm="4">
-                Page Number Offset:
-              </Form.Label>
-              <Col sm="8">
-                <Form.Control
-                  type="number"
-                  style={{ maxWidth: '300px' }}
-                  value={docxTemplate.page_number_offset || ''}
-                  onChange={handlePageNumberOffsetChange}
-                  placeholder="Enter page number offset"
-                />
-              </Col>
-            </Form.Group>
-          )}
-          {docxTemplate.is_table_of_contents && (
-            <Form.Group as={Row} className="mb-3 mt-1 form-group">
-              <Form.Label column sm="4">
                 Page Start Column:
               </Form.Label>
               <Col sm="8">
@@ -192,6 +176,22 @@ function DocxTemplate({
                   value={docxTemplate.page_end_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
                   onChange={handlePageEndColChange}
                   placeholder="Enter end column (or leave blank)"
+                />
+              </Col>
+            </Form.Group>
+          )}
+          {docxTemplate.is_table_of_contents && (
+            <Form.Group as={Row} className="mb-3 mt-1 form-group">
+              <Form.Label column sm="4">
+                Page Number Offset:
+              </Form.Label>
+              <Col sm="8">
+                <Form.Control
+                  type="number"
+                  style={{ maxWidth: '300px' }}
+                  value={docxTemplate.page_number_offset || ''}
+                  onChange={handlePageNumberOffsetChange}
+                  placeholder="Enter page number offset"
                 />
               </Col>
             </Form.Group>
