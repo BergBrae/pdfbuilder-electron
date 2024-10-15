@@ -77,7 +77,8 @@ function DocxTemplate({
   };
 
   const handlePageNumberOffsetChange = (event) => {
-    const newPageNumberOffset = event.target.value === '' ? null : parseInt(event.target.value, 10) || 0;
+    const newPageNumberOffset =
+      event.target.value === '' ? null : parseInt(event.target.value, 10) || 0;
     onTemplateChange({
       ...docxTemplate,
       page_number_offset: newPageNumberOffset,
@@ -126,7 +127,7 @@ function DocxTemplate({
         </Container>
       </div>
       <div>
-        <Container className="table-container p-3 border rounded">
+        <Container className="table-container p-3">
           <Form.Check
             type="switch"
             id="page-numbers-switch"
@@ -163,34 +164,38 @@ function DocxTemplate({
               </Col>
             </Form.Group>
           )}
-          <Form.Group as={Row} className="mb-3 mt-1 form-group">
-            <Form.Label column sm="4">
-              Page Start Column:
-            </Form.Label>
-            <Col sm="8">
-              <Form.Control
-                type="number"
-                style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_start_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
-                onChange={handlePageStartColChange}
-                placeholder="Enter start column"
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3 mt-1 form-group">
-            <Form.Label column sm="4">
-              Page End Column:
-            </Form.Label>
-            <Col sm="8">
-              <Form.Control
-                type="number"
-                style={{ maxWidth: '300px' }}
-                value={docxTemplate.page_end_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
-                onChange={handlePageEndColChange}
-                placeholder="Enter end column (or leave blank)"
-              />
-            </Col>
-          </Form.Group>
+          {docxTemplate.is_table_of_contents && (
+            <Form.Group as={Row} className="mb-3 mt-1 form-group">
+              <Form.Label column sm="4">
+                Page Start Column:
+              </Form.Label>
+              <Col sm="8">
+                <Form.Control
+                  type="number"
+                  style={{ maxWidth: '300px' }}
+                  value={docxTemplate.page_start_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                  onChange={handlePageStartColChange}
+                  placeholder="Enter start column"
+                />
+              </Col>
+            </Form.Group>
+          )}
+          {docxTemplate.is_table_of_contents && (
+            <Form.Group as={Row} className="mb-3 mt-1 form-group">
+              <Form.Label column sm="4">
+                Page End Column:
+              </Form.Label>
+              <Col sm="8">
+                <Form.Control
+                  type="number"
+                  style={{ maxWidth: '300px' }}
+                  value={docxTemplate.page_end_col || ''} // Backend is 0-indexed. User Interface is 1-indexed.
+                  onChange={handlePageEndColChange}
+                  placeholder="Enter end column (or leave blank)"
+                />
+              </Col>
+            </Form.Group>
+          )}
         </Container>
       </div>
     </CustomAccordion>
