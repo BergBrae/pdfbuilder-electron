@@ -134,7 +134,7 @@ function PdfTypeHelp() {
       </p>
       <h5>Reorder Pages</h5>
       <p>
-        This option rearranges pages within each PDF in the PDF Type. It's useful for reordering pages based on identifiers like "Lab Sample ID: ____", breaking ties with "Data Set ID: ____". When enabled, pages from different files can become interleaved.
+        This option rearranges pages within each PDF in the PDF Type. It will sort alphabetically based on "Lab Sample ID: ____", breaking ties with "Data Set ID: ____". When enabled, pages from different files can become interleaved.
       </p>
     </div>
   );
