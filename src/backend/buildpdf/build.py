@@ -5,6 +5,8 @@ from buildpdf.convert_docx import convert_docx_template_to_pdf
 from buildpdf.page_level_bookmarks import get_page_level_bookmarks
 from schema import BookmarkItem
 from utils.reorder_metals_form1 import reorder_metals_form1
+import uuid
+from PyPDF2.generic import IndirectObject, Destination  # Import Destination
 
 
 class PDFBuilder:
@@ -261,6 +263,12 @@ class PDFBuilder:
         file_bookmark = self._create_bookmark_if_needed(file, parent_bookmark)
         pdf, num_pages = self._get_pdf_and_page_count(file_path)
 
+        # Extract existing bookmarks from the PDF
+        existing_bookmarks = self._extract_existing_bookmarks(pdf, file_bookmark)
+
+        # Add existing bookmarks to the bookmark data
+        self.bookmark_data.extend(existing_bookmarks)
+
         page_level_bookmarks = get_page_level_bookmarks(
             pdf=pdf,
             rules=file.get("bookmark_rules", []),
@@ -471,6 +479,36 @@ class PDFBuilder:
                     page_end = self.bookmark_data[j].page - 1
                     break
             self.bookmark_data[i].page_end = page_end
+
+    def _extract_existing_bookmarks(self, pdf: PdfReader, parent_bookmark: BookmarkItem) -> List[BookmarkItem]:
+        """
+        Extracts existing bookmarks from a PDF and returns them as a list of BookmarkItems.
+
+        :param pdf: The PdfReader object of the PDF.
+        :param parent_bookmark: The parent bookmark for these bookmarks.
+        :return: List of BookmarkItems representing the existing bookmarks.
+        """
+        existing_bookmarks = []
+
+        def process_outline(outline, parent):
+            if isinstance(outline, list):
+                for item in outline:
+                    process_outline(item, parent)
+            elif isinstance(outline, Destination):
+                # Convert the IndirectObject to an integer page number
+                page_number = pdf.get_page_number(outline.page) if isinstance(outline.page, IndirectObject) else outline.page
+                bookmark = BookmarkItem(
+                    title=outline.title,
+                    page=page_number + self.current_page,  # Adjust page number
+                    parent=parent,
+                    id=str(uuid.uuid4()),
+                )
+                existing_bookmarks.append(bookmark)
+                if hasattr(outline, 'children'):
+                    process_outline(outline.children, bookmark)
+
+        process_outline(pdf.outline, parent_bookmark)
+        return existing_bookmarks
 
 
 # Usage
