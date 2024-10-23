@@ -17,30 +17,21 @@ To set up the project locally, follow these steps:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/pdfbuilder.git
+   git clone https://github.com/bergbrae/pdfbuilder.git
    cd pdfbuilder
    ```
 2. **Install dependencies:**
 
-   - For the backend, ensure you have Python installed and run:
+   - To build the backend executable, run:
 
      ```bash
-     python -m venv .venv
-     source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
-     pip install -r requirements.txt
+     npm run build:backend
      ```
    - For the frontend, ensure you have Node.js installed and run:
 
      ```bash
      npm install
      ```
-3. **Build the backend:**
-
-   Run the build script to set up the backend environment and compile the necessary files:
-
-   ```bash
-   node src/backend/build-backend.js
-   ```
 
 ## Usage
 
