@@ -19,16 +19,18 @@ const FileIcon = (
 function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   const [directorySource, setDirectorySource] = useState(file.directory_source);
   const [filenameText, setFilenameText] = useState(file.filename_text_to_match);
-  const [reorderPages, setReorderPages] = useState(file.reorder_pages);
+  const [reorderPagesMetals, setReorderPagesMetals] = useState(file.reorder_pages_metals);
+  const [reorderPagesDatetime, setReorderPagesDatetime] = useState(file.reorder_pages_datetime);
 
   useEffect(() => {
     updateFile({
       ...file,
       directory_source: directorySource,
       filename_text_to_match: filenameText,
-      reorder_pages: reorderPages,
+      reorder_pages_metals: reorderPagesMetals,
+      reorder_pages_datetime: reorderPagesDatetime,
     });
-  }, [directorySource, filenameText, reorderPages]);
+  }, [directorySource, filenameText, reorderPagesMetals, reorderPagesDatetime]);
 
   const updateFile = (updatedFile) => {
     handleAPIUpdate(
@@ -79,8 +81,18 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
     onFileChange({ ...file, files: updatedFiles });
   };
 
-  const handleReorderPagesChange = () => {
-    setReorderPages(!reorderPages);
+  const handleReorderPagesMetalsChange = () => {
+    setReorderPagesMetals(!reorderPagesMetals);
+    if (!reorderPagesMetals) {
+      setReorderPagesDatetime(false);
+    }
+  };
+
+  const handleReorderPagesDatetimeChange = () => {
+    setReorderPagesDatetime(!reorderPagesDatetime);
+    if (!reorderPagesDatetime) {
+      setReorderPagesMetals(false);
+    }
   };
 
   return (
@@ -151,7 +163,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     size="sm"
                     className="mb-2"
                     onClick={handleBookmarkFilesWithFilename}
-                    disabled={reorderPages} // Disable button when reorderPages is true
+                    disabled={reorderPagesMetals || reorderPagesDatetime}
                   >
                     Bookmark Files with Filenames
                   </Button>
@@ -162,13 +174,27 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                   <Form.Check
                     inline
                     type="switch"
-                    id="reorder-pages-switch"
-                    label="Reorder Pages"
-                    checked={reorderPages}
-                    onChange={handleReorderPagesChange}
+                    id="reorder-pages-metals-switch"
+                    label="Reorder Pages (Metals)"
+                    checked={reorderPagesMetals}
+                    onChange={handleReorderPagesMetalsChange}
+                    disabled={reorderPagesDatetime}
                   />
                 </td>
                 <td className="left-align">
+                  <Form.Check
+                    inline
+                    type="switch"
+                    id="reorder-pages-datetime-switch"
+                    label="Reorder Pages (Datetime)"
+                    checked={reorderPagesDatetime}
+                    onChange={handleReorderPagesDatetimeChange}
+                    disabled={reorderPagesMetals}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="left-align" colSpan="2">
                   <BookmarkRules fileType={file} onChange={onFileChange} />
                 </td>
               </tr>
@@ -182,7 +208,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                 key={fileData.id}
                 fileData={fileData}
                 onFileDataChange={handleFileDataChange}
-                showBookmark={!reorderPages}
+                showBookmark={!reorderPagesMetals && !reorderPagesDatetime}
               />
             ))}
           </Row>

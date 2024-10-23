@@ -41,10 +41,11 @@ def get_is_manually_integrated(text: str) -> bool:
 
 def reorder_pdfs_by_datetime(
     paths: list[str], return_path: bool = False
-) -> Optional[Union[PdfReader, str]]:
+) -> Union[tuple[PdfReader, int], tuple[str, int]]:
     """
     This reorder function is made for reordering the pages within pdfs based on datetime and if the page has been manually integrated.
     It also preserves the bookmarks from the original PDFs.
+    Returns a tuple containing the PdfReader (or path) and the number of pages.
     """
     all_pages = []
     for path in paths:
@@ -100,9 +101,11 @@ def reorder_pdfs_by_datetime(
         all_pages.pop(i)
 
     writer = PdfWriter()
+    total_pages = 0
     for page in all_pages:
         for pdf_page in page.pdf_pages:
             writer.add_page(pdf_page)
+            total_pages += 1
 
     # Add bookmarks to the new PDF
     page_num = 0
@@ -119,11 +122,11 @@ def reorder_pdfs_by_datetime(
     writer.write(output_path)
 
     if return_path:
-        return output_path
+        return output_path, total_pages
 
     pdf = PdfReader(output_path)
     os.remove(output_path)
-    return pdf
+    return pdf, total_pages
 
 
 if __name__ == "__main__":
@@ -131,4 +134,6 @@ if __name__ == "__main__":
         r"Z:\pdfbuilder\IC-A-241010-Pre-Man-Int.pdf",
         r"Z:\pdfbuilder\IC-A-241010.pdf",
     ]
-    reordered_pdf_path = reorder_pdfs_by_datetime(paths, return_path=True)
+    reordered_pdf_path, num_pages = reorder_pdfs_by_datetime(paths, return_path=True)
+    print(f"Reordered PDF path: {reordered_pdf_path}")
+    print(f"Number of pages: {num_pages}")

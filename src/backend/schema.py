@@ -62,7 +62,8 @@ class FileType(BaseModel):
     files: list[FileData] = []
     needs_update: bool = False
     bookmark_rules: list[BookmarkRule] = []
-    reorder_pages: bool = False
+    reorder_pages_metals: bool = False
+    reorder_pages_datetime: bool = False
 
 
 class Section(BaseModel):

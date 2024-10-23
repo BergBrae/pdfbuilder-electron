@@ -5,6 +5,7 @@ from buildpdf.convert_docx import convert_docx_template_to_pdf
 from buildpdf.page_level_bookmarks import get_page_level_bookmarks
 from schema import BookmarkItem
 from utils.reorder_metals_form1 import reorder_metals_form1
+from utils.reorder_by_datetime_manually_integrated import reorder_pdfs_by_datetime
 import uuid
 from PyPDF2.generic import IndirectObject, Destination  # Import Destination
 
@@ -179,8 +180,14 @@ class PDFBuilder:
         :param base_directory: The base directory for resolving paths.
         :param root_bookmark: The parent bookmark for the current section.
         """
-        if child.get("reorder_pages"):
-            self._process_file_type_with_reorder(child, base_directory, root_bookmark)
+        if child.get("reorder_pages_metals"):
+            self._process_file_type_with_reorder_metals(
+                child, base_directory, root_bookmark
+            )
+        elif child.get("reorder_pages_datetime"):
+            self._process_file_type_with_reorder_datetime(
+                child, base_directory, root_bookmark
+            )
         else:
             self._process_file_type_without_reorder(
                 child, base_directory, root_bookmark
@@ -214,7 +221,7 @@ class PDFBuilder:
         for file in child["files"]:
             self._process_file(file, directory_source, file_type_bookmark)
 
-    def _process_file_type_with_reorder(
+    def _process_file_type_with_reorder_metals(
         self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem
     ) -> None:
         """
@@ -242,6 +249,51 @@ class PDFBuilder:
             "type": "FileData",
             "id": child["id"],
             "path": "None - Reordered",
+            "num_pages": num_pages,
+            "pdf": pdf,
+            "page_start": self.current_page,
+        }
+        self.writer_data.append(file_data)
+        self.current_page += num_pages
+
+    def _process_file_type_with_reorder_datetime(
+        self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem
+    ) -> None:
+        """
+        Processes a FileType with page reordering, using reorder_pdfs_by_datetime.
+
+        :param child: The child element representing a FileType.
+        :param base_directory: The base directory for resolving paths.
+        :param root_bookmark: The parent bookmark for the current section.
+        """
+        if not child["files"]:
+            return  # Skip if there are no files
+
+        file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
+        directory_source = os.path.normpath(
+            os.path.join(base_directory, child["directory_source"])
+        )
+        file_paths = [
+            os.path.join(directory_source, file["file_path"]) for file in child["files"]
+        ]
+        pdf, num_pages = reorder_pdfs_by_datetime(file_paths)
+
+        page_level_bookmarks = get_page_level_bookmarks(
+            pdf=pdf,
+            rules=child["bookmark_rules"],
+            parent_bookmark=file_type_bookmark,
+            parent_page_num=self.current_page,
+        )
+        self.bookmark_data.extend(page_level_bookmarks)
+
+        # Extract existing bookmarks from the PDF
+        existing_bookmarks = self._extract_existing_bookmarks(pdf, file_type_bookmark)
+        self.bookmark_data.extend(existing_bookmarks)
+
+        file_data = {
+            "type": "FileData",
+            "id": child["id"],
+            "path": "None - Reordered by datetime",
             "num_pages": num_pages,
             "pdf": pdf,
             "page_start": self.current_page,
@@ -480,7 +532,9 @@ class PDFBuilder:
                     break
             self.bookmark_data[i].page_end = page_end
 
-    def _extract_existing_bookmarks(self, pdf: PdfReader, parent_bookmark: BookmarkItem) -> List[BookmarkItem]:
+    def _extract_existing_bookmarks(
+        self, pdf: PdfReader, parent_bookmark: BookmarkItem
+    ) -> List[BookmarkItem]:
         """
         Extracts existing bookmarks from a PDF and returns them as a list of BookmarkItems.
 
@@ -496,7 +550,11 @@ class PDFBuilder:
                     process_outline(item, parent)
             elif isinstance(outline, Destination):
                 # Convert the IndirectObject to an integer page number
-                page_number = pdf.get_page_number(outline.page) if isinstance(outline.page, IndirectObject) else outline.page
+                page_number = (
+                    pdf.get_page_number(outline.page)
+                    if isinstance(outline.page, IndirectObject)
+                    else outline.page
+                )
                 bookmark = BookmarkItem(
                     title=outline.title,
                     page=page_number + self.current_page,  # Adjust page number
@@ -504,7 +562,7 @@ class PDFBuilder:
                     id=str(uuid.uuid4()),
                 )
                 existing_bookmarks.append(bookmark)
-                if hasattr(outline, 'children'):
+                if hasattr(outline, "children"):
                     process_outline(outline.children, bookmark)
 
         process_outline(pdf.outline, parent_bookmark)
