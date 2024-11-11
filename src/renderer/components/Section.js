@@ -8,6 +8,7 @@ import { Row, Col, Container, Accordion, Button } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import { v4 as uuidv4 } from 'uuid';
 import { handleAPIUpdate, setFlags } from './utils';
+import { useLoading } from '../contexts/LoadingContext';
 
 function Section({
   section,
@@ -17,6 +18,8 @@ function Section({
   parentDirectory,
   report,
 }) {
+  const { incrementLoading, decrementLoading } = useLoading();
+
   const directorySource = parentDirectory
     ? `${parentDirectory}\\${section.base_directory}`
     : section.base_directory;
@@ -207,12 +210,14 @@ function Section({
     if (section.needs_update) {
       const updateSection = async () => {
         try {
-          section.needs_update = false;
+          incrementLoading();
           const updatedSection = await updateChildrenWithAPI(section, directorySource);
           updatedSection.variables = getUpdatedVariables(updatedSection);
           onSectionChange(updatedSection);
         } catch (error) {
           console.error('Error updating section:', error);
+        } finally {
+          decrementLoading();
         }
       };
 

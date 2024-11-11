@@ -18,6 +18,7 @@ import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
 import logo from '../../assets/merit-logo.jpeg';
 import appIcon from '../../assets/icon.png';
+import { useLoading } from './contexts/LoadingContext';
 
 function App() {
   const emptyReport = {
@@ -40,16 +41,7 @@ function App() {
   const [error, setError] = useState(null);
   const [apiStatus, setApiStatus] = useState(''); // New state for API status
   const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
-
-  const isCurrentlyLoading = (report: any) => {
-    if (!report || !report.children) return false;
-
-    return report.children.some(child => {
-      if (child.needs_update) return true;
-      if (child.type === 'Section') return isCurrentlyLoading(child);
-      return false;
-    });
-  };
+  const { loadingCount } = useLoading();
 
   const handleSectionChange = (newSection) => {
     setReport(newSection);
@@ -172,143 +164,143 @@ function App() {
   }, []);
 
   return (
-    <Container fluid className="App">
-      {isCurrentlyLoading(report) && (
-        <div className="loading-overlay">
-          <Spinner animation="border" className="loading-spinner" />
-        </div>
-      )}
+      <Container fluid className="App">
+        {loadingCount > 0 && (
+          <div className="loading-overlay">
+            <Spinner animation="border" className="loading-spinner" />
+          </div>
+        )}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm New Report</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to create a new report? Unsaved changes will be
-          lost.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={confirmNew}>
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm New Report</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to create a new report? Unsaved changes will be
+            lost.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={confirmNew}>
+              Confirm
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
-      <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Help</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Help />
-        </Modal.Body>
-        <Modal.Footer>
-          <p>Contact Brady for further help</p>
-          <Button variant="primary" onClick={closeHelpModal}>
-            Dismiss
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Help</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Help />
+          </Modal.Body>
+          <Modal.Footer>
+            <p>Contact Brady for further help</p>
+            <Button variant="primary" onClick={closeHelpModal}>
+              Dismiss
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
-      <Modal show={showBuildModal} onHide={closeBuildModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Building PDF</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {isLoading ? (
-            <div className="d-flex justify-content-center">
-              <Spinner animation="border" />
-            </div>
-          ) : buildStatus === 'success' ? (
-            <p>PDF built successfully!</p>
-          ) : buildStatus === 'failure' ? (
-            <p>{error.message}</p>
-          ) : null}
-        </Modal.Body>
-        <Modal.Footer>
-          {!isLoading && (
-            <Button variant="primary" onClick={closeBuildModal}>
+        <Modal show={showBuildModal} onHide={closeBuildModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Building PDF</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {isLoading ? (
+              <div className="d-flex justify-content-center">
+                <Spinner animation="border" />
+              </div>
+            ) : buildStatus === 'success' ? (
+              <p>PDF built successfully!</p>
+            ) : buildStatus === 'failure' ? (
+              <p>{error.message}</p>
+            ) : null}
+          </Modal.Body>
+          <Modal.Footer>
+            {!isLoading && (
+              <Button variant="primary" onClick={closeBuildModal}>
+                Close
+              </Button>
+            )}
+          </Modal.Footer>
+        </Modal>
+
+        <Modal
+          show={showApiErrorModal}
+          onHide={() => setShowApiErrorModal(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>API Connection Error</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>
+              There was an error starting the app. Please try restarting the app.
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" onClick={() => setShowApiErrorModal(false)}>
               Close
             </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
+          </Modal.Footer>
+        </Modal>
 
-      <Modal
-        show={showApiErrorModal}
-        onHide={() => setShowApiErrorModal(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>API Connection Error</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            There was an error starting the app. Please try restarting the app.
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={() => setShowApiErrorModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <div className="floating-buttons">
-        <img
-          src={logo}
-          alt="Merit Logo"
-          style={{ maxWidth: '15vw', marginBottom: '30px' }}
-        />
-        <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
-        <div className="buttons-container">
-          <Button variant="secondary" onClick={handleRefresh}>
-            <FiRefreshCw /> Refresh
-          </Button>
-          <Button variant="secondary" onClick={handleHelp}>
-            <IoIosHelpCircle /> Help
-          </Button>
-        </div>
-        <div className="buttons-container">
-          <Button variant="primary" onClick={handleNew}>
-            <IoIosCreate /> Clear
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            <IoIosSave /> Save
-          </Button>
-          <Button variant="primary" onClick={handleLoad}>
-            <FaBoxOpen /> Open
-          </Button>
-          <Outline report={report} />
-        </div>
-        <div className="buttons-container">
-          <Button variant="primary" onClick={handleBuildPDF}>
-            <IoHammer /> Build PDF
-          </Button>
-        </div>
-      </div>
-
-      <div className="api-status d-flex justify-content-center">
-        <p>{apiStatus}</p>
-      </div>
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <div className="mt-3" />
-          <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-            <Section
-              section={report}
-              isRoot
-              onSectionChange={handleSectionChange}
-              onDelete={null}
-              parentDirectory={null}
-              report={report}
-            />
+        <div className="floating-buttons">
+          <img
+            src={logo}
+            alt="Merit Logo"
+            style={{ maxWidth: '15vw', marginBottom: '30px' }}
+          />
+          <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
+          <div className="buttons-container">
+            <Button variant="secondary" onClick={handleRefresh}>
+              <FiRefreshCw /> Refresh
+            </Button>
+            <Button variant="secondary" onClick={handleHelp}>
+              <IoIosHelpCircle /> Help
+            </Button>
           </div>
-          {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
-        </Col>
-      </Row>
-    </Container>
+          <div className="buttons-container">
+            <Button variant="primary" onClick={handleNew}>
+              <IoIosCreate /> Clear
+            </Button>
+            <Button variant="primary" onClick={handleSave}>
+              <IoIosSave /> Save
+            </Button>
+            <Button variant="primary" onClick={handleLoad}>
+              <FaBoxOpen /> Open
+            </Button>
+            <Outline report={report} />
+          </div>
+          <div className="buttons-container">
+            <Button variant="primary" onClick={handleBuildPDF}>
+              <IoHammer /> Build PDF
+            </Button>
+          </div>
+        </div>
+
+        <div className="api-status d-flex justify-content-center">
+          <p>{apiStatus}</p>
+        </div>
+        <Row className="justify-content-center">
+          <Col md={8}>
+            <div className="mt-3" />
+            <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
+              <Section
+                section={report}
+                isRoot
+                onSectionChange={handleSectionChange}
+                onDelete={null}
+                parentDirectory={null}
+                report={report}
+              />
+            </div>
+            {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
+          </Col>
+        </Row>
+      </Container>
   );
 }
 

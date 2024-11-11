@@ -7,6 +7,7 @@ import { Form, Container, Button, Row, Table } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import FileData from './FileData';
 import { handleAPIUpdate } from './utils';
+import { useLoading } from '../contexts/LoadingContext';
 const path = require('path');
 
 const FileIcon = (
@@ -17,39 +18,60 @@ const FileIcon = (
 );
 
 function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
+  const { incrementLoading, decrementLoading } = useLoading();
   const [directorySource, setDirectorySource] = useState(file.directory_source);
   const [filenameText, setFilenameText] = useState(file.filename_text_to_match);
   const [reorderPagesMetals, setReorderPagesMetals] = useState(file.reorder_pages_metals);
   const [reorderPagesDatetime, setReorderPagesDatetime] = useState(file.reorder_pages_datetime);
 
-  useEffect(() => {
-    updateFile({
-      ...file,
-      directory_source: directorySource,
-      filename_text_to_match: filenameText,
-      reorder_pages_metals: reorderPagesMetals,
-      reorder_pages_datetime: reorderPagesDatetime,
-    });
-  }, [directorySource, filenameText, reorderPagesMetals, reorderPagesDatetime]);
-
-  const updateFile = (updatedFile) => {
-    handleAPIUpdate(
-      `http://localhost:8000/filetype?parent_directory_source=${parentDirectorySource}`,
-      updatedFile,
-      onFileChange,
-      (error) =>
-        console.error('Failed to update file type with the API', error),
-    );
-  };
-
   const handleDirectoryChange = (e) => {
     const newDirectorySource = e.target.value;
     setDirectorySource(newDirectorySource);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        incrementLoading();
+        const updatedFile = await updateFile({
+          ...file,
+          directory_source: newDirectorySource,
+          filename_text_to_match: filenameText,
+          reorder_pages_metals: reorderPagesMetals,
+          reorder_pages_datetime: reorderPagesDatetime,
+        });
+        if (updatedFile) {
+          onFileChange(updatedFile);
+        }
+      } finally {
+        decrementLoading();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   };
 
   const handleFilenameChange = (e) => {
     const newFilenameText = e.target.value;
     setFilenameText(newFilenameText);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        incrementLoading();
+        const updatedFile = await updateFile({
+          ...file,
+          directory_source: directorySource,
+          filename_text_to_match: newFilenameText,
+          reorder_pages_metals: reorderPagesMetals,
+          reorder_pages_datetime: reorderPagesDatetime,
+        });
+        if (updatedFile) {
+          onFileChange(updatedFile);
+        }
+      } finally {
+        decrementLoading();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   };
 
   const handleBookmarkChange = (newBookmarkName) => {
@@ -93,6 +115,15 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
     if (!reorderPagesDatetime) {
       setReorderPagesMetals(false);
     }
+  };
+
+  const updateFile = async (updatedFile) => {
+    return handleAPIUpdate(
+      `http://localhost:8000/filetype?parent_directory_source=${parentDirectorySource}`,
+      updatedFile,
+      null,
+      (error) => console.error('Failed to update file type with the API', error),
+    );
   };
 
   return (

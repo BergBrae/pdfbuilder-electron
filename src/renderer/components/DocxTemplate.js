@@ -6,6 +6,7 @@ import { FaCheck } from 'react-icons/fa';
 import { Row, Col, Form, Container, Button, Table } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import { handleAPIUpdate } from './utils';
+import { useLoading } from '../contexts/LoadingContext';
 
 const docxIcon = (
   <span className="docx-icon content-align-center mt-2 mb-2">
@@ -21,6 +22,7 @@ function DocxTemplate({
   parentDirectorySource,
   report,
 }) {
+  const { incrementLoading, decrementLoading } = useLoading();
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
 
   useEffect(() => {
@@ -38,18 +40,29 @@ function DocxTemplate({
     onDelete(docxTemplate.id);
   };
 
-  const handleDocxPathChange = (event) => {
+  const handleDocxPathChange = async (event) => {
     const newDocxPath = event.target.value;
     setDocxPath(newDocxPath);
 
-    handleAPIUpdate(
-      `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectorySource}`,
-      { ...docxTemplate, docx_path: newDocxPath },
-      (data) => {
-        onTemplateChange(data);
-      },
-      (error) => console.log(error),
-    );
+    // Debounce the API call
+    const timeoutId = setTimeout(async () => {
+      try {
+        incrementLoading();
+        const updatedTemplate = await handleAPIUpdate(
+          `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectorySource}`,
+          { ...docxTemplate, docx_path: newDocxPath },
+          null,  // Don't pass onTemplateChange here
+          (error) => console.log(error),
+        );
+        if (updatedTemplate) {
+          onTemplateChange(updatedTemplate);
+        }
+      } finally {
+        decrementLoading();
+      }
+    }, 500);  // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
   };
 
   const handlePageStartColChange = (event) => {
