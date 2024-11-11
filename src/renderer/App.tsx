@@ -42,17 +42,13 @@ function App() {
   const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
 
   const isCurrentlyLoading = (report: any) => {
-    for (const child of report.children) {
-      if (child.type === 'FileType' || child.type === 'DocxTemplate') {
-        if (child.needs_update) {
-          return true;
-        }
-      }
-      if (child.type === 'Section') {
-        return isCurrentlyLoading(child);
-      }
-    }
-    return false;
+    if (!report || !report.children) return false;
+
+    return report.children.some(child => {
+      if (child.needs_update) return true;
+      if (child.type === 'Section') return isCurrentlyLoading(child);
+      return false;
+    });
   };
 
   const handleSectionChange = (newSection) => {

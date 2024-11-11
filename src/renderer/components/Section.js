@@ -205,13 +205,20 @@ function Section({
 
   useEffect(() => {
     if (section.needs_update) {
-      section.needs_update = false;
-      updateChildrenWithAPI(section, directorySource).then((updatedSection) => {
-        updatedSection.variables = getUpdatedVariables(updatedSection);
-        onSectionChange(updatedSection);
-      });
+      const updateSection = async () => {
+        try {
+          section.needs_update = false;
+          const updatedSection = await updateChildrenWithAPI(section, directorySource);
+          updatedSection.variables = getUpdatedVariables(updatedSection);
+          onSectionChange(updatedSection);
+        } catch (error) {
+          console.error('Error updating section:', error);
+        }
+      };
+
+      updateSection();
     }
-  }, [section, directorySource, onSectionChange]);
+  }, [section.needs_update, directorySource]);
 
   return (
     <CustomAccordion
