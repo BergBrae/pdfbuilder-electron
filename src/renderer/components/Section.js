@@ -87,8 +87,9 @@ function Section({
   };
 
   const handleBaseDirectoryChange = async (currentDirectory) => {
-    const relativePath =
-      await window.electron.directoryDialog(currentDirectory);
+    const relativePath = await window.electron.directoryDialog(
+      currentDirectory || section.base_directory,
+    );
     if (relativePath) {
       section = setFlags(section);
       onSectionChange({ ...section, base_directory: relativePath });
@@ -211,7 +212,10 @@ function Section({
       const updateSection = async () => {
         try {
           incrementLoading();
-          const updatedSection = await updateChildrenWithAPI(section, directorySource);
+          const updatedSection = await updateChildrenWithAPI(
+            section,
+            directorySource,
+          );
           updatedSection.variables = getUpdatedVariables(updatedSection);
           onSectionChange(updatedSection);
         } catch (error) {
