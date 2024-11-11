@@ -72,16 +72,19 @@ def convert_bookmark_data_to_table_entries(
 
     table_entries = []
     for bookmark in bookmark_data:
-        level = get_level(bookmark)
-        table_entry = TableEntry(
-            title=bookmark.title,
-            page_start=bookmark.page,
-            page_end=(
-                bookmark.page_end if bookmark.page_end is not None else bookmark.page
-            ),
-            level=level,
-        )
-        table_entries.append(table_entry)
+        if bookmark.include_in_table_of_contents:
+            level = get_level(bookmark)
+            table_entry = TableEntry(
+                title=bookmark.title,
+                page_start=bookmark.page,
+                page_end=(
+                    bookmark.page_end
+                    if bookmark.page_end is not None
+                    else bookmark.page
+                ),
+                level=level,
+            )
+            table_entries.append(table_entry)
     return table_entries
 
 

@@ -84,6 +84,7 @@ class BookmarkItem(BaseModel):
     page: int
     id: str
     page_end: Optional[int] = None
+    include_in_table_of_contents: bool = True
     parent: Optional["BookmarkItem"] = None
     outline_element: Optional[Any] = (
         None  # This is a placeholder for the outline element that will be created in the second pass

@@ -560,6 +560,7 @@ class PDFBuilder:
                     page=page_number + self.current_page,  # Adjust page number
                     parent=parent,
                     id=str(uuid.uuid4()),
+                    include_in_table_of_contents=False,
                 )
                 existing_bookmarks.append(bookmark)
                 if hasattr(outline, "children"):
