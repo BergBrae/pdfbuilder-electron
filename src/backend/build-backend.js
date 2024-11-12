@@ -31,16 +31,14 @@ try {
   const venvPath = getVenvPath();
   const venvBinPath = getVenvBinPath();
 
-  // Delete the existing virtual environment if it exists
-  if (fs.existsSync(venvPath)) {
-    console.log(`Removing existing virtual environment: ${venvPath}`);
-    fs.rmSync(venvPath, { recursive: true, force: true });
+  // Create the virtual environment only if it doesn't exist
+  if (!fs.existsSync(venvPath)) {
+    const createVenvCommand = `${pythonCmd} -m venv ${venvPath}`;
+    console.log(`Creating virtual environment: ${createVenvCommand}`);
+    execSync(createVenvCommand, { stdio: 'inherit', shell: true });
+  } else {
+    console.log('Using existing virtual environment');
   }
-
-  // Create the virtual environment
-  const createVenvCommand = `${pythonCmd} -m venv ${venvPath}`;
-  console.log(`Creating virtual environment: ${createVenvCommand}`);
-  execSync(createVenvCommand, { stdio: 'inherit', shell: true });
 
   // Install requirements.txt
   const requirementsPath = path.join(currentDir, 'requirements.txt');
