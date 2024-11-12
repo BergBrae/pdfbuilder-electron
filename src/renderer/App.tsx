@@ -19,7 +19,7 @@ import { FiRefreshCw } from 'react-icons/fi';
 import logo from '../../assets/merit-logo.jpeg';
 import appIcon from '../../assets/icon.png';
 import { useLoading } from './contexts/LoadingContext';
-
+import ChangeLog from './components/ChangeLog';
 function App() {
   const emptyReport = {
     type: 'Section',
@@ -265,22 +265,7 @@ function App() {
           <Modal.Title>What's New</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h5>Version 1.4.0</h5>
-          <ul>
-            <li>
-              Fixed an issue that caused the app to get stuck in a loading state
-            </li>
-            <li>
-              Existing bookmarks within PDFs are carried over to the new PDF,
-              but not present in the Table of Contents
-            </li>
-            <li>
-              Added a new type of reordering for datetime and manually
-              integrated pages.
-            </li>
-            <li>Added auto-update feature</li>
-            <li>Added "What's New?" section</li>
-          </ul>
+          <ChangeLog />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => setShowWhatsNew(false)}>
