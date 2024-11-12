@@ -3,8 +3,7 @@ const path = require('path');
 const { app, dialog } = require('electron');
 const { exec } = require('child_process');
 
-const NETWORK_DRIVE_PATH =
-  'C:\\Users\\brady\\dev\\pdfbuilder-electron\\release\\build'; // Check this dir name
+const NETWORK_DRIVE_PATH = 'G:\\data\\PDFBuilder';
 
 function getNetworkVersion() {
   try {
