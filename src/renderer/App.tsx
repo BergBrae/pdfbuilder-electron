@@ -42,6 +42,8 @@ function App() {
   const [apiStatus, setApiStatus] = useState(''); // New state for API status
   const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
   const { loadingCount } = useLoading();
+  const [version, setVersion] = useState('');
+  const [showWhatsNew, setShowWhatsNew] = useState(false); // New state for "What's New?" modal
 
   const handleSectionChange = (newSection) => {
     setReport(newSection);
@@ -163,144 +165,202 @@ function App() {
     setTimeout(checkApiConnection, 5000); // Add a 5-second delay before checking API connection
   }, []);
 
+  useEffect(() => {
+    window.electron
+      .getVersion()
+      .then((version) => {
+        setVersion(version);
+      })
+      .catch((error) => {
+        console.error('Error getting version:', error);
+      });
+  }, []);
+
   return (
-      <Container fluid className="App">
-        {loadingCount > 0 && (
-          <div className="loading-overlay">
-            <Spinner animation="border" className="loading-spinner" />
-          </div>
-        )}
+    <Container fluid className="App">
+      {loadingCount > 0 && (
+        <div className="loading-overlay">
+          <Spinner animation="border" className="loading-spinner" />
+        </div>
+      )}
 
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirm New Report</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Are you sure you want to create a new report? Unsaved changes will be
-            lost.
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={confirmNew}>
-              Confirm
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm New Report</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to create a new report? Unsaved changes will be
+          lost.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={confirmNew}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-        <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Help</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Help />
-          </Modal.Body>
-          <Modal.Footer>
-            <p>Contact Brady for further help</p>
-            <Button variant="primary" onClick={closeHelpModal}>
-              Dismiss
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Help</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Help />
+        </Modal.Body>
+        <Modal.Footer>
+          <p>Contact Brady for further help</p>
+          <Button variant="primary" onClick={closeHelpModal}>
+            Dismiss
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-        <Modal show={showBuildModal} onHide={closeBuildModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Building PDF</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {isLoading ? (
-              <div className="d-flex justify-content-center">
-                <Spinner animation="border" />
-              </div>
-            ) : buildStatus === 'success' ? (
-              <p>PDF built successfully!</p>
-            ) : buildStatus === 'failure' ? (
-              <p>{error.message}</p>
-            ) : null}
-          </Modal.Body>
-          <Modal.Footer>
-            {!isLoading && (
-              <Button variant="primary" onClick={closeBuildModal}>
-                Close
-              </Button>
-            )}
-          </Modal.Footer>
-        </Modal>
-
-        <Modal
-          show={showApiErrorModal}
-          onHide={() => setShowApiErrorModal(false)}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>API Connection Error</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>
-              There was an error starting the app. Please try restarting the app.
-            </p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="primary" onClick={() => setShowApiErrorModal(false)}>
+      <Modal show={showBuildModal} onHide={closeBuildModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Building PDF</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {isLoading ? (
+            <div className="d-flex justify-content-center">
+              <Spinner animation="border" />
+            </div>
+          ) : buildStatus === 'success' ? (
+            <p>PDF built successfully!</p>
+          ) : buildStatus === 'failure' ? (
+            <p>{error.message}</p>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          {!isLoading && (
+            <Button variant="primary" onClick={closeBuildModal}>
               Close
             </Button>
-          </Modal.Footer>
-        </Modal>
+          )}
+        </Modal.Footer>
+      </Modal>
 
-        <div className="floating-buttons">
-          <img
-            src={logo}
-            alt="Merit Logo"
-            style={{ maxWidth: '15vw', marginBottom: '30px' }}
-          />
-          <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
-          <div className="buttons-container">
-            <Button variant="secondary" onClick={handleRefresh}>
-              <FiRefreshCw /> Refresh
-            </Button>
-            <Button variant="secondary" onClick={handleHelp}>
-              <IoIosHelpCircle /> Help
-            </Button>
-          </div>
-          <div className="buttons-container">
-            <Button variant="primary" onClick={handleNew}>
-              <IoIosCreate /> Clear
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              <IoIosSave /> Save
-            </Button>
-            <Button variant="primary" onClick={handleLoad}>
-              <FaBoxOpen /> Open
-            </Button>
-            <Outline report={report} />
-          </div>
-          <div className="buttons-container">
-            <Button variant="primary" onClick={handleBuildPDF}>
-              <IoHammer /> Build PDF
-            </Button>
+      <Modal
+        show={showApiErrorModal}
+        onHide={() => setShowApiErrorModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>API Connection Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            There was an error starting the app. Please try restarting the app.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowApiErrorModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showWhatsNew} onHide={() => setShowWhatsNew(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>What's New</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h5>Version 1.4.0</h5>
+          <ul>
+            <li>
+              Fixed an issue that caused the app to get stuck in a loading state
+            </li>
+            <li>
+              Existing bookmarks within PDFs are carried over to the new PDF,
+              but not present in the Table of Contents
+            </li>
+            <li>
+              Added a new type of reordering for datetime and manually
+              integrated pages.
+            </li>
+            <li>Added auto-update feature</li>
+            <li>Added "What's New?" section</li>
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowWhatsNew(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <div className="floating-buttons">
+        <img
+          src={logo}
+          alt="Merit Logo"
+          style={{ maxWidth: '15vw', marginBottom: '30px' }}
+        />
+        <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
+        <div className="buttons-container">
+          <Button variant="secondary" onClick={handleRefresh}>
+            <FiRefreshCw /> Refresh
+          </Button>
+          <Button variant="secondary" onClick={handleHelp}>
+            <IoIosHelpCircle /> Help
+          </Button>
+        </div>
+        <div className="buttons-container">
+          <Button variant="primary" onClick={handleNew}>
+            <IoIosCreate /> Clear
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            <IoIosSave /> Save
+          </Button>
+          <Button variant="primary" onClick={handleLoad}>
+            <FaBoxOpen /> Open
+          </Button>
+          <Outline report={report} />
+        </div>
+        <div className="buttons-container">
+          <Button variant="primary" onClick={handleBuildPDF}>
+            <IoHammer /> Build PDF
+          </Button>
+        </div>
+        <div
+          className="text-center text-muted mt-3"
+          style={{ fontSize: '0.8rem', textAlign: 'center', margin: 'auto' }}
+        >
+          {version && <p className="mb-0">Version: {version}</p>}
+          <div>
+            <a
+              href="#"
+              className="text-primary"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowWhatsNew(true);
+              }}
+            >
+              What's New?
+            </a>
           </div>
         </div>
+      </div>
 
-        <div className="api-status d-flex justify-content-center">
-          <p>{apiStatus}</p>
-        </div>
-        <Row className="justify-content-center">
-          <Col md={8}>
-            <div className="mt-3" />
-            <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-              <Section
-                section={report}
-                isRoot
-                onSectionChange={handleSectionChange}
-                onDelete={null}
-                parentDirectory={null}
-                report={report}
-              />
-            </div>
-            {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
-          </Col>
-        </Row>
-      </Container>
+      <div className="api-status d-flex justify-content-center">
+        <p>{apiStatus}</p>
+      </div>
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <div className="mt-3" />
+          <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
+            <Section
+              section={report}
+              isRoot
+              onSectionChange={handleSectionChange}
+              onDelete={null}
+              parentDirectory={null}
+              report={report}
+            />
+          </div>
+          {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

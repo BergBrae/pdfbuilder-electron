@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['api.py'],
+    ['C:\\Users\\brady\\dev\\pdfbuilder-electron\\src\\backend\\api.py'],
     pathex=[],
     binaries=[],
     datas=[],

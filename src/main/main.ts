@@ -5,6 +5,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import fs from 'fs';
 import { spawn, ChildProcess, exec } from 'child_process'; // Import exec from child_process
+import checkForUpdates from './checkForUpdates'; // Import the update check function
 
 // Start backend code
 const controller = new AbortController();
@@ -44,6 +45,9 @@ exeProcess.on('close', (code) => {
 });
 
 // End backend code
+ipcMain.handle('get-version', async (event, arg) => {
+  return app.getVersion();
+});
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -207,9 +211,10 @@ app
   .then(() => {
     // Set AppUserModelId for Windows notifications
     if (process.platform === 'win32') {
-      app.setAppUserModelId("PDFBuilder");
+      app.setAppUserModelId('PDFBuilder');
     }
     createWindow();
+    checkForUpdates(mainWindow);
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

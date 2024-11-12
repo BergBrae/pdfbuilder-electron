@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
+import { contextBridge, ipcRenderer, IpcRendererEvent, app } from 'electron'
 
 export type Channels = 'ipc-example'
 
@@ -12,6 +12,7 @@ const electronHandler = {
   loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
   buildPathDialog: async (defaultPath) => await ipcRenderer.invoke('build-path-dialog', defaultPath),
   directoryDialog: async (defaultPath) => await ipcRenderer.invoke('directory-dialog', defaultPath),
+  getVersion: async () => await ipcRenderer.invoke('get-version'),
   Notification: Notification // Expose Notification API
 }
 
