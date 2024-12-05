@@ -239,7 +239,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     inline
                     type="switch"
                     id="reorder-pages-datetime-switch"
-                    label="Reorder Pages (Datetime)"
+                    label="Reorder Pages (IC Datetime)"
                     checked={reorderPagesDatetime}
                     onChange={handleReorderPagesDatetimeChange}
                     disabled={reorderPagesMetals}
