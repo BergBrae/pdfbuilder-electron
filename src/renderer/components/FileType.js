@@ -76,6 +76,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
 
   const handleBookmarkChange = (newBookmarkName) => {
     updateFile({ ...file, bookmark_name: newBookmarkName || null });
+    onFileChange({ ...file, bookmark_name: newBookmarkName || null });
   };
 
   const handleDelete = () => {
