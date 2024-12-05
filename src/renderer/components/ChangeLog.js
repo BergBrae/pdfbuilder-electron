@@ -1,6 +1,16 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 1.4.2</h5>
+      <ul>
+        <li>Fixed editing bookmarks</li>
+        <li>Fixed reordering pages</li>
+        <li>Fixed bookmark rules</li>
+        <li>
+          <strong>Known Issue:</strong> The presence of a table of contents can
+          cause the bookmarks to be off by one page
+        </li>
+      </ul>
       <h5>Version 1.4.1</h5>
       <ul>
         <li>Minor bug fixes and improvements</li>
