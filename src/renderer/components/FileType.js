@@ -21,8 +21,12 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   const { incrementLoading, decrementLoading } = useLoading();
   const [directorySource, setDirectorySource] = useState(file.directory_source);
   const [filenameText, setFilenameText] = useState(file.filename_text_to_match);
-  const [reorderPagesMetals, setReorderPagesMetals] = useState(file.reorder_pages_metals);
-  const [reorderPagesDatetime, setReorderPagesDatetime] = useState(file.reorder_pages_datetime);
+  const [reorderPagesMetals, setReorderPagesMetals] = useState(
+    file.reorder_pages_metals,
+  );
+  const [reorderPagesDatetime, setReorderPagesDatetime] = useState(
+    file.reorder_pages_datetime,
+  );
 
   const handleDirectoryChange = (e) => {
     const newDirectorySource = e.target.value;
@@ -105,17 +109,33 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   };
 
   const handleReorderPagesMetalsChange = () => {
-    setReorderPagesMetals(!reorderPagesMetals);
-    if (!reorderPagesMetals) {
+    const newReorderPagesMetals = !reorderPagesMetals;
+    setReorderPagesMetals(newReorderPagesMetals);
+
+    if (newReorderPagesMetals) {
       setReorderPagesDatetime(false);
     }
+
+    onFileChange({
+      ...file,
+      reorder_pages_metals: newReorderPagesMetals,
+      reorder_pages_datetime: false,
+    });
   };
 
   const handleReorderPagesDatetimeChange = () => {
-    setReorderPagesDatetime(!reorderPagesDatetime);
-    if (!reorderPagesDatetime) {
+    const newReorderPagesDatetime = !reorderPagesDatetime;
+    setReorderPagesDatetime(newReorderPagesDatetime);
+
+    if (newReorderPagesDatetime) {
       setReorderPagesMetals(false);
     }
+
+    onFileChange({
+      ...file,
+      reorder_pages_metals: false,
+      reorder_pages_datetime: newReorderPagesDatetime,
+    });
   };
 
   const updateFile = async (updatedFile) => {
@@ -123,7 +143,8 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
       `http://localhost:8000/filetype?parent_directory_source=${parentDirectorySource}`,
       updatedFile,
       null,
-      (error) => console.error('Failed to update file type with the API', error),
+      (error) =>
+        console.error('Failed to update file type with the API', error),
     );
   };
 
