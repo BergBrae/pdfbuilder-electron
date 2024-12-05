@@ -219,6 +219,8 @@ class PDFBuilder:
         self.writer_data.append(file_type_data)
 
         for file in child["files"]:
+            if not file.get("bookmark_rules"):
+                file["bookmark_rules"] = child.get("bookmark_rules", [])
             self._process_file(file, directory_source, file_type_bookmark)
 
     def _process_file_type_with_reorder_metals(
