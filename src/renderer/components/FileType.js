@@ -27,6 +27,9 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
   const [reorderPagesDatetime, setReorderPagesDatetime] = useState(
     file.reorder_pages_datetime,
   );
+  const [keepExistingBookmarks, setKeepExistingBookmarks] = useState(
+    file.keep_existing_bookmarks || true,
+  );
 
   const handleDirectoryChange = (e) => {
     const newDirectorySource = e.target.value;
@@ -114,12 +117,14 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
 
     if (newReorderPagesMetals) {
       setReorderPagesDatetime(false);
+      setKeepExistingBookmarks(false);
     }
 
     onFileChange({
       ...file,
       reorder_pages_metals: newReorderPagesMetals,
       reorder_pages_datetime: false,
+      keep_existing_bookmarks: false,
     });
   };
 
@@ -129,12 +134,24 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
 
     if (newReorderPagesDatetime) {
       setReorderPagesMetals(false);
+      setKeepExistingBookmarks(false);
     }
 
     onFileChange({
       ...file,
       reorder_pages_metals: false,
       reorder_pages_datetime: newReorderPagesDatetime,
+      keep_existing_bookmarks: keepExistingBookmarks,
+    });
+  };
+
+  const handleKeepExistingBookmarksChange = () => {
+    const newKeepExistingBookmarks = !keepExistingBookmarks;
+    setKeepExistingBookmarks(newKeepExistingBookmarks);
+
+    onFileChange({
+      ...file,
+      keep_existing_bookmarks: newKeepExistingBookmarks,
     });
   };
 
@@ -195,20 +212,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
             <tbody>
               <tr>
                 <td className="left-align">
-                  <Form.Check
-                    inline
-                    type="switch"
-                    id="page-numbers-switch"
-                    label="Add Page Numbers"
-                    checked={false} // file.will_have_page_numbers
-                    disabled
-                    onChange={() =>
-                      updateFile({
-                        ...file,
-                        will_have_page_numbers: !file.will_have_page_numbers,
-                      })
-                    }
-                  />
+                  <BookmarkRules fileType={file} onChange={onFileChange} />
                 </td>
                 <td className="left-align">
                   <Button
@@ -231,7 +235,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     label="Reorder Pages (Metals)"
                     checked={reorderPagesMetals}
                     onChange={handleReorderPagesMetalsChange}
-                    disabled={reorderPagesDatetime}
+                    disabled={reorderPagesDatetime || keepExistingBookmarks}
                   />
                 </td>
                 <td className="left-align">
@@ -242,13 +246,21 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
                     label="Reorder Pages (IC Datetime)"
                     checked={reorderPagesDatetime}
                     onChange={handleReorderPagesDatetimeChange}
-                    disabled={reorderPagesMetals}
+                    disabled={reorderPagesMetals || keepExistingBookmarks}
                   />
                 </td>
               </tr>
               <tr>
-                <td className="left-align" colSpan="2">
-                  <BookmarkRules fileType={file} onChange={onFileChange} />
+                <td className="left-align">
+                  <Form.Check
+                    inline
+                    type="switch"
+                    id="keep-existing-bookmarks-switch"
+                    label="Keep Existing Bookmarks"
+                    checked={keepExistingBookmarks}
+                    onChange={handleKeepExistingBookmarksChange}
+                    disabled={reorderPagesDatetime || reorderPagesMetals}
+                  />
                 </td>
               </tr>
             </tbody>
