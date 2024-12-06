@@ -64,6 +64,7 @@ class FileType(BaseModel):
     bookmark_rules: list[BookmarkRule] = []
     reorder_pages_metals: bool = False
     reorder_pages_datetime: bool = False
+    keep_existing_bookmarks: bool = False
 
 
 class Section(BaseModel):

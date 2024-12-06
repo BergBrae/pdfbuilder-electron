@@ -180,21 +180,26 @@ class PDFBuilder:
         :param base_directory: The base directory for resolving paths.
         :param root_bookmark: The parent bookmark for the current section.
         """
+        keep_existing_bookmarks = child.get("keep_existing_bookmarks", False)
         if child.get("reorder_pages_metals"):
             self._process_file_type_with_reorder_metals(
-                child, base_directory, root_bookmark
+                child, base_directory, root_bookmark, keep_existing_bookmarks
             )
         elif child.get("reorder_pages_datetime"):
             self._process_file_type_with_reorder_datetime(
-                child, base_directory, root_bookmark
+                child, base_directory, root_bookmark, keep_existing_bookmarks
             )
         else:
             self._process_file_type_without_reorder(
-                child, base_directory, root_bookmark
+                child, base_directory, root_bookmark, keep_existing_bookmarks
             )
 
     def _process_file_type_without_reorder(
-        self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem
+        self,
+        child: Dict[str, Any],
+        base_directory: str,
+        root_bookmark: BookmarkItem,
+        keep_existing_bookmarks: bool,
     ) -> None:
         """
         Processes a FileType without reordering pages, adding metadata for the PDF.
@@ -202,6 +207,7 @@ class PDFBuilder:
         :param child: The child element representing a FileType.
         :param base_directory: The base directory for resolving paths.
         :param root_bookmark: The parent bookmark for the current section.
+        :param keep_existing_bookmarks: Whether to keep existing bookmarks.
         """
         if not child["files"]:
             return  # Skip if there are no files
@@ -221,10 +227,19 @@ class PDFBuilder:
         for file in child["files"]:
             if not file.get("bookmark_rules"):
                 file["bookmark_rules"] = child.get("bookmark_rules", [])
-            self._process_file(file, directory_source, file_type_bookmark)
+            self._process_file(
+                file,
+                directory_source,
+                file_type_bookmark,
+                keep_existing_bookmarks,
+            )
 
     def _process_file_type_with_reorder_metals(
-        self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem
+        self,
+        child: Dict[str, Any],
+        base_directory: str,
+        root_bookmark: BookmarkItem,
+        keep_existing_bookmarks: bool,
     ) -> None:
         """
         Processes a FileType with page reordering, using reorder_metals_form1.
@@ -232,9 +247,13 @@ class PDFBuilder:
         :param child: The child element representing a FileType.
         :param base_directory: The base directory for resolving paths.
         :param root_bookmark: The parent bookmark for the current section.
+        :param keep_existing_bookmarks: Whether to keep existing bookmarks.
         """
         if not child["files"]:
             return  # Skip if there are no files
+
+        if keep_existing_bookmarks:
+            raise ValueError("keep_existing_bookmarks is not supported for reordering")
 
         file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
         pdf, num_pages = reorder_metals_form1(child["files"])
@@ -259,7 +278,11 @@ class PDFBuilder:
         self.current_page += num_pages
 
     def _process_file_type_with_reorder_datetime(
-        self, child: Dict[str, Any], base_directory: str, root_bookmark: BookmarkItem
+        self,
+        child: Dict[str, Any],
+        base_directory: str,
+        root_bookmark: BookmarkItem,
+        keep_existing_bookmarks: bool,
     ) -> None:
         """
         Processes a FileType with page reordering, using reorder_pdfs_by_datetime.
@@ -267,9 +290,13 @@ class PDFBuilder:
         :param child: The child element representing a FileType.
         :param base_directory: The base directory for resolving paths.
         :param root_bookmark: The parent bookmark for the current section.
+        :param keep_existing_bookmarks: Whether to keep existing bookmarks.
         """
         if not child["files"]:
             return  # Skip if there are no files
+
+        if keep_existing_bookmarks:
+            raise ValueError("keep_existing_bookmarks is not supported for reordering")
 
         file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
         directory_source = os.path.normpath(
@@ -304,7 +331,11 @@ class PDFBuilder:
         self.current_page += num_pages
 
     def _process_file(
-        self, file: Dict[str, Any], directory_source: str, parent_bookmark: BookmarkItem
+        self,
+        file: Dict[str, Any],
+        directory_source: str,
+        parent_bookmark: BookmarkItem,
+        keep_existing_bookmarks: bool,
     ) -> None:
         """
         Processes an individual file within a FileType, adding its data to the writer.
@@ -318,10 +349,10 @@ class PDFBuilder:
         pdf, num_pages = self._get_pdf_and_page_count(file_path)
 
         # Extract existing bookmarks from the PDF
-        existing_bookmarks = self._extract_existing_bookmarks(pdf, file_bookmark)
-
-        # Add existing bookmarks to the bookmark data
-        self.bookmark_data.extend(existing_bookmarks)
+        if keep_existing_bookmarks:
+            existing_bookmarks = self._extract_existing_bookmarks(pdf, file_bookmark)
+            # Add existing bookmarks to the bookmark data
+            self.bookmark_data.extend(existing_bookmarks)
 
         page_level_bookmarks = get_page_level_bookmarks(
             pdf=pdf,
