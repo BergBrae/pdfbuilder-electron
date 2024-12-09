@@ -1,15 +1,20 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 1.4.3</h5>
+      <ul>
+        <li>Fixed bookmarks sometimes being off by one page when using a table of contents</li>
+        <li>
+          Added the ability to specify if existing bookmarks are kept on a
+          PDFType-level <strong>Note:</strong> You may need to re-enable
+          reordering options in saved templates.
+        </li>
+      </ul>
       <h5>Version 1.4.2</h5>
       <ul>
         <li>Fixed editing bookmarks</li>
         <li>Fixed reordering pages</li>
         <li>Fixed bookmark rules</li>
-        <li>
-          <strong>Known Issue:</strong> The presence of a table of contents can
-          cause the bookmarks to be off by one page
-        </li>
       </ul>
       <h5>Version 1.4.1</h5>
       <ul>
