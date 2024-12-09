@@ -483,8 +483,19 @@ class PDFBuilder:
                     page_number_offset=self.page_number_offset,
                 )
                 if data.get("is_table_of_contents"):
-                    self.table_of_contents_docx = modified_docx
                     self._shift_bookmarks(num_pages - data["num_pages"])
+
+                    pdf, num_pages, modified_docx = convert_docx_template_to_pdf(
+                        data["path"],
+                        replacements=data["replacements"],
+                        page_start_col=data.get("page_start_col"),
+                        page_end_col=data.get("page_end_col"),
+                        is_table_of_contents=data.get("is_table_of_contents", False),
+                        bookmark_data=self.bookmark_data,
+                        page_number_offset=self.page_number_offset,
+                    )
+
+                    self.table_of_contents_docx = modified_docx
 
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
