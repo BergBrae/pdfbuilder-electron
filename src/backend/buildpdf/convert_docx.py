@@ -97,7 +97,6 @@ def convert_docx_template_to_pdf(
     total_pages=None,
     is_table_of_contents=False,
     bookmark_data=None,
-    num_rows=None,
 ):
     intermediate_files = []
 
@@ -120,8 +119,6 @@ def convert_docx_template_to_pdf(
             table_entries = convert_bookmark_data_to_table_entries(bookmark_data)
             table_doc.set_table_entries(table_entries)
             table_doc.adjust_num_rows()
-        elif num_rows:
-            table_doc.adjust_num_rows(num_rows)
 
         modified_docx_path = table_doc.save()
 

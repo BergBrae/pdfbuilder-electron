@@ -34,7 +34,6 @@ class PDFBuilder:
         def toc_filename(pdf_path: str) -> str:
             return pdf_path.replace(".pdf", "_table_of_contents.docx")
 
-        self.num_bookmarks = self._count_bookmarks(report)
         self._generate_pdf_pass_one(report)
         self._add_page_end_to_bookmarks()
         print("Pass one complete. Files are staged for processing. Processing files...")
@@ -52,38 +51,6 @@ class PDFBuilder:
         First pass through the report data to process and collect writer and bookmark data.
         """
         self._build_pdf_data(report)
-
-    def _count_bookmarks(self, report: Dict[str, Any]) -> int:
-        """
-        Counts the total number of bookmarks in the report.
-
-        :param report: The report data dictionary.
-        :return: The total number of bookmarks.
-        """
-        # Initialize num_bookmarks to 0 for each new count operation
-        self.num_bookmarks = 0
-
-        def count_recursive(section: Dict[str, Any]) -> int:
-            count = 0
-            for child in section.get("children", []):
-                if child["type"] == "Section":
-                    count += count_recursive(child)
-                elif child["type"] == "FileType" and len(child["files"]) > 0:
-                    if child["bookmark_name"] is not None:
-                        count += 1
-                    for file in child["files"]:
-                        if file["bookmark_name"] is not None:
-                            count += 1
-                elif (
-                    child["type"] == "DocxTemplate"
-                    and child["exists"]
-                    and child["bookmark_name"] is not None
-                ):
-                    count += 1
-            return count
-
-        self.num_bookmarks = count_recursive(report)
-        return self.num_bookmarks
 
     def _build_pdf_data(
         self,
@@ -140,6 +107,7 @@ class PDFBuilder:
                         page=self.current_page,
                         parent=root_bookmark,
                         id=child["id"],
+                        is_table_of_contents=child.get("is_table_of_contents", False),
                     )
                 )
 
@@ -148,11 +116,10 @@ class PDFBuilder:
             )
             _, num_pages, _ = convert_docx_template_to_pdf(
                 docx_path,
-                num_rows=self.num_bookmarks,
                 is_table_of_contents=child.get("is_table_of_contents", False),
                 page_start_col=child.get("page_start_col"),
                 page_end_col=child.get("page_end_col"),
-            )  # needs data to determine num_pages
+            )
             self.page_number_offset = child.get("page_number_offset", 0)
             docx_data = {
                 "type": "docxTemplate",
@@ -506,7 +473,7 @@ class PDFBuilder:
         writer = PdfWriter()
         for data in self.writer_data:
             if data["type"] == "docxTemplate":
-                pdf, _, modified_docx = convert_docx_template_to_pdf(
+                pdf, num_pages, modified_docx = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
                     page_start_col=data.get("page_start_col"),
@@ -517,10 +484,23 @@ class PDFBuilder:
                 )
                 if data.get("is_table_of_contents"):
                     self.table_of_contents_docx = modified_docx
+                    self._shift_bookmarks(num_pages - data["num_pages"])
+
                 writer.append(pdf, import_outline=False)
             if data["type"] == "FileData":
                 writer.append(data["pdf"], import_outline=False)
+
         return writer
+
+    def _shift_bookmarks(self, num_pages: int) -> None:
+        """
+        Shifts the page numbers of bookmarks by the specified number of pages.
+        """
+        for bookmark in self.bookmark_data:
+            if not bookmark.is_table_of_contents:
+                bookmark.page += num_pages
+                if bookmark.page_end is not None:
+                    bookmark.page_end += num_pages
 
     def _add_bookmarks(self, writer: PdfWriter) -> None:
         """

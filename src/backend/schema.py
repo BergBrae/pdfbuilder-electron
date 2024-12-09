@@ -85,6 +85,7 @@ class BookmarkItem(BaseModel):
     page: int
     id: str
     page_end: Optional[int] = None
+    is_table_of_contents: bool = False
     include_in_table_of_contents: bool = True
     parent: Optional["BookmarkItem"] = None
     outline_element: Optional[Any] = (
