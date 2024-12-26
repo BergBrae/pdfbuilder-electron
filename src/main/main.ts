@@ -117,6 +117,18 @@ ipcMain.handle('load-report-dialog', async (event) => {
   return null;
 });
 
+ipcMain.handle('path-normalize', async (event, filepath) => {
+  return path.normalize(filepath);
+});
+
+ipcMain.handle('path-join', async (event, ...args) => {
+  return path.join(...args);
+});
+
+ipcMain.handle('path-relative', async (event, from, to) => {
+  return path.relative(from, to);
+});
+
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 

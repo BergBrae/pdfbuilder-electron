@@ -19,10 +19,25 @@ function Section({
   report,
 }) {
   const { incrementLoading, decrementLoading } = useLoading();
+  const [directorySource, setDirectorySource] = React.useState('');
 
-  const directorySource = parentDirectory
-    ? `${parentDirectory}\\${section.base_directory}`
-    : section.base_directory;
+  useEffect(() => {
+    const updateDirectorySource = async () => {
+      if (parentDirectory) {
+        const joined = await window.electron.path.join(
+          parentDirectory,
+          section.base_directory,
+        );
+        setDirectorySource(joined);
+      } else {
+        const normalized = await window.electron.path.normalize(
+          section.base_directory,
+        );
+        setDirectorySource(normalized);
+      }
+    };
+    updateDirectorySource();
+  }, [parentDirectory, section.base_directory]);
 
   const getUpdatedVariables = (section) => {
     const currentTemplateTexts = section.variables.map(
@@ -87,12 +102,22 @@ function Section({
   };
 
   const handleBaseDirectoryChange = async (currentDirectory) => {
-    const relativePath = await window.electron.directoryDialog(
-      currentDirectory || section.base_directory,
-    );
+    const openToPath = currentDirectory || section.base_directory;
+    const relativePath = await window.electron.directoryDialog(openToPath);
+
     if (relativePath) {
-      section = setFlags(section);
-      onSectionChange({ ...section, base_directory: relativePath });
+      const joined = await window.electron.path.join(openToPath, relativePath);
+      const absolutePath = await window.electron.path.normalize(joined);
+
+      if (!isRoot) {
+        const newBaseDirectory = await window.electron.path.relative(
+          parentDirectory,
+          absolutePath,
+        );
+        onSectionChange({ ...section, base_directory: newBaseDirectory });
+      } else {
+        onSectionChange({ ...section, base_directory: absolutePath });
+      }
     }
   };
 
@@ -194,10 +219,11 @@ function Section({
     const updatedChildren = await Promise.all(
       section.children.map(async (child) => {
         if (child.type === 'Section') {
-          const updatedChild = await updateChildrenWithAPI(
-            child,
-            `${directorySource}\\${child.base_directory}`,
+          const joined = await window.electron.path.join(
+            directorySource,
+            child.base_directory,
           );
+          const updatedChild = await updateChildrenWithAPI(child, joined);
           return { ...child, children: updatedChild.children };
         } else {
           return updateChildWithAPI(child, directorySource);
