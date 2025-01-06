@@ -9,6 +9,7 @@ import CustomAccordion from './CustomAccordion';
 import { v4 as uuidv4 } from 'uuid';
 import { handleAPIUpdate, setFlags } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
+import path from 'path';
 
 function Section({
   section,
@@ -90,9 +91,19 @@ function Section({
     const relativePath = await window.electron.directoryDialog(
       currentDirectory || section.base_directory,
     );
-    if (relativePath) {
+    let pathToBaseDirectory = null;
+    if (!currentDirectory) {
+      // relativePath is relative to section.base_directory
+      pathToBaseDirectory = await window.electron.resolvePath({
+        base: section.base_directory,
+        relative: relativePath,
+      });
+    } else {
+      pathToBaseDirectory = relativePath;
+    }
+    if (pathToBaseDirectory) {
       section = setFlags(section);
-      onSectionChange({ ...section, base_directory: relativePath });
+      onSectionChange({ ...section, base_directory: pathToBaseDirectory });
     }
   };
 

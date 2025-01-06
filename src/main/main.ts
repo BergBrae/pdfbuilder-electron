@@ -117,6 +117,24 @@ ipcMain.handle('load-report-dialog', async (event) => {
   return null;
 });
 
+ipcMain.handle('get-relative-path', async (event, { from, to }) => {
+  try {
+    return path.relative(from, to);
+  } catch (error) {
+    console.error('Error calculating relative path:', error);
+    return to; // fallback to absolute path if relative calculation fails
+  }
+});
+
+ipcMain.handle('resolve-path', async (event, { base, relative }) => {
+  try {
+    return path.resolve(base, relative);
+  } catch (error) {
+    console.error('Error resolving path:', error);
+    return relative; // fallback to original path if resolution fails
+  }
+});
+
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
