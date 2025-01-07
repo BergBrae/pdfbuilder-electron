@@ -1,6 +1,12 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 1.5.4</h5>
+      <ul>
+        <li>
+          Added the ability to reorder elements in the outline
+        </li>
+      </ul>
       <h5>Version 1.4.4</h5>
       <ul>
         <li>
