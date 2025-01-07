@@ -1,9 +1,19 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 1.4.4</h5>
+      <ul>
+        <li>
+          Bug fixes and performance improvements related to: Changing base
+          directory, Refreshing, Loading templates
+        </li>
+      </ul>
       <h5>Version 1.4.3</h5>
       <ul>
-        <li>Fixed bookmarks sometimes being off by one page when using a table of contents</li>
+        <li>
+          Fixed bookmarks sometimes being off by one page when using a table of
+          contents
+        </li>
         <li>
           Added the ability to specify if existing bookmarks are kept on a
           PDFType-level <strong>Note:</strong> You may need to re-enable
