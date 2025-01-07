@@ -176,6 +176,31 @@ function App() {
       });
   }, []);
 
+  const moveItem = (
+    dragIndex: number,
+    hoverIndex: number,
+    parentPath: number[] = [],
+  ) => {
+    setReport((prevReport) => {
+      const newReport = { ...prevReport };
+      let currentLevel = newReport;
+
+      // Navigate to the correct level in the tree
+      for (const index of parentPath) {
+        currentLevel = currentLevel.children[index];
+      }
+
+      // Perform the swap
+      const dragItem = currentLevel.children[dragIndex];
+      const newChildren = [...currentLevel.children];
+      newChildren.splice(dragIndex, 1);
+      newChildren.splice(hoverIndex, 0, dragItem);
+      currentLevel.children = newChildren;
+
+      return newReport;
+    });
+  };
+
   return (
     <Container fluid className="App">
       {loadingCount > 0 && (
@@ -299,7 +324,7 @@ function App() {
           <Button variant="primary" onClick={handleLoad}>
             <FaBoxOpen /> Open
           </Button>
-          <Outline report={report} />
+          <Outline report={report} moveItem={moveItem} />
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleBuildPDF}>

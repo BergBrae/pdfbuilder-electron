@@ -271,7 +271,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.8); /* Optional: to dim the background */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Optional: to dim the background */
   z-index: 1000; /* Ensure it appears above other content */
 }
 
@@ -279,4 +284,32 @@
   width: 100px;
   height: 100px;
   font-size: 2rem; /* Adjust the size as needed */
+}
+
+/* Outline drag and drop styles */
+.outline-item {
+  padding: 8px;
+  margin: 4px 0;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.outline-item:hover {
+  background-color: #e9ecef;
+}
+
+.outline-item.dragging {
+  opacity: 0.5;
+  background-color: #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.outline-item.green {
+  border-left: 4px solid #28a745;
+}
+
+.outline-item.red {
+  border-left: 4px solid #dc3545;
 }
