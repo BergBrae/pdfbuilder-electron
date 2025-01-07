@@ -228,6 +228,7 @@ function Section({
             directorySource,
           );
           updatedSection.variables = getUpdatedVariables(updatedSection);
+          updatedSection.needs_update = false;
           onSectionChange(updatedSection);
         } catch (error) {
           console.error('Error updating section:', error);

@@ -23,18 +23,21 @@ export const handleAPIUpdate = async (url, data, onSuccess, onError) => {
 };
 
 export const setFlags = (report) => {
-  // Tested working
-  const newReport = { ...report, needs_update: true };
-  for (let i = 0; i < newReport.children.length; i++) {
-    newReport.children[i].needs_update = true;
-    if (newReport.children[i].files) {
-      newReport.children[i].files = [];
-    }
-    if (newReport.children[i].type === 'Section') {
-      newReport.children[i] = setFlags(newReport.children[i]);
-    } else {
-      newReport.children[i].exists = false;
-    }
-  }
+  const newReport = {
+    ...report,
+    needs_update: true,
+    children: report.children.map((child) => {
+      if (child.type === 'Section') {
+        return setFlags(child);
+      } else {
+        return {
+          ...child,
+          needs_update: true,
+          exists: false,
+          files: child.files ? [] : undefined,
+        };
+      }
+    }),
+  };
   return newReport;
 };
