@@ -14,10 +14,22 @@ export default function FileData({ fileData, onFileDataChange, showBookmark }) {
 
   return (
     <Col xs={12} sm={12} md={4} lg={4}>
-      <Card className="mb-4">
+      <Card
+        className="mb-4"
+        onDoubleClick={() => window.electron.openFile(file_path)}
+      >
         <Card.Body>
-          {showBookmark && <BookmarkIcon isBookmarked={!!fileData.bookmark_name} bookmarkName={fileData.bookmark_name} onBookmarkChange={handleBookmarkChange}/>}
-          <p className="filename m-2">{fileName}<br/><br/>
+          {showBookmark && (
+            <BookmarkIcon
+              isBookmarked={!!fileData.bookmark_name}
+              bookmarkName={fileData.bookmark_name}
+              onBookmarkChange={handleBookmarkChange}
+            />
+          )}
+          <p className="filename m-2">
+            {fileName}
+            <br />
+            <br />
             {num_pages}
             {num_pages > 1 ? ' Pages' : ' Page'}
           </p>

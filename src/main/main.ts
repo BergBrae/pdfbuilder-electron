@@ -135,6 +135,16 @@ ipcMain.handle('resolve-path', async (event, { base, relative }) => {
   }
 });
 
+ipcMain.handle('open-file', async (event, filePath) => {
+  try {
+    await shell.openPath(filePath);
+    return true;
+  } catch (error) {
+    console.error('Error opening file:', error);
+    return false;
+  }
+});
+
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 

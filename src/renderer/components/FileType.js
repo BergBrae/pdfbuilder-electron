@@ -278,6 +278,7 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
             ))}
           </Row>
         )}
+        <small className="text-muted">Double click on a file to open</small>
       </div>
     </CustomAccordion>
   );

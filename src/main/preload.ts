@@ -26,6 +26,8 @@ const electronHandler = {
     await ipcRenderer.invoke('get-relative-path', paths),
   resolvePath: async (paths: { base: string; relative: string }) =>
     await ipcRenderer.invoke('resolve-path', paths),
+  openFile: async (filePath: string) =>
+    await ipcRenderer.invoke('open-file', filePath),
 
   Notification: Notification,
 };
