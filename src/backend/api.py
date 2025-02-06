@@ -15,6 +15,7 @@ from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
 from fastapi import HTTPException
 
+
 def createUUID():
     return str(uuid.uuid4())
 
@@ -111,9 +112,22 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
 
 @app.post("/loadfile")
 def load_file(path) -> Section:
-    with open(path, "r") as f:
-        data = json.load(f)
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"File {path} not found.")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Error decoding JSON file.")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {e}"
+        )
+
+    try:
         return Section(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error constructing report: {e}")
 
 
 @app.post("/savefile")
