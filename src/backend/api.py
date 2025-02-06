@@ -14,8 +14,10 @@ import pythoncom
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
 
+
 def createUUID():
     return str(uuid.uuid4())
+
 
 app = FastAPI()
 
@@ -31,9 +33,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "API is running"}
+
 
 @app.post("/docxtemplate")
 def validate_docx_template(
@@ -53,7 +57,7 @@ def validate_docx_template(
     if doc.exists:
         if docx_path.lower().endswith(".doc"):
             doc.variables_in_doc = [
-                "Please convert this file to .docx format (not .doc)"
+                "Please convert this file to .docx format from within Word."
             ]
             return doc
         doc.variables_in_doc = get_variables_in_docx(docx_path)
@@ -63,6 +67,7 @@ def validate_docx_template(
     doc.needs_update = False
 
     return doc
+
 
 @app.post("/filetype")
 def validate_file_type(file: FileType, parent_directory_source: str) -> FileType:
@@ -103,16 +108,19 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
 
     return file
 
+
 @app.post("/loadfile")
 def load_file(path) -> Section:
     with open(path, "r") as f:
         data = json.load(f)
         return Section(**data)
 
+
 @app.post("/savefile")
 def save_file(path, data: Section):
     with open(path, "w") as f:
         json.dump(data.model_dump(), f, indent=4)
+
 
 @app.post("/buildpdf")
 def build_pdf(data: dict, output_path: str):
@@ -130,6 +138,7 @@ def build_pdf(data: dict, output_path: str):
         return {"error": str(e)}
     finally:
         pythoncom.CoUninitialize()  # Uninitialize COM library
+
 
 if __name__ == "__main__":
     import uvicorn
