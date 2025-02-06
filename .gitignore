@@ -32,6 +32,10 @@ npm-debug.log.*
 *.pyc
 
 src/backend/.venv/*
+src/backend/.macenv/*
 src/backend/build/*
 src/backend/output.pdf
 *.exe
+
+src/backend/dist/*
+._*
