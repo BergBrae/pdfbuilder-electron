@@ -13,7 +13,7 @@ import pythoncom
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
-
+from fastapi import HTTPException
 
 def createUUID():
     return str(uuid.uuid4())
@@ -128,14 +128,14 @@ def build_pdf(data: dict, output_path: str):
     try:
         problem = validate_report(data)
         if isinstance(problem, str):
-            return {"error": problem}
+            raise HTTPException(status_code=400, detail=problem)
 
         builder = PDFBuilder()  # Instantiate the PDFBuilder
         builder.generate_pdf(data, output_path)  # Generate the PDF
 
         return {"success": True, "output_path": output_path}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         pythoncom.CoUninitialize()  # Uninitialize COM library
 
