@@ -101,12 +101,9 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
     const updatedFiles = file.files.map((fileData) => ({
       ...fileData,
       bookmark_name: path
-        .basename(fileData.file_path.replaceAll('\\', '/'))
-        .replaceAll('.pdf', '')
-        .replaceAll('.PDF', '')
-        .replaceAll('-', ' ')
-        .replaceAll('.', ' ')
-        .replaceAll('_', ' '),
+        .basename(fileData.file_path)
+        .replace(/\.pdf$/i, '')
+        .replace(/[-_.]/g, ' '),
     }));
     onFileChange({ ...file, files: updatedFiles });
   };

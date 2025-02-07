@@ -22,7 +22,7 @@ function Section({
   const { incrementLoading, decrementLoading } = useLoading();
 
   const directorySource = parentDirectory
-    ? `${parentDirectory}\\${section.base_directory}`
+    ? path.join(parentDirectory, section.base_directory)
     : section.base_directory;
 
   const getUpdatedVariables = (section) => {
