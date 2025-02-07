@@ -15,7 +15,8 @@ function getPythonCommands() {
 
 // Function to get the virtual environment path
 function getVenvPath() {
-  return path.join(currentDir, '.venv');
+  const isWin = process.platform === 'win32';
+  return path.join(currentDir, isWin ? '.venv' : '.macenv');
 }
 
 // Function to get the correct path to the virtual environment's executables
@@ -26,6 +27,12 @@ function getVenvBinPath() {
     : path.join(venvPath, 'bin');
 }
 
+// Function to escape paths for shell commands
+function escapePath(p) {
+  // Wrap the path in quotes and escape any existing quotes
+  return `"${p.replace(/"/g, '\\"')}"`;
+}
+
 try {
   const { pythonCmd, pipCmd } = getPythonCommands();
   const venvPath = getVenvPath();
@@ -33,7 +40,12 @@ try {
 
   // Create the virtual environment only if it doesn't exist
   if (!fs.existsSync(venvPath)) {
-    const createVenvCommand = `${pythonCmd} -m venv ${venvPath}`;
+    // First, ensure the directory is clean if it exists partially
+    if (fs.existsSync(venvPath)) {
+      fs.rmSync(venvPath, { recursive: true, force: true });
+    }
+
+    const createVenvCommand = `${pythonCmd} -m venv ${escapePath(venvPath)}`;
     console.log(`Creating virtual environment: ${createVenvCommand}`);
     execSync(createVenvCommand, { stdio: 'inherit', shell: true });
   } else {
@@ -42,17 +54,36 @@ try {
 
   // Install requirements.txt
   const requirementsPath = path.join(currentDir, 'requirements.txt');
-  const installRequirementsCommand = `"${path.join(
-    venvBinPath,
-    pipCmd,
-  )}" install -r "${requirementsPath}"`;
+  const pipPath = path.join(venvBinPath, pipCmd);
+  const installRequirementsCommand = `${escapePath(
+    pipPath,
+  )} install -r ${escapePath(requirementsPath)}`;
   console.log(`Installing requirements: ${installRequirementsCommand}`);
   execSync(installRequirementsCommand, { stdio: 'inherit', shell: true });
+
+  // Install Windows-specific requirements if on Windows
+  if (process.platform === 'win32') {
+    const winRequirementsPath = path.join(currentDir, 'requirements-win.txt');
+    if (fs.existsSync(winRequirementsPath)) {
+      const installWinRequirementsCommand = `${escapePath(
+        pipPath,
+      )} install -r ${escapePath(winRequirementsPath)}`;
+      console.log(
+        `Installing Windows requirements: ${installWinRequirementsCommand}`,
+      );
+      execSync(installWinRequirementsCommand, {
+        stdio: 'inherit',
+        shell: true,
+      });
+    }
+  }
 
   // Run PyInstaller using the virtual environment's Python
   const apiPath = path.join(currentDir, 'api.py');
   const pyinstallerPath = path.join(venvBinPath, 'pyinstaller');
-  const runPyInstallerCommand = `"${pyinstallerPath}" --onefile "${apiPath}"`;
+  const runPyInstallerCommand = `${escapePath(
+    pyinstallerPath,
+  )} --onefile ${escapePath(apiPath)}`;
   console.log(`Running PyInstaller: ${runPyInstallerCommand}`);
   execSync(runPyInstallerCommand, { stdio: 'inherit', shell: true });
 

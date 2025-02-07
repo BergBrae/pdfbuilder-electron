@@ -11,9 +11,20 @@ import checkForUpdates from './checkForUpdates'; // Import the update check func
 const controller = new AbortController();
 const signal = controller.signal;
 
+// Get platform-specific executable name
+const getBackendExecutableName = () => {
+  return process.platform === 'win32' ? 'api.exe' : 'api';
+};
+
 const BACKEND_API_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'src', 'backend', 'dist', 'api.exe')
-  : path.join(__dirname, '..', 'backend', 'dist', 'api.exe');
+  ? path.join(
+      process.resourcesPath,
+      'src',
+      'backend',
+      'dist',
+      getBackendExecutableName(),
+    )
+  : path.join(__dirname, '..', 'backend', 'dist', getBackendExecutableName());
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -27,7 +38,14 @@ fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
 
 const logFile = fs.createWriteStream(logFilePath, { flags: 'a' });
 
-const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], { stdio: 'pipe' });
+// Start the backend process
+const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], {
+  stdio: 'pipe',
+  env: {
+    ...process.env,
+    // Add any platform-specific environment variables here if needed
+  },
+});
 
 // Pipe stdout and stderr to the log file
 exeProcess.stdout.on('data', (data) => {
@@ -37,7 +55,7 @@ exeProcess.stdout.on('data', (data) => {
 
 exeProcess.stderr.on('data', (data) => {
   logFile.write(`stderr: ${data}\n`);
-  console.log(`stderr: ${data}`);
+  console.error(`stderr: ${data}`);
 });
 
 exeProcess.on('close', (code) => {
@@ -251,13 +269,26 @@ app
   })
   .catch(console.log);
 
-// Function to kill all "api.exe" processes
+// Function to kill backend processes based on platform
 function killAllApiProcesses() {
+  const isWin = process.platform === 'win32';
+  if (isWin) {
   exec('taskkill /IM api.exe /F', (err, stdout, stderr) => {
-    if (err != null) {
+      if (err) {
       console.error(`Error killing api.exe processes: ${stderr}`);
     } else {
       console.log(`Killed all api.exe processes: ${stdout}`);
     }
   });
+  } else {
+    // On Unix-like systems (Mac/Linux), use pkill
+    exec('pkill -f api', (err, stdout, stderr) => {
+      if (err && err.code !== 1) {
+        // pkill returns 1 if no processes found
+        console.error(`Error killing api processes: ${stderr}`);
+      } else {
+        console.log('Killed all api processes');
+      }
+    });
+  }
 }

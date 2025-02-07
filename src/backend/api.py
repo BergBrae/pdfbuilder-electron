@@ -9,11 +9,17 @@ import json
 from buildpdf.build import PDFBuilder
 from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
-import pythoncom
+import platform
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
 from fastapi import HTTPException
+
+# Conditionally import pythoncom on Windows
+if platform.system() == "Windows":
+    import pythoncom
+else:
+    pythoncom = None
 
 
 def createUUID():
@@ -138,7 +144,8 @@ def save_file(path, data: Section):
 
 @app.post("/buildpdf")
 def build_pdf(data: dict, output_path: str):
-    pythoncom.CoInitialize()  # Initialize COM library
+    if platform.system() == "Windows":
+        pythoncom.CoInitialize()  # Initialize COM library only on Windows
     try:
         problem = validate_report(data)
         if isinstance(problem, str):
@@ -151,7 +158,8 @@ def build_pdf(data: dict, output_path: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        pythoncom.CoUninitialize()  # Uninitialize COM library
+        if platform.system() == "Windows":
+            pythoncom.CoUninitialize()  # Uninitialize COM library only on Windows
 
 
 if __name__ == "__main__":
