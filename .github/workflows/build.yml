@@ -1,0 +1,55 @@
+name: Build/release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Create and activate Python venv
+        run: |
+          python -m venv src/backend/.venv
+          src\backend\.venv\Scripts\activate
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+        shell: cmd
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build and Package Application
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          call src\backend\.venv\Scripts\activate
+          npm run package
+        shell: cmd
+
+      - name: Upload Windows Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            release/build/*.exe
+            release/build/win-unpacked/
