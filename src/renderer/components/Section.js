@@ -25,6 +25,20 @@ function Section({
     ? path.join(parentDirectory, section.base_directory)
     : section.base_directory;
 
+  const calculateTotalFiles = (section) => {
+    let total = 0;
+    for (const child of section.children) {
+      if (child.type === 'FileType') {
+        total += child.files.length;
+      } else if (child.type === 'Section') {
+        total += calculateTotalFiles(child);
+      }
+    }
+    return total;
+  };
+
+  const totalFiles = calculateTotalFiles(section);
+
   const getUpdatedVariables = (section) => {
     const currentTemplateTexts = section.variables.map(
       (variable) => variable.template_text,
@@ -267,7 +281,18 @@ function Section({
           )}
         </div>
         <div className="base-directory">
-          <p>Base Directory: {section.base_directory}</p>
+          <p>
+            Base Directory: {section.base_directory}
+            <span
+              className={`ms-3 ${
+                totalFiles > 0 ? 'text-success' : 'text-danger'
+              }`}
+            >
+              {totalFiles > 0
+                ? `(${totalFiles} total files found)`
+                : '(No files found in this section)'}
+            </span>
+          </p>
           <Button
             size="sm"
             variant="secondary"

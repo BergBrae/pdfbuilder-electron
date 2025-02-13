@@ -11,9 +11,11 @@ import { useLoading } from '../contexts/LoadingContext';
 const path = require('path');
 
 const FileIcon = (
-  <span className="pdf-icon align-content-center">
-    <FaFilePdf className="mb-2 ms-1 mt-1" />
-    <span className="m-2">PDF File</span>
+  <span className="pdf-icon">
+    <span className="pdf-icon-content">
+      <FaFilePdf size={25} className="me-2" />
+      PDF File
+    </span>
   </span>
 );
 
@@ -169,12 +171,21 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
     >
       <div>
         <Container>
-          <div className="d-flex justify-content-between">
+          <div className="d-flex justify-content-between align-items-center mb-2">
             <BookmarkIcon
               isBookmarked={!!file.bookmark_name}
               bookmarkName={file.bookmark_name}
               onBookmarkChange={handleBookmarkChange}
             />
+            <span
+              className={`${
+                file.files.length > 0 ? 'text-success' : 'text-danger'
+              }`}
+            >
+              {file.files.length > 0
+                ? `(${file.files.length} files found)`
+                : '(No files found)'}
+            </span>
             <Button
               className="x"
               variant="danger"
@@ -184,23 +195,24 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
               X
             </Button>
           </div>
-          <br />
-          {FileIcon}
-          <span className="ms-5">
-            A PDF in{' '}
-            <input
-              className="narrow-input"
-              value={directorySource}
-              onChange={handleDirectoryChange}
-            />{' '}
-            containing{' '}
-            <input
-              className="wide-input"
-              value={filenameText}
-              onChange={handleFilenameChange}
-            />{' '}
-            in the filename.
-          </span>
+          <div className="d-flex align-items-center">
+            {FileIcon}
+            <span className="ms-3">
+              A PDF in{' '}
+              <input
+                className="narrow-input"
+                value={directorySource}
+                onChange={handleDirectoryChange}
+              />{' '}
+              containing{' '}
+              <input
+                className="wide-input"
+                value={filenameText}
+                onChange={handleFilenameChange}
+              />{' '}
+              in the filename.
+            </span>
+          </div>
         </Container>
       </div>
       <div>
