@@ -142,11 +142,17 @@
 }
 
 .narrow-input {
-  width: 10%;
+  width: 15%;
+  min-width: 80px;
+  padding: 2px 5px;
+  font-size: 14px;
 }
 
 .wide-input {
-  width: 20%;
+  width: 35%;
+  min-width: 100px;
+  padding: 2px 5px;
+  font-size: 14px;
 }
 
 .filename {

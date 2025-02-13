@@ -177,41 +177,48 @@ function FileType({ file, onFileChange, onDelete, parentDirectorySource }) {
               bookmarkName={file.bookmark_name}
               onBookmarkChange={handleBookmarkChange}
             />
-            <span
-              className={`${
-                file.files.length > 0 ? 'text-success' : 'text-danger'
-              }`}
-            >
-              {file.files.length > 0
-                ? `(${file.files.length} files found)`
-                : '(No files found)'}
-            </span>
-            <Button
-              className="x"
-              variant="danger"
-              size="sm"
-              onClick={handleDelete}
-            >
-              X
-            </Button>
+            <div className="d-flex align-items-center">
+              <span
+                className={`${
+                  file.files.length > 0 ? 'text-success' : 'text-danger'
+                } me-2`}
+              >
+                {file.files.length > 0
+                  ? `(${file.files.length} ${
+                      file.files.length === 1 ? 'file' : 'files'
+                    } found)`
+                  : '(No files found)'}
+              </span>
+              <Button
+                className="x"
+                variant="danger"
+                size="sm"
+                onClick={handleDelete}
+              >
+                X
+              </Button>
+            </div>
           </div>
           <div className="d-flex align-items-center">
             {FileIcon}
-            <span className="ms-3">
-              A PDF in{' '}
+            <div
+              className="d-flex flex-wrap align-items-center ms-3"
+              style={{ gap: '0.5rem' }}
+            >
+              A PDF in
               <input
                 className="narrow-input"
                 value={directorySource}
                 onChange={handleDirectoryChange}
-              />{' '}
-              containing{' '}
+              />
+              containing
               <input
                 className="wide-input"
                 value={filenameText}
                 onChange={handleFilenameChange}
-              />{' '}
+              />
               in the filename.
-            </span>
+            </div>
           </div>
         </Container>
       </div>

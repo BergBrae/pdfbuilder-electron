@@ -24,7 +24,13 @@ const CustomAccordion = ({
           </div>
           {children[1] && defaultActiveKey != '0' && (
             <div style={{ cursor: 'pointer' }}>
-              <span onClick={handleToggle}>{isExpanded ? <MdExpandLess size={40}/> : <MdExpandMore size={40}/>}</span>
+              <span onClick={handleToggle}>
+                {isExpanded ? (
+                  <MdExpandLess size={40} />
+                ) : (
+                  <MdExpandMore size={40} />
+                )}
+              </span>
             </div>
           )}
         </div>

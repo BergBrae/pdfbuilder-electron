@@ -269,30 +269,32 @@ function Section({
             onBookmarkChange={handleBookmarkChange}
             includeIcon={!isRoot}
           />
-          {!isRoot && (
-            <Button
-              className="x"
-              variant="danger"
-              size="sm"
-              onClick={() => onDelete(section.id)}
-            >
-              X
-            </Button>
-          )}
-        </div>
-        <div className="base-directory">
-          <p>
-            Base Directory: {section.base_directory}
+          <div className="d-flex align-items-center">
             <span
-              className={`ms-3 ${
+              className={`${
                 totalFiles > 0 ? 'text-success' : 'text-danger'
-              }`}
+              } me-2`}
             >
               {totalFiles > 0
-                ? `(${totalFiles} total files found)`
+                ? `(${totalFiles} total ${
+                    totalFiles === 1 ? 'file' : 'files'
+                  } found)`
                 : '(No files found in this section)'}
             </span>
-          </p>
+            {!isRoot && (
+              <Button
+                className="x"
+                variant="danger"
+                size="sm"
+                onClick={() => onDelete(section.id)}
+              >
+                X
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="base-directory">
+          <p>Base Directory: {section.base_directory}</p>
           <Button
             size="sm"
             variant="secondary"
