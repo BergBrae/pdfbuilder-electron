@@ -207,7 +207,7 @@ function Section({
         if (child.type === 'Section') {
           const updatedChild = await updateChildrenWithAPI(
             child,
-            `${directorySource}\\${child.base_directory}`,
+            path.join(directorySource, child.base_directory),
           );
           return { ...child, children: updatedChild.children };
         } else {
