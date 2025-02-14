@@ -1,11 +1,24 @@
 .docx-icon {
   color: #2b579a;
-  background-color: aliceblue;
   border: 1px solid #2b579a;
   border-radius: 4px;
-  padding: 2px;
-  display: flex;
+  padding: 4px;
+  font-size: 14px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  margin-top: -3px;
+  background-color: #f3f9ff;
+  text-align: center;
+}
+
+.docx-icon-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 8px;
 }
 
 .bookmark-container {
@@ -24,9 +37,8 @@
 }
 
 .pdf-icon {
-  color: #d80303be;
-  background-color: rgb(255, 238, 233);
-  border: 1px solid #d80303be;
+  color: #1b2157be;
+  border: 1px solid #151b50be;
   border-radius: 4px;
   padding: 4px;
   font-size: 14px;
@@ -97,15 +109,6 @@
 .docx-header .header-content > span,
 .docx-header .header-content > .form-check {
   margin-bottom: 0.5rem;
-}
-
-.docx-icon {
-  display: flex;
-  align-items: center;
-}
-
-.docx-icon .fa-file-word {
-  /* margin-right: 0.5rem; */
 }
 
 .section-header {
@@ -386,7 +389,7 @@
 .docx-icon {
   display: inline-flex;
   align-items: center;
-  color: #666;
+  color: #050c4bbe;
 }
 
 .pdf-icon-content,

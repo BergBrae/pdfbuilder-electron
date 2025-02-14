@@ -9,10 +9,13 @@ import { handleAPIUpdate } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
 import { useReport } from '../contexts/ReportContext';
 
+
 const docxIcon = (
-  <span className="docx-icon content-align-center mt-2 mb-2">
-    <FaFileWord className="m-2" />
-    <span className="">Docx Template</span>
+  <span className="docx-icon">
+    <span className="docx-icon-content">
+      <FaFileWord size={25} className="ms-2" />
+      Docx Template
+    </span>
   </span>
 );
 
