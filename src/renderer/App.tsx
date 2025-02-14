@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Section from './components/Section';
-import Help from './components/Help';
+import Help from './components/help';
 import Zoom from './components/Zoom';
 import Outline from './components/Outline';
 import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap';
@@ -16,54 +16,47 @@ import {
 import { IoHammer } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
-import logo from '../../assets/merit-logo.jpeg';
-import appIcon from '../../assets/icon.png';
 import { useLoading } from './contexts/LoadingContext';
 import ChangeLog from './components/ChangeLog';
-function App() {
-  const emptyReport = {
-    type: 'Section',
-    bookmark_name: 'Quality Control Report',
-    base_directory: '',
-    variables: [],
-    children: [],
-  };
+import { ReportProvider, useReport } from './contexts/ReportContext';
 
-  const [report, setReport] = useState(emptyReport);
-  const [builtPDF, setBuiltPDF] = useState(null);
+// Types
+interface BuildError extends Error {
+  message: string;
+}
+
+function AppContent() {
+  const { state, dispatch } = useReport();
+  const [builtPDF, setBuiltPDF] = useState<any>(null);
   const [savePath, setSavePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showBuildModal, setShowBuildModal] = useState(false); // New state for build modal
-  const [buildStatus, setBuildStatus] = useState(''); // New state for build status
-  const [zoom, setZoom] = useState(1); // New state for zoom level
-  const [error, setError] = useState(null);
-  const [apiStatus, setApiStatus] = useState(''); // New state for API status
-  const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
+  const [showBuildModal, setShowBuildModal] = useState(false);
+  const [buildStatus, setBuildStatus] = useState('');
+  const [zoom, setZoom] = useState(1);
+  const [error, setError] = useState<BuildError | null>(null);
+  const [apiStatus, setApiStatus] = useState('');
+  const [showApiErrorModal, setShowApiErrorModal] = useState(false);
   const { loadingCount } = useLoading();
   const [version, setVersion] = useState('');
-  const [showWhatsNew, setShowWhatsNew] = useState(false); // New state for "What's New?" modal
-
-  const handleSectionChange = (newSection) => {
-    setReport(newSection);
-  };
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const handleSave = async () => {
-    await window.electron.saveReport(report);
+    await window.electron.saveReport(state.report);
   };
 
   const handleLoad = async () => {
     let report = await window.electron.loadReport();
     if (report) {
       report = setFlags(report);
-      setReport(report);
+      dispatch({ type: 'SET_REPORT', payload: report });
     }
   };
 
   const handleRefresh = () => {
-    const unrefreshedReport = setFlags(report);
-    setReport(unrefreshedReport);
+    const unrefreshedReport = setFlags(state.report);
+    dispatch({ type: 'SET_REPORT', payload: unrefreshedReport });
   };
 
   const handleBuildPDF = async () => {
@@ -71,8 +64,8 @@ function App() {
     if (chosenPath) {
       setSavePath(chosenPath);
       setIsLoading(true);
-      setShowBuildModal(true); // Show build modal
-      setBuildStatus('building'); // Set status to building
+      setShowBuildModal(true);
+      setBuildStatus('building');
       try {
         const response = await fetch(
           `http://localhost:8000/buildpdf?output_path=${encodeURIComponent(
@@ -81,7 +74,7 @@ function App() {
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(report),
+            body: JSON.stringify(state.report),
           },
         );
         const data = await response.json();
@@ -91,23 +84,24 @@ function App() {
         }
 
         setBuiltPDF(data);
-        setBuildStatus('success'); // Set status to success
+        setBuildStatus('success');
 
-        // Send notification
         console.log('Sending notification...');
         new Notification('Complete', {
           body: 'PDF built successfully!',
-          icon: appIcon,
         });
-      } catch (error_object) {
-        console.error(error_object);
-        setError(error_object);
-        setBuildStatus('failure'); // Set status to failure
+      } catch (error) {
+        console.error(error);
+        const buildError: BuildError = {
+          name: 'BuildError',
+          message:
+            error instanceof Error ? error.message : 'Unknown error occurred',
+        };
+        setError(buildError);
+        setBuildStatus('failure');
 
-        // Send error notification
         new Notification('Error', {
-          body: `Failed to build PDF: ${error_object.message}`,
-          icon: appIcon,
+          body: `Failed to build PDF: ${buildError.message}`,
         });
       } finally {
         setIsLoading(false);
@@ -120,7 +114,16 @@ function App() {
   };
 
   const confirmNew = () => {
-    setReport(emptyReport);
+    dispatch({
+      type: 'SET_REPORT',
+      payload: {
+        type: 'Section',
+        bookmark_name: 'Quality Control Report',
+        base_directory: '',
+        variables: [],
+        children: [],
+      },
+    });
     setShowModal(false);
   };
 
@@ -134,7 +137,7 @@ function App() {
 
   const closeBuildModal = () => {
     setShowBuildModal(false);
-    setBuildStatus(''); // Reset status
+    setBuildStatus('');
   };
 
   const handleZoomIn = () => {
@@ -149,10 +152,10 @@ function App() {
     try {
       const response = await fetch('http://localhost:8000/');
       if (!response.ok) {
-        setShowApiErrorModal(true); // Show modal if API connection fails
+        setShowApiErrorModal(true);
       }
     } catch (error) {
-      setShowApiErrorModal(true); // Show modal if API connection fails
+      setShowApiErrorModal(true);
     }
   };
 
@@ -162,7 +165,7 @@ function App() {
         console.log('Notification permission:', permission);
       });
     }
-    setTimeout(checkApiConnection, 5000); // Add a 5-second delay before checking API connection
+    setTimeout(checkApiConnection, 5000);
   }, []);
 
   useEffect(() => {
@@ -181,23 +184,9 @@ function App() {
     hoverIndex: number,
     parentPath: number[] = [],
   ) => {
-    setReport((prevReport) => {
-      const newReport = { ...prevReport };
-      let currentLevel = newReport;
-
-      // Navigate to the correct level in the tree
-      for (const index of parentPath) {
-        currentLevel = currentLevel.children[index];
-      }
-
-      // Perform the swap
-      const dragItem = currentLevel.children[dragIndex];
-      const newChildren = [...currentLevel.children];
-      newChildren.splice(dragIndex, 1);
-      newChildren.splice(hoverIndex, 0, dragItem);
-      currentLevel.children = newChildren;
-
-      return newReport;
+    dispatch({
+      type: 'MOVE_ITEM',
+      payload: { parentPath, dragIndex, hoverIndex },
     });
   };
 
@@ -253,7 +242,7 @@ function App() {
             </div>
           ) : buildStatus === 'success' ? (
             <p>PDF built successfully!</p>
-          ) : buildStatus === 'failure' ? (
+          ) : buildStatus === 'failure' && error ? (
             <p>{error.message}</p>
           ) : null}
         </Modal.Body>
@@ -300,12 +289,6 @@ function App() {
       </Modal>
 
       <div className="floating-buttons">
-        <img
-          src={logo}
-          alt="Merit Logo"
-          style={{ maxWidth: '15vw', marginBottom: '30px' }}
-        />
-        <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <div className="buttons-container">
           <Button variant="secondary" onClick={handleRefresh}>
             <FiRefreshCw /> Refresh
@@ -324,7 +307,7 @@ function App() {
           <Button variant="primary" onClick={handleLoad}>
             <FaBoxOpen /> Open
           </Button>
-          <Outline report={report} moveItem={moveItem} />
+          <Outline report={state.report} moveItem={moveItem} />
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleBuildPDF}>
@@ -358,19 +341,19 @@ function App() {
         <Col md={8}>
           <div className="mt-3" />
           <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-            <Section
-              section={report}
-              isRoot
-              onSectionChange={handleSectionChange}
-              onDelete={null}
-              parentDirectory={null}
-              report={report}
-            />
+            <Section section={state.report} isRoot parentDirectory={null} />
           </div>
-          {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
         </Col>
       </Row>
     </Container>
+  );
+}
+
+function App() {
+  return (
+    <ReportProvider>
+      <AppContent />
+    </ReportProvider>
   );
 }
 

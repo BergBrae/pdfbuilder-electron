@@ -9,16 +9,11 @@ import CustomAccordion from './CustomAccordion';
 import { v4 as uuidv4 } from 'uuid';
 import { handleAPIUpdate, setFlags } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
+import { useReport } from '../contexts/ReportContext';
 import path from 'path';
 
-function Section({
-  section,
-  isRoot = false,
-  onSectionChange,
-  onDelete,
-  parentDirectory,
-  report,
-}) {
+function Section({ section, isRoot = false, parentDirectory }) {
+  const { state, dispatch } = useReport();
   const { incrementLoading, decrementLoading } = useLoading();
 
   const directorySource = parentDirectory
@@ -79,7 +74,30 @@ function Section({
     return updatedVariables;
   };
 
+  const findSectionPath = (
+    targetSection,
+    currentSection = state.report,
+    currentPath = [],
+  ) => {
+    if (currentSection.id === targetSection.id) {
+      return currentPath;
+    }
+
+    for (let i = 0; i < currentSection.children.length; i++) {
+      const child = currentSection.children[i];
+      if (child.type === 'Section') {
+        const path = findSectionPath(targetSection, child, [...currentPath, i]);
+        if (path) return path;
+      }
+    }
+
+    return null;
+  };
+
   const handleChildChange = (index, newChild) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     const updatedChildren = section.children.map((child, i) =>
       i === index ? newChild : child,
     );
@@ -87,21 +105,41 @@ function Section({
       ...section,
       children: updatedChildren,
     });
-    onSectionChange({
-      ...section,
-      children: updatedChildren,
-      variables: updatedVariables,
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: {
+          ...section,
+          children: updatedChildren,
+          variables: updatedVariables,
+        },
+      },
     });
   };
 
   const handleVariableChange = (index, newVariable) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     const updatedVariables = section.variables.map((variable, i) =>
       i === index ? newVariable : variable,
     );
-    onSectionChange({ ...section, variables: updatedVariables });
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: { ...section, variables: updatedVariables },
+      },
+    });
   };
 
   const handleBaseDirectoryChange = async (currentDirectory) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     const relativePath = await window.electron.directoryDialog(
       currentDirectory || section.base_directory,
     );
@@ -116,16 +154,34 @@ function Section({
       pathToBaseDirectory = relativePath;
     }
     if (pathToBaseDirectory) {
-      section = setFlags(section);
-      onSectionChange({ ...section, base_directory: pathToBaseDirectory });
+      const updatedSection = setFlags(section);
+      dispatch({
+        type: 'UPDATE_SECTION',
+        payload: {
+          path,
+          section: { ...updatedSection, base_directory: pathToBaseDirectory },
+        },
+      });
     }
   };
 
   const handleBookmarkChange = (newBookmarkName) => {
-    onSectionChange({ ...section, bookmark_name: newBookmarkName || null });
+    const path = findSectionPath(section);
+    if (!path) return;
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: { ...section, bookmark_name: newBookmarkName || null },
+      },
+    });
   };
 
   const handleAddChild = (index, type) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     let newChild = null;
 
     switch (type) {
@@ -168,10 +224,20 @@ function Section({
       newChild,
       ...section.children.slice(index),
     ];
-    onSectionChange({ ...section, children: updatedChildren });
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: { ...section, children: updatedChildren },
+      },
+    });
   };
 
   const handleDelete = (id) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     const updatedChildren = section.children.filter((child) => child.id !== id);
     const updatedVariables = [];
     for (const child of updatedChildren) {
@@ -185,20 +251,37 @@ function Section({
         );
       }
     }
-    onSectionChange({
-      ...section,
-      children: updatedChildren,
-      variables: updatedVariables,
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: {
+          ...section,
+          children: updatedChildren,
+          variables: updatedVariables,
+        },
+      },
     });
   };
 
   const handleVariablesUpdate = (variables) => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
     const updatedVariables = variables.map((variable) => ({
       template_text: variable,
       is_constant: true,
       constant_value: '',
     }));
-    onSectionChange({ ...section, variables: updatedVariables });
+
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path,
+        section: { ...section, variables: updatedVariables },
+      },
+    });
   };
 
   const updateChildWithAPI = async (child, directorySource) => {
@@ -235,6 +318,9 @@ function Section({
   useEffect(() => {
     if (section.needs_update) {
       const updateSection = async () => {
+        const path = findSectionPath(section);
+        if (!path) return;
+
         try {
           incrementLoading();
           const updatedSection = await updateChildrenWithAPI(
@@ -243,75 +329,72 @@ function Section({
           );
           updatedSection.variables = getUpdatedVariables(updatedSection);
           updatedSection.needs_update = false;
-          onSectionChange(updatedSection);
+
+          dispatch({
+            type: 'UPDATE_SECTION',
+            payload: {
+              path,
+              section: updatedSection,
+            },
+          });
         } catch (error) {
           console.error('Error updating section:', error);
         } finally {
           decrementLoading();
         }
       };
-
       updateSection();
     }
-  }, [section.needs_update, directorySource]);
+  }, [section.needs_update]);
 
   return (
     <CustomAccordion
-      className="section"
-      defaultActiveKey={isRoot ? '0' : ''}
+      defaultExpanded={isRoot}
+      className={`section ${isRoot ? 'root-section' : ''}`}
       eventKey={section.id}
-    >
-      <div className="section-header">
-        <div className="header-top">
-          <BookmarkIcon
-            isBookmarked={!!section.bookmark_name}
-            bookmarkName={section.bookmark_name}
-            onBookmarkChange={handleBookmarkChange}
-            includeIcon={!isRoot}
-          />
-          <div className="d-flex align-items-center">
-            <span
-              className={`${
-                totalFiles > 0 ? 'text-success' : 'text-danger'
-              } me-2`}
-            >
-              {totalFiles > 0
-                ? `(${totalFiles} total ${
-                    totalFiles === 1 ? 'file' : 'files'
-                  } found)`
-                : '(No files found in this section)'}
-            </span>
-            {!isRoot && (
-              <Button
-                className="x"
-                variant="danger"
-                size="sm"
-                onClick={() => onDelete(section.id)}
+      header={
+        <div className="section-header w-100">
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center">
+              <BookmarkIcon
+                bookmark_name={section.bookmark_name}
+                onBookmarkChange={handleBookmarkChange}
+              />
+              <span
+                className={`ms-2 ${totalFiles > 0 ? 'text-success' : 'text-danger'}`}
               >
-                X
+                {section.bookmark_name || 'Section'}
+                {totalFiles > 0
+                  ? ` (${totalFiles} ${totalFiles === 1 ? 'file' : 'files'} found)`
+                  : ' (No files found in this section)'}
+              </span>
+            </div>
+          </div>
+          <div className="mt-2">
+            <div className="d-flex align-items-center">
+              <small className="text-muted me-2">Base Directory:</small>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBaseDirectoryChange(section.base_directory);
+                }}
+              >
+                {section.base_directory || 'Select Directory'}
               </Button>
-            )}
+            </div>
           </div>
         </div>
-        <div className="base-directory">
-          <p>Base Directory: {section.base_directory}</p>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => handleBaseDirectoryChange(parentDirectory)}
-          >
-            Change Base Directory
-          </Button>
-        </div>
-      </div>
-
-      <div>
-        {!!section.variables.length && (
+      }
+    >
+      {section.variables.length > 0 && (
+        <div className="mb-4">
+          <h6 className="mb-3 text-muted">Variables</h6>
           <Row>
             {section.variables.map((variable, index) => (
-              <Col xl={3} key={variable.id}>
+              <Col xl={3} key={variable.id || index}>
                 <TemplateVariable
-                  key={variable.id}
                   variable={variable}
                   onChange={(newVariable) =>
                     handleVariableChange(index, newVariable)
@@ -320,61 +403,52 @@ function Section({
               </Col>
             ))}
           </Row>
-        )}
+        </div>
+      )}
+
+      <div>
         {section.children.map((child, index) => (
-          <Accordion key={child.id}>
-            <div className="parent-element">
-              <AddComponent onAdd={(type) => handleAddChild(index, type)} />
-            </div>
+          <div key={child.id} className="mb-2">
+            <AddComponent onAdd={(type) => handleAddChild(index, type)} />
             {(() => {
               switch (child.type) {
                 case 'DocxTemplate':
                   return (
                     <DocxTemplate
-                      key={child.id}
-                      docxTemplate={child}
-                      onTemplateChange={(newTemplate, variables) =>
-                        handleChildChange(index, newTemplate, variables)
+                      template={child}
+                      onTemplateChange={(newTemplate) =>
+                        handleChildChange(index, newTemplate)
                       }
-                      onDelete={handleDelete}
+                      onDelete={() => handleDelete(child.id)}
+                      parentDirectory={directorySource}
                       onVariablesUpdate={handleVariablesUpdate}
-                      parentDirectorySource={directorySource}
-                      report={report}
                     />
                   );
                 case 'FileType':
                   return (
                     <FileType
-                      key={child.id}
-                      file={child}
-                      onFileChange={(newFile) =>
-                        handleChildChange(index, newFile)
+                      fileType={child}
+                      onFileChange={(newFileType) =>
+                        handleChildChange(index, newFileType)
                       }
-                      onDelete={handleDelete}
-                      parentDirectorySource={directorySource}
+                      onDelete={() => handleDelete(child.id)}
+                      parentDirectory={directorySource}
                     />
                   );
                 case 'Section':
                   return (
                     <Section
-                      key={child.id}
                       section={child}
-                      isRoot={false}
-                      onSectionChange={(newSection) =>
-                        handleChildChange(index, newSection)
-                      }
-                      onDelete={handleDelete}
                       parentDirectory={directorySource}
-                      report={report}
                     />
                   );
                 default:
-                  return <p key={index}>Nothing Here</p>;
+                  return null;
               }
             })()}
-          </Accordion>
+          </div>
         ))}
-        <div className="parent-element">
+        <div className="mt-3">
           <AddComponent
             onAdd={(type) => handleAddChild(section.children.length, type)}
           />

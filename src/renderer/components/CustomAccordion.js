@@ -4,47 +4,51 @@ import { MdExpandLess, MdExpandMore } from 'react-icons/md';
 
 const CustomAccordion = ({
   children,
-  eventKey,
+  header,
+  defaultExpanded = false,
   className,
-  defaultActiveKey,
+  eventKey,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const handleToggle = useAccordionButton(eventKey, () => {
     setIsExpanded(!isExpanded);
   });
 
   return (
-    <Card className={className}>
-      <Card.Header>
-        <div className="d-flex justify-content-between">
-          <div style={{ flex: 1 }}>
-            {/* Header content */}
-            {children[0]}
-          </div>
-          {children[1] && defaultActiveKey != '0' && (
-            <div style={{ cursor: 'pointer' }}>
-              <span onClick={handleToggle}>
-                {isExpanded ? (
-                  <MdExpandLess size={40} />
-                ) : (
-                  <MdExpandMore size={40} />
-                )}
-              </span>
+    <Accordion
+      defaultActiveKey={defaultExpanded ? eventKey : undefined}
+      className="mb-3"
+    >
+      <Card className={className}>
+        <Card.Header className="py-2">
+          <div className="d-flex justify-content-between align-items-center">
+            <div
+              style={{ flex: 1 }}
+              onClick={handleToggle}
+              role="button"
+              className="d-flex justify-content-between align-items-center"
+            >
+              {header}
             </div>
-          )}
-        </div>
-      </Card.Header>
-      {children[1] && (
+            {!defaultExpanded && (
+              <div style={{ cursor: 'pointer', marginLeft: '1rem' }}>
+                <span onClick={handleToggle}>
+                  {isExpanded ? (
+                    <MdExpandLess size={24} />
+                  ) : (
+                    <MdExpandMore size={24} />
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        </Card.Header>
         <Accordion.Collapse eventKey={eventKey}>
-          <Card.Body
-            style={{ marginInlineStart: '15px', marginInlineEnd: '15px' }}
-          >
-            {children[1]}
-          </Card.Body>
+          <Card.Body className="py-3">{children}</Card.Body>
         </Accordion.Collapse>
-      )}
-    </Card>
+      </Card>
+    </Accordion>
   );
 };
 

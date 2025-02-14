@@ -332,3 +332,168 @@
 .outline-item.red {
   border-left: 4px solid #dc3545;
 }
+
+/* Section Styles */
+.section {
+  margin-bottom: 1rem;
+}
+
+.section .card-header {
+  background-color: #f8f9fa;
+}
+
+.section-header {
+  padding: 0.5rem 0;
+}
+
+.section.root-section > .card {
+  border: 2px solid #007bff;
+}
+
+.section.root-section > .card > .card-header {
+  background-color: #e7f1ff;
+}
+
+/* File Type Styles */
+.file-found .card-header {
+  background-color: #e8f5e9;
+}
+
+.file-not-found .card-header {
+  background-color: #ffebee;
+}
+
+/* DocxTemplate Styles */
+.docx-template .card-header {
+  background-color: #e3f2fd;
+}
+
+.docx-template.file-not-found .card-header {
+  background-color: #ffebee;
+}
+
+/* Icons */
+.pdf-icon,
+.docx-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #666;
+}
+
+.pdf-icon-content,
+.docx-icon-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Variables */
+.template-variable {
+  margin-bottom: 1rem;
+}
+
+/* Add Component */
+.add-component {
+  padding: 0.5rem;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  background-color: #f8f9fa;
+}
+
+/* Bookmark Icon */
+.bookmark-icon {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.bookmark-icon.bookmarked {
+  color: #ffc107;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Buttons Container */
+.buttons-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Form Controls */
+.form-control.narrow-input {
+  width: 150px;
+  display: inline-block;
+}
+
+.form-control.wide-input {
+  width: 250px;
+  display: inline-block;
+}
+
+/* File Data */
+.file-data {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+/* Bookmark Rules */
+.bookmark-rules {
+  margin: 1rem 0;
+}
+
+/* Custom Accordion */
+.custom-accordion .card-header {
+  cursor: pointer;
+}
+
+.custom-accordion .card-header:hover {
+  background-color: #f0f0f0;
+}
+
+/* Zoom Controls */
+.zoom-wrapper {
+  transform-origin: top center;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Floating Buttons */
+.floating-buttons {
+  position: sticky;
+  top: 1rem;
+  z-index: 1000;
+  background-color: white;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 2rem;
+}
+
+/* API Status */
+.api-status {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
