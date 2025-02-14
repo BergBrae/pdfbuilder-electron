@@ -1,11 +1,16 @@
 export default function ChangeLog() {
   return (
     <div>
-      <h5>Version 1.5.4</h5>
+      <h5>Version 1.5.5</h5>
       <ul>
         <li>
-          Added the ability to reorder elements in the outline
+          Bug fixes and performance improvements related to Merit ID bookmarking
         </li>
+        <li>Added the ability to see the number of files found</li>
+      </ul>
+      <h5>Version 1.5.4</h5>
+      <ul>
+        <li>Added the ability to reorder elements in the outline</li>
       </ul>
       <h5>Version 1.4.4</h5>
       <ul>

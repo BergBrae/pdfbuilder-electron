@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['/Volumes/X10Pro/Merit/dev/pdfbuilder-electron/src/backend/api.py'],
+    ['E:\\Merit\\dev\\pdfbuilder-electron\\src\\backend\\api.py'],
     pathex=[],
     binaries=[],
     datas=[],

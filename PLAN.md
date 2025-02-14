@@ -73,7 +73,3 @@ This plan outlines the changes needed to migrate the application from prop drill
 - Ensure that test cases cover the new context and reducer logic, especially around nested state updates.
 - Revisit components such as AddComponent and Outline to remove any remaining traces of prop drilling and fully integrate with the new global state.
 - Confirm that OS-specific functionalities (like file path resolving and IPC dialogs) continue to operate correctly without interference from the global state management.
-
----
-
-This revised plan now comprehensively captures the migration steps and includes additional details that might have been missed initially.

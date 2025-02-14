@@ -58,7 +58,16 @@ const OutlineItem = ({ item, index, parentPath = [], moveItem, depth = 1 }) => {
         isDragging ? 'dragging' : ''
       }`}
     >
-      {item.bookmarkName}
+      <div className="d-flex justify-content-between align-items-center">
+        <span>{item.bookmarkName}</span>
+        <span
+          className={`${item.totalFiles > 0 ? 'text-success' : 'text-danger'} ms-2`}
+        >
+          {item.totalFiles > 0
+            ? `(${item.totalFiles} ${item.totalFiles === 1 ? 'file' : 'files'} found)`
+            : '(No files found)'}
+        </span>
+      </div>
       {item.children?.map((child, childIndex) => (
         <OutlineItem
           key={child.bookmarkName}
@@ -79,6 +88,24 @@ export default function Outline({ report, moveItem }) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const calculateTotalFiles = (report) => {
+    let total = 0;
+
+    // Count files in FileType components
+    if (report.type === 'FileType' && report.files) {
+      total += report.files.length;
+    }
+
+    // Recursively count files in children
+    if (report.children) {
+      for (const child of report.children) {
+        total += calculateTotalFiles(child);
+      }
+    }
+
+    return total;
+  };
+
   const convertToOutlineData = (report) => {
     let exists = report.exists
       ? report.exists
@@ -90,12 +117,16 @@ export default function Outline({ report, moveItem }) {
         }
       }
     }
+
+    const totalFiles = calculateTotalFiles(report);
+
     return {
       bookmarkName: report.bookmark_name
         ? report.bookmark_name
         : '(No bookmark name)',
       type: report.type,
       exists: exists,
+      totalFiles: totalFiles,
       children: report.children?.map((child) => {
         return convertToOutlineData(child);
       }),
@@ -119,7 +150,16 @@ export default function Outline({ report, moveItem }) {
             <div
               className={`outline-item ${outlineData.exists ? 'green' : 'red'}`}
             >
-              {outlineData.bookmarkName}
+              <div className="d-flex justify-content-between align-items-center">
+                <span>{outlineData.bookmarkName}</span>
+                <span
+                  className={`${outlineData.totalFiles > 0 ? 'text-success' : 'text-danger'} ms-2`}
+                >
+                  {outlineData.totalFiles > 0
+                    ? `(${outlineData.totalFiles} ${outlineData.totalFiles === 1 ? 'file' : 'files'} found)`
+                    : '(No files found)'}
+                </span>
+              </div>
               <div style={{ marginLeft: '10px' }}>
                 {outlineData.children?.map((child, index) => (
                   <OutlineItem
