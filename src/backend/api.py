@@ -95,6 +95,8 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
         for ext in ["*.pdf", "*.PDF"]:
             pdf_paths.extend(glob.glob(os.path.join(directory_source, ext)))
 
+        pdf_paths = list(set(pdf_paths))
+
         for path in pdf_paths:
             filename = os.path.basename(path)
             if not os.path.isdir(
