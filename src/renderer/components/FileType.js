@@ -216,12 +216,11 @@ function FileType({ fileType: file, parentDirectory }) {
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <BookmarkIcon
-              bookmark_name={file.bookmark_name}
+              isBookmarked={!!file.bookmark_name}
+              bookmarkName={file.bookmark_name}
               onBookmarkChange={handleBookmarkChange}
             />
-            <span className="ms-2">
-              {file.bookmark_name || 'PDF Files'} ({file.files.length} files)
-            </span>
+            <span className="ms-2">({file.files.length} files)</span>
           </div>
           <Button variant="outline-danger" size="sm" onClick={handleDelete}>
             Delete

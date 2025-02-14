@@ -206,18 +206,25 @@
   position: fixed;
   top: 10px;
   left: 10px;
+  width: 15vw;
+  z-index: 1000;
+  background-color: transparent;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .main-content {
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: calc(15vw + 20px);
+  margin-right: 20px;
+  padding-top: 10px;
 }
 
 .zoom-wrapper {
   transform-origin: top center;
+  transition: transform 0.2s ease-in-out;
+  padding: 20px;
 }
 
 .zoom-container {
@@ -231,14 +238,15 @@
 }
 
 .buttons-container {
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-  border: 1px solid;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: white;
+  border: 1px solid #dee2e6;
   border-radius: 5px;
-  padding: 4px;
-  max-width: 15vw;
+  padding: 0.5rem;
 }
 
 .outline {
@@ -249,7 +257,8 @@
 }
 
 .buttons-container button {
-  margin: 3px;
+  width: 100%;
+  margin: 2px 0;
 }
 
 .table-container {

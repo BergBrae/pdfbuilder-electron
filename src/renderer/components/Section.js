@@ -357,13 +357,13 @@ function Section({ section, isRoot = false, parentDirectory }) {
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <BookmarkIcon
-                bookmark_name={section.bookmark_name}
+                isBookmarked={!!section.bookmark_name}
+                bookmarkName={section.bookmark_name}
                 onBookmarkChange={handleBookmarkChange}
               />
               <span
                 className={`ms-2 ${totalFiles > 0 ? 'text-success' : 'text-danger'}`}
               >
-                {section.bookmark_name || 'Section'}
                 {totalFiles > 0
                   ? ` (${totalFiles} ${totalFiles === 1 ? 'file' : 'files'} found)`
                   : ' (No files found in this section)'}

@@ -314,10 +314,7 @@ function AppContent() {
             <IoHammer /> Build PDF
           </Button>
         </div>
-        <div
-          className="text-center text-muted mt-3"
-          style={{ fontSize: '0.8rem', textAlign: 'center', margin: 'auto' }}
-        >
+        <div className="text-center text-muted mt-3">
           {version && <p className="mb-0">Version: {version}</p>}
           <div>
             <a
@@ -334,17 +331,15 @@ function AppContent() {
         </div>
       </div>
 
+      <div className="main-content">
+        <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
+          <Section section={state.report} isRoot parentDirectory={null} />
+        </div>
+      </div>
+
       <div className="api-status d-flex justify-content-center">
         <p>{apiStatus}</p>
       </div>
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <div className="mt-3" />
-          <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-            <Section section={state.report} isRoot parentDirectory={null} />
-          </div>
-        </Col>
-      </Row>
     </Container>
   );
 }
