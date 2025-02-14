@@ -462,6 +462,15 @@
   border: 1px solid #dee2e6;
   border-radius: 4px;
   margin-bottom: 0.5rem;
+  flex: 0 1 calc(33.333% - 1rem); /* Take up roughly a third of the container width */
+  min-width: 300px; /* Minimum width to maintain readability */
+  margin: 0.5rem;
+}
+
+.file-data-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem; /* Compensate for the margins of child elements */
 }
 
 /* Bookmark Rules */

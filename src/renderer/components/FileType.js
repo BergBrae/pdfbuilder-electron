@@ -308,13 +308,15 @@ function FileType({ fileType: file, parentDirectory }) {
         {file.files.length > 0 && (
           <div className="mt-3">
             <h6>Found Files:</h6>
-            {file.files.map((fileData, index) => (
-              <FileData
-                key={fileData.id || index}
-                fileData={fileData}
-                onChange={handleFileDataChange}
-              />
-            ))}
+            <div className="file-data-container">
+              {file.files.map((fileData, index) => (
+                <FileData
+                  key={fileData.id || index}
+                  fileData={fileData}
+                  onChange={handleFileDataChange}
+                />
+              ))}
+            </div>
           </div>
         )}
       </Container>
