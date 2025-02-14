@@ -141,7 +141,7 @@ function Section({ section, isRoot = false, parentDirectory }) {
     if (!path) return;
 
     const newPath = await window.electron.directoryDialog(
-      currentDirectory || section.base_directory,
+      parentDirectory || currentDirectory || section.base_directory,
       isRoot,
     );
 
