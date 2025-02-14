@@ -270,48 +270,49 @@ function FileType({ fileType: file, parentDirectory }) {
       }
     >
       <Container>
-        <div className="mb-3">
-          <BookmarkRules fileType={file} onChange={updateFileInState} />
-        </div>
+        <div className="d-flex align-items-start mb-3">
+          <div>
+            <div className="mb-3">
+              <BookmarkRules fileType={file} onChange={updateFileInState} />
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleBookmarkFilesWithFilename}
+              disabled={reorderPagesMetals || reorderPagesDatetime}
+            >
+              Bookmark Files with Filenames
+            </Button>
+          </div>
 
-        <div className="mb-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleBookmarkFilesWithFilename}
-            disabled={reorderPagesMetals || reorderPagesDatetime}
-          >
-            Bookmark Files with Filenames
-          </Button>
+          <Form className="ms-3">
+            <Form.Check
+              type="switch"
+              id="reorder-pages-metals-switch"
+              label="Reorder Pages by Metal Content"
+              checked={reorderPagesMetals}
+              onChange={handleReorderPagesMetalsChange}
+              className="mb-2"
+            />
+            <Form.Check
+              type="switch"
+              id="reorder-pages-datetime-switch"
+              label="Reorder Pages by Date/Time"
+              checked={reorderPagesDatetime}
+              onChange={handleReorderPagesDatetimeChange}
+              className="mb-2"
+            />
+            <Form.Check
+              type="switch"
+              id="keep-existing-bookmarks-switch"
+              label="Keep Existing Bookmarks"
+              checked={keepExistingBookmarks}
+              onChange={handleKeepExistingBookmarksChange}
+              className="mb-2"
+              disabled={reorderPagesMetals || reorderPagesDatetime}
+            />
+          </Form>
         </div>
-
-        <Form>
-          <Form.Check
-            type="switch"
-            id="reorder-pages-metals-switch"
-            label="Reorder Pages by Metal Content"
-            checked={reorderPagesMetals}
-            onChange={handleReorderPagesMetalsChange}
-            className="mb-2"
-          />
-          <Form.Check
-            type="switch"
-            id="reorder-pages-datetime-switch"
-            label="Reorder Pages by Date/Time"
-            checked={reorderPagesDatetime}
-            onChange={handleReorderPagesDatetimeChange}
-            className="mb-2"
-          />
-          <Form.Check
-            type="switch"
-            id="keep-existing-bookmarks-switch"
-            label="Keep Existing Bookmarks"
-            checked={keepExistingBookmarks}
-            onChange={handleKeepExistingBookmarksChange}
-            className="mb-2"
-            disabled={reorderPagesMetals || reorderPagesDatetime}
-          />
-        </Form>
 
         {file.files.length > 0 && (
           <div className="mt-3">
