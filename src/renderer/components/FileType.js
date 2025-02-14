@@ -213,9 +213,9 @@ function FileType({ fileType: file, parentDirectory }) {
     <CustomAccordion
       defaultExpanded={false}
       header={
-        <div>
+        <div style={{ flex: 'initial', width: '100%' }}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center flex-grow-1">
               <BookmarkIcon
                 isBookmarked={!!file.bookmark_name}
                 bookmarkName={file.bookmark_name}
@@ -229,7 +229,15 @@ function FileType({ fileType: file, parentDirectory }) {
                   : ' (No files found)'}
               </span>
             </div>
-            <Button variant="outline-danger" size="sm" onClick={handleDelete}>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              className="ms-auto"
+            >
               Delete
             </Button>
           </div>

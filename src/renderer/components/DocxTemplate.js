@@ -143,39 +143,49 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
     <CustomAccordion
       defaultExpanded={false}
       header={
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <BookmarkIcon
-              bookmark_name={docxTemplate.bookmark_name}
-              onBookmarkChange={handleBookmarkChange}
-            />
-            <span className="ms-2">
-              {docxTemplate.bookmark_name || 'Docx Template'}{' '}
-              {docxTemplate.exists ? (
-                <FaCheck className="text-success" />
-              ) : (
-                <span className="text-danger">(Not Found)</span>
-              )}
-            </span>
+        <div style={{ flex: 'initial', width: '100%' }}>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex align-items-center flex-grow-1">
+              <BookmarkIcon
+                bookmark_name={docxTemplate.bookmark_name}
+                onBookmarkChange={handleBookmarkChange}
+              />
+              <span className="ms-2">
+                {docxTemplate.bookmark_name || 'Docx Template'}{' '}
+                {docxTemplate.exists ? (
+                  <FaCheck className="text-success" />
+                ) : (
+                  <span className="text-danger">(Not Found)</span>
+                )}
+              </span>
+            </div>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              className="ms-auto"
+            >
+              Delete
+            </Button>
           </div>
-          <Button variant="outline-danger" size="sm" onClick={handleDelete}>
-            Delete
-          </Button>
+          <div className="d-flex align-items-center">
+            {docxIcon}
+            <Form.Control
+              className="ms-3"
+              type="text"
+              value={docxPath}
+              onChange={handleDocxPathChange}
+              placeholder="Enter docx path"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
         </div>
       }
     >
       <Container>
-        <div className="d-flex align-items-center mb-3">
-          {docxIcon}
-          <Form.Control
-            className="ms-3"
-            type="text"
-            value={docxPath}
-            onChange={handleDocxPathChange}
-            placeholder="Enter docx path"
-          />
-        </div>
-
         <Form>
           <Form.Check
             type="switch"

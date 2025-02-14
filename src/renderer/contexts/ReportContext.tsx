@@ -24,7 +24,10 @@ type ReportAction =
       type: 'UPDATE_SECTION';
       payload: { path: number[]; section: Partial<Section> };
     }
-  | { type: 'ADD_CHILD'; payload: { path: number[]; child: Section } }
+  | {
+      type: 'ADD_CHILD';
+      payload: { path: number[]; child: Section; index?: number };
+    }
   | { type: 'DELETE_CHILD'; payload: { path: number[] } }
   | {
       type: 'MOVE_ITEM';
@@ -91,17 +94,21 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
     }
 
     case 'ADD_CHILD': {
-      const { path, child } = action.payload;
+      const { path, child, index } = action.payload;
       const newReport = { ...state.report };
       let currentLevel = newReport;
 
       // Navigate to the target section
-      for (const index of path) {
-        currentLevel = currentLevel.children[index];
+      for (const pathIndex of path) {
+        currentLevel = currentLevel.children[pathIndex];
       }
 
-      // Add the new child
+      // Add the new child at the specified index or at the end if no index provided
+      if (typeof index === 'number') {
+        currentLevel.children.splice(index, 0, child);
+      } else {
       currentLevel.children.push(child);
+      }
 
       return { ...state, report: newReport };
     }

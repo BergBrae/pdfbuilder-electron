@@ -32,6 +32,8 @@ export default function FileData({ fileData, onFileDataChange, showBookmark }) {
             <br />
             {num_pages}
             {num_pages > 1 ? ' Pages' : ' Page'}
+            <br />
+            <small style={{ color: '#6c757d' }}>Double click to open</small>
           </p>
         </Card.Body>
       </Card>

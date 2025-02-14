@@ -230,31 +230,44 @@ function Section({ section, isRoot = false, parentDirectory }) {
     const path = findSectionPath(section);
     if (!path) return;
 
-    const updatedChildren = section.children.filter((child) => child.id !== id);
-    const updatedVariables = [];
-    for (const child of updatedChildren) {
-      if (child.variables_in_doc) {
-        updatedVariables.push(
-          ...child.variables_in_doc.map((variable) => ({
-            template_text: variable,
-            is_constant: true,
-            constant_value: '',
-          })),
-        );
+    if (id) {
+      // Deleting a child component
+      const updatedChildren = section.children.filter(
+        (child) => child.id !== id,
+      );
+      const updatedVariables = [];
+      for (const child of updatedChildren) {
+        if (child.variables_in_doc) {
+          updatedVariables.push(
+            ...child.variables_in_doc.map((variable) => ({
+              template_text: variable,
+              is_constant: true,
+              constant_value: '',
+            })),
+          );
+        }
       }
-    }
 
-    dispatch({
-      type: 'UPDATE_SECTION',
-      payload: {
-        path,
-        section: {
-          ...section,
-          children: updatedChildren,
-          variables: updatedVariables,
+      dispatch({
+        type: 'UPDATE_SECTION',
+        payload: {
+          path,
+          section: {
+            ...section,
+            children: updatedChildren,
+            variables: updatedVariables,
+          },
         },
-      },
-    });
+      });
+    } else {
+      // Deleting the section itself
+      dispatch({
+        type: 'DELETE_CHILD',
+        payload: {
+          path,
+        },
+      });
+    }
   };
 
   const handleVariablesUpdate = (variables) => {
@@ -345,9 +358,9 @@ function Section({ section, isRoot = false, parentDirectory }) {
       className={`section ${isRoot ? 'root-section' : ''}`}
       eventKey={section.id}
       header={
-        <div className="section-header w-100">
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
+        <div style={{ flex: 'initial', width: '100%' }}>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex align-items-center flex-grow-1">
               <BookmarkIcon
                 isBookmarked={!!section.bookmark_name}
                 bookmarkName={section.bookmark_name}
@@ -361,21 +374,32 @@ function Section({ section, isRoot = false, parentDirectory }) {
                   : ' (No files found in this section)'}
               </span>
             </div>
-          </div>
-          <div className="mt-2">
-            <div className="d-flex align-items-center">
-              <small className="text-muted me-2">Base Directory:</small>
+            {!isRoot && (
               <Button
-                variant="outline-secondary"
+                variant="outline-danger"
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleBaseDirectoryChange(section.base_directory);
+                  handleDelete();
                 }}
+                className="ms-auto"
               >
-                {section.base_directory || 'Select Directory'}
+                Delete
               </Button>
-            </div>
+            )}
+          </div>
+          <div className="d-flex align-items-center">
+            <small className="text-muted me-2">Base Directory:</small>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBaseDirectoryChange(section.base_directory);
+              }}
+            >
+              {section.base_directory || 'Select Directory'}
+            </Button>
           </div>
         </div>
       }
@@ -400,51 +424,54 @@ function Section({ section, isRoot = false, parentDirectory }) {
 
       <div>
         {section.children.map((child, index) => (
-          <div key={child.id} className="mb-2">
-            <AddComponent onAdd={(type) => handleAddChild(index, type)} />
-            {(() => {
-              switch (child.type) {
-                case 'DocxTemplate':
-                  return (
-                    <DocxTemplate
-                      template={child}
-                      onTemplateChange={(newTemplate) =>
-                        handleChildChange(index, newTemplate)
-                      }
-                      onDelete={() => handleDelete(child.id)}
-                      parentDirectory={directorySource}
-                      onVariablesUpdate={handleVariablesUpdate}
-                    />
-                  );
-                case 'FileType':
-                  return (
-                    <FileType
-                      fileType={child}
-                      onFileChange={(newFileType) =>
-                        handleChildChange(index, newFileType)
-                      }
-                      onDelete={() => handleDelete(child.id)}
-                      parentDirectory={directorySource}
-                    />
-                  );
-                case 'Section':
-                  return (
-                    <Section
-                      section={child}
-                      parentDirectory={directorySource}
-                    />
-                  );
-                default:
-                  return null;
-              }
-            })()}
-          </div>
+          <React.Fragment key={child.id}>
+            {index === 0 && (
+              <AddComponent path={findSectionPath(section)} index={0} />
+            )}
+            <div className="component-wrapper">
+              {(() => {
+                switch (child.type) {
+                  case 'DocxTemplate':
+                    return (
+                      <DocxTemplate
+                        template={child}
+                        onTemplateChange={(newTemplate) =>
+                          handleChildChange(index, newTemplate)
+                        }
+                        onDelete={() => handleDelete(child.id)}
+                        parentDirectory={directorySource}
+                        onVariablesUpdate={handleVariablesUpdate}
+                      />
+                    );
+                  case 'FileType':
+                    return (
+                      <FileType
+                        fileType={child}
+                        onFileChange={(newFileType) =>
+                          handleChildChange(index, newFileType)
+                        }
+                        onDelete={() => handleDelete(child.id)}
+                        parentDirectory={directorySource}
+                      />
+                    );
+                  case 'Section':
+                    return (
+                      <Section
+                        section={child}
+                        parentDirectory={directorySource}
+                      />
+                    );
+                  default:
+                    return null;
+                }
+              })()}
+            </div>
+            <AddComponent path={findSectionPath(section)} index={index + 1} />
+          </React.Fragment>
         ))}
-        <div className="mt-3">
-          <AddComponent
-            onAdd={(type) => handleAddChild(section.children.length, type)}
-          />
-        </div>
+        {section.children.length === 0 && (
+          <AddComponent path={findSectionPath(section)} index={0} />
+        )}
       </div>
     </CustomAccordion>
   );
