@@ -213,46 +213,55 @@ function FileType({ fileType: file, parentDirectory }) {
     <CustomAccordion
       defaultExpanded={false}
       header={
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <BookmarkIcon
-              isBookmarked={!!file.bookmark_name}
-              bookmarkName={file.bookmark_name}
-              onBookmarkChange={handleBookmarkChange}
-            />
-            <span className="ms-2">({file.files.length} files)</span>
+        <div>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex align-items-center">
+              <BookmarkIcon
+                isBookmarked={!!file.bookmark_name}
+                bookmarkName={file.bookmark_name}
+                onBookmarkChange={handleBookmarkChange}
+              />
+              <span
+                className={`ms-2 ${file.files.length > 0 ? 'text-success' : 'text-danger'}`}
+              >
+                {file.files.length > 0
+                  ? ` (${file.files.length} ${file.files.length === 1 ? 'file' : 'files'} found)`
+                  : ' (No files found)'}
+              </span>
+            </div>
+            <Button variant="outline-danger" size="sm" onClick={handleDelete}>
+              Delete
+            </Button>
           </div>
-          <Button variant="outline-danger" size="sm" onClick={handleDelete}>
-            Delete
-          </Button>
+          <div className="d-flex align-items-center">
+            {FileIcon}
+            <div
+              className="d-flex flex-wrap align-items-center ms-3"
+              style={{ gap: '0.5rem' }}
+            >
+              A PDF in
+              <Form.Control
+                size="sm"
+                style={{ width: '150px' }}
+                value={directorySource}
+                onChange={handleDirectoryChange}
+                onClick={(e) => e.stopPropagation()}
+              />
+              containing
+              <Form.Control
+                size="sm"
+                style={{ width: '250px' }}
+                value={filenameText}
+                onChange={handleFilenameChange}
+                onClick={(e) => e.stopPropagation()}
+              />
+              in the filename.
+            </div>
+          </div>
         </div>
       }
     >
       <Container>
-        <div className="d-flex align-items-center mb-3">
-          {FileIcon}
-          <div
-            className="d-flex flex-wrap align-items-center ms-3"
-            style={{ gap: '0.5rem' }}
-          >
-            A PDF in
-            <Form.Control
-              size="sm"
-              style={{ width: '150px' }}
-              value={directorySource}
-              onChange={handleDirectoryChange}
-            />
-            containing
-            <Form.Control
-              size="sm"
-              style={{ width: '250px' }}
-              value={filenameText}
-              onChange={handleFilenameChange}
-            />
-            in the filename.
-          </div>
-        </div>
-
         <div className="mb-3">
           <BookmarkRules fileType={file} onChange={updateFileInState} />
         </div>
