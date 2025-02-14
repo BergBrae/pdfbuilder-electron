@@ -140,26 +140,18 @@ function Section({ section, isRoot = false, parentDirectory }) {
     const path = findSectionPath(section);
     if (!path) return;
 
-    const relativePath = await window.electron.directoryDialog(
+    const newPath = await window.electron.directoryDialog(
       currentDirectory || section.base_directory,
+      isRoot,
     );
-    let pathToBaseDirectory = null;
-    if (!currentDirectory) {
-      // relativePath is relative to section.base_directory
-      pathToBaseDirectory = await window.electron.resolvePath({
-        base: section.base_directory,
-        relative: relativePath,
-      });
-    } else {
-      pathToBaseDirectory = relativePath;
-    }
-    if (pathToBaseDirectory) {
+
+    if (newPath) {
       const updatedSection = setFlags(section);
       dispatch({
         type: 'UPDATE_SECTION',
         payload: {
           path,
-          section: { ...updatedSection, base_directory: pathToBaseDirectory },
+          section: { ...updatedSection, base_directory: newPath },
         },
       });
     }

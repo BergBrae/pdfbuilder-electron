@@ -101,23 +101,28 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   }
 });
 
-ipcMain.handle('directory-dialog', async (event, currentDirectory) => {
-  const window = BrowserWindow.getFocusedWindow();
-  const options = {
-    title: 'Base Directory',
-    defaultPath: currentDirectory || app.getPath('downloads'),
-    buttonLabel: 'Set',
-    properties: ['openDirectory'],
-  };
-  const { filePaths } = await dialog.showOpenDialog(window, options);
-  if (!filePaths || filePaths.length === 0) {
-    return null;
-  }
-  const chosenPath = filePaths[0];
-  return currentDirectory != null
-    ? path.relative(currentDirectory, chosenPath)
-    : chosenPath;
-});
+ipcMain.handle(
+  'directory-dialog',
+  async (event, { currentDirectory, isRoot }) => {
+    const window = BrowserWindow.getFocusedWindow();
+    const options = {
+      title: 'Base Directory',
+      defaultPath: currentDirectory || app.getPath('downloads'),
+      buttonLabel: 'Set',
+      properties: ['openDirectory'],
+    };
+    const { filePaths } = await dialog.showOpenDialog(window, options);
+    if (!filePaths || filePaths.length === 0) {
+      return null;
+    }
+    const chosenPath = filePaths[0];
+    return isRoot
+      ? chosenPath
+      : currentDirectory != null
+        ? path.relative(currentDirectory, chosenPath)
+        : chosenPath;
+  },
+);
 
 ipcMain.handle('load-report-dialog', async (event) => {
   const window = BrowserWindow.getFocusedWindow();
@@ -273,13 +278,13 @@ app
 function killAllApiProcesses() {
   const isWin = process.platform === 'win32';
   if (isWin) {
-  exec('taskkill /IM api.exe /F', (err, stdout, stderr) => {
+    exec('taskkill /IM api.exe /F', (err, stdout, stderr) => {
       if (err) {
-      console.error(`Error killing api.exe processes: ${stderr}`);
-    } else {
-      console.log(`Killed all api.exe processes: ${stdout}`);
-    }
-  });
+        console.error(`Error killing api.exe processes: ${stderr}`);
+      } else {
+        console.log(`Killed all api.exe processes: ${stdout}`);
+      }
+    });
   } else {
     // On Unix-like systems (Mac/Linux), use pkill
     exec('pkill -f api', (err, stdout, stderr) => {

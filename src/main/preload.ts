@@ -19,8 +19,11 @@ const electronHandler = {
   loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
   buildPathDialog: async (defaultPath) =>
     await ipcRenderer.invoke('build-path-dialog', defaultPath),
-  directoryDialog: async (defaultPath) =>
-    await ipcRenderer.invoke('directory-dialog', defaultPath),
+  directoryDialog: async (defaultPath: string, isRoot: boolean = false) =>
+    await ipcRenderer.invoke('directory-dialog', {
+      currentDirectory: defaultPath,
+      isRoot,
+    }),
   getVersion: async () => await ipcRenderer.invoke('get-version'),
   getRelativePath: async (paths: { from: string; to: string }) =>
     await ipcRenderer.invoke('get-relative-path', paths),
