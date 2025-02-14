@@ -1,6 +1,11 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.0.0</h5>
+      <ul>
+        <li>Changed the way the underlying data is handled</li>
+        <li>Minor cosmetic changes</li>
+      </ul>
       <h5>Version 1.5.5</h5>
       <ul>
         <li>
