@@ -215,31 +215,32 @@ function FileType({ fileType: file, parentDirectory }) {
       header={
         <div style={{ flex: 'initial', width: '100%' }}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center flex-grow-1">
+            <div className="d-flex align-items-center">
               <BookmarkIcon
                 isBookmarked={!!file.bookmark_name}
                 bookmarkName={file.bookmark_name}
                 onBookmarkChange={handleBookmarkChange}
               />
+            </div>
+            <div className="d-flex align-items-center">
               <span
-                className={`ms-2 ${file.files.length > 0 ? 'text-success' : 'text-danger'}`}
+                className={`me-3 ${file.files.length > 0 ? 'text-success' : 'text-danger'}`}
               >
                 {file.files.length > 0
-                  ? ` (${file.files.length} ${file.files.length === 1 ? 'file' : 'files'} found)`
-                  : ' (No files found)'}
+                  ? `${file.files.length} ${file.files.length === 1 ? 'file' : 'files'} found`
+                  : 'No files found'}
               </span>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+              >
+                Delete
+              </Button>
             </div>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
-              className="ms-auto"
-            >
-              Delete
-            </Button>
           </div>
           <div className="d-flex align-items-center">
             {FileIcon}

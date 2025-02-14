@@ -360,33 +360,34 @@ function Section({ section, isRoot = false, parentDirectory }) {
       header={
         <div style={{ flex: 'initial', width: '100%' }}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center flex-grow-1">
+            <div className="d-flex align-items-center">
               <BookmarkIcon
                 isBookmarked={!!section.bookmark_name}
                 bookmarkName={section.bookmark_name}
                 onBookmarkChange={handleBookmarkChange}
               />
+            </div>
+            <div className="d-flex align-items-center">
               <span
-                className={`ms-2 ${totalFiles > 0 ? 'text-success' : 'text-danger'}`}
+                className={`me-3 ${totalFiles > 0 ? 'text-success' : 'text-danger'}`}
               >
                 {totalFiles > 0
-                  ? ` (${totalFiles} ${totalFiles === 1 ? 'file' : 'files'} found)`
-                  : ' (No files found in this section)'}
+                  ? `${totalFiles} ${totalFiles === 1 ? 'file' : 'files'} found`
+                  : 'No files found in this section'}
               </span>
+              {!isRoot && (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
+                >
+                  Delete
+                </Button>
+              )}
             </div>
-            {!isRoot && (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                className="ms-auto"
-              >
-                Delete
-              </Button>
-            )}
           </div>
           <div className="d-flex align-items-center">
             <small className="text-muted me-2">Base Directory:</small>
