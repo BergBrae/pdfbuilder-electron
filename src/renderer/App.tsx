@@ -112,14 +112,8 @@ function AppContent() {
         setBuiltPDF(responseData);
         setBuildStatus('success');
 
-        // Create notification message including problematic files
+        // Create notification message
         let notificationMessage = 'PDF built successfully!';
-        if (responseData.problematic_files.length > 0) {
-          notificationMessage += '\nFiles with broken bookmarks:';
-          responseData.problematic_files.forEach((file: ProblemFile) => {
-            notificationMessage += `\n${file.path}: ${file.count} issues`;
-          });
-        }
 
         new Notification('Complete', {
           body: notificationMessage,
@@ -137,12 +131,6 @@ function AppContent() {
         setBuildStatus('failure');
 
         let errorMessage = `Failed to build PDF: ${buildError.message}`;
-        if (buildError.problematicFiles.length > 0) {
-          errorMessage += '\nFiles with broken bookmarks:';
-          buildError.problematicFiles.forEach((file: ProblemFile) => {
-            errorMessage += `\n${file.path}: ${file.count} issues`;
-          });
-        }
 
         new Notification('Error', {
           body: errorMessage,
@@ -287,57 +275,10 @@ function AppContent() {
           ) : buildStatus === 'success' && builtPDF ? (
             <div>
               <p>PDF built successfully!</p>
-              {builtPDF.problematic_files &&
-                builtPDF.problematic_files.length > 0 && (
-                  <div>
-                    <h6 className="text-danger mb-3">
-                      Files with broken bookmarks:
-                    </h6>
-                    <ul className="list-group">
-                      {builtPDF.problematic_files.map((file, index) => (
-                        <li
-                          key={index}
-                          className="list-group-item list-group-item-warning d-flex align-items-center"
-                        >
-                          <span className="me-2">•</span>
-                          <div className="text-break">
-                            <strong>{file.path}</strong>
-                            <span className="ms-2">
-                              ({file.count} broken bookmarks)
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
             </div>
           ) : buildStatus === 'failure' && error ? (
             <div>
               <p>{error.message}</p>
-              {error.problematicFiles && error.problematicFiles.length > 0 && (
-                <div>
-                  <h6 className="text-danger mb-3">
-                    Files with broken bookmarks:
-                  </h6>
-                  <ul className="list-group">
-                    {error.problematicFiles.map((file, index) => (
-                      <li
-                        key={index}
-                        className="list-group-item list-group-item-warning d-flex align-items-center"
-                      >
-                        <span className="me-2">•</span>
-                        <div className="text-break">
-                          <strong>{file.path}</strong>
-                          <span className="ms-2">
-                            ({file.count} broken bookmarks)
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           ) : null}
         </Modal.Body>
