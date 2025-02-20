@@ -21,13 +21,30 @@ import ChangeLog from './components/ChangeLog';
 import { ReportProvider, useReport } from './contexts/ReportContext';
 
 // Types
+interface ProblemFile {
+  path: string;
+  count: number;
+}
+
+interface APIError {
+  detail: string;
+  problematic_files?: ProblemFile[];
+}
+
+interface BuildResponse {
+  success: boolean;
+  output_path: string;
+  problematic_files: ProblemFile[];
+}
+
 interface BuildError extends Error {
   message: string;
+  problematicFiles: ProblemFile[];
 }
 
 function AppContent() {
   const { state, dispatch } = useReport();
-  const [builtPDF, setBuiltPDF] = useState<any>(null);
+  const [builtPDF, setBuiltPDF] = useState<BuildResponse | null>(null);
   const [savePath, setSavePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -79,29 +96,56 @@ function AppContent() {
         );
         const data = await response.json();
 
-        if (data.error) {
-          throw new Error(data.error);
+        if (!response.ok) {
+          throw data;
         }
 
-        setBuiltPDF(data);
+        // Ensure we have the correct structure
+        const responseData: BuildResponse = {
+          success: true,
+          output_path: data.output_path,
+          problematic_files: Array.isArray(data.problematic_files)
+            ? data.problematic_files
+            : [],
+        };
+
+        setBuiltPDF(responseData);
         setBuildStatus('success');
 
-        console.log('Sending notification...');
+        // Create notification message including problematic files
+        let notificationMessage = 'PDF built successfully!';
+        if (responseData.problematic_files.length > 0) {
+          notificationMessage += '\nFiles with broken bookmarks:';
+          responseData.problematic_files.forEach((file: ProblemFile) => {
+            notificationMessage += `\n${file.path}: ${file.count} issues`;
+          });
+        }
+
         new Notification('Complete', {
-          body: 'PDF built successfully!',
+          body: notificationMessage,
         });
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        const apiError = err as APIError;
         const buildError: BuildError = {
           name: 'BuildError',
-          message:
-            error instanceof Error ? error.message : 'Unknown error occurred',
+          message: apiError.detail || 'Unknown error occurred',
+          problematicFiles: Array.isArray(apiError.problematic_files)
+            ? apiError.problematic_files
+            : [],
         };
         setError(buildError);
         setBuildStatus('failure');
 
+        let errorMessage = `Failed to build PDF: ${buildError.message}`;
+        if (buildError.problematicFiles.length > 0) {
+          errorMessage += '\nFiles with broken bookmarks:';
+          buildError.problematicFiles.forEach((file: ProblemFile) => {
+            errorMessage += `\n${file.path}: ${file.count} issues`;
+          });
+        }
+
         new Notification('Error', {
-          body: `Failed to build PDF: ${buildError.message}`,
+          body: errorMessage,
         });
       } finally {
         setIsLoading(false);
@@ -231,7 +275,7 @@ function AppContent() {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showBuildModal} onHide={closeBuildModal}>
+      <Modal show={showBuildModal} onHide={closeBuildModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Building PDF</Modal.Title>
         </Modal.Header>
@@ -240,10 +284,61 @@ function AppContent() {
             <div className="d-flex justify-content-center">
               <Spinner animation="border" />
             </div>
-          ) : buildStatus === 'success' ? (
-            <p>PDF built successfully!</p>
+          ) : buildStatus === 'success' && builtPDF ? (
+            <div>
+              <p>PDF built successfully!</p>
+              {builtPDF.problematic_files &&
+                builtPDF.problematic_files.length > 0 && (
+                  <div>
+                    <h6 className="text-danger mb-3">
+                      Files with broken bookmarks:
+                    </h6>
+                    <ul className="list-group">
+                      {builtPDF.problematic_files.map((file, index) => (
+                        <li
+                          key={index}
+                          className="list-group-item list-group-item-warning d-flex align-items-center"
+                        >
+                          <span className="me-2">•</span>
+                          <div className="text-break">
+                            <strong>{file.path}</strong>
+                            <span className="ms-2">
+                              ({file.count} broken bookmarks)
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+            </div>
           ) : buildStatus === 'failure' && error ? (
-            <p>{error.message}</p>
+            <div>
+              <p>{error.message}</p>
+              {error.problematicFiles && error.problematicFiles.length > 0 && (
+                <div>
+                  <h6 className="text-danger mb-3">
+                    Files with broken bookmarks:
+                  </h6>
+                  <ul className="list-group">
+                    {error.problematicFiles.map((file, index) => (
+                      <li
+                        key={index}
+                        className="list-group-item list-group-item-warning d-flex align-items-center"
+                      >
+                        <span className="me-2">•</span>
+                        <div className="text-break">
+                          <strong>{file.path}</strong>
+                          <span className="ms-2">
+                            ({file.count} broken bookmarks)
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ) : null}
         </Modal.Body>
         <Modal.Footer>
