@@ -1,6 +1,10 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.0.1</h5>
+      <ul>
+        <li>Improved error handling for malformed bookmarks in input PDFs</li>
+      </ul>
       <h5>Version 2.0.0</h5>
       <ul>
         <li>Changed the way the underlying data is handled</li>
