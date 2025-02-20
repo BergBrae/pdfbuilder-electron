@@ -211,23 +211,34 @@
   left: 10px;
   width: 15vw;
   z-index: 1000;
-  background-color: transparent;
+  background-color: white;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
 }
 
 .main-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(85vw - 40px);
   margin-left: calc(15vw + 20px);
   margin-right: 20px;
   padding-top: 10px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .zoom-wrapper {
   transform-origin: top center;
   transition: transform 0.2s ease-in-out;
   padding: 20px;
+  min-height: min-content;
+  width: 100%;
 }
 
 .zoom-container {
