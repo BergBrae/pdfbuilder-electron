@@ -286,14 +286,14 @@ function FileType({ fileType: file, parentDirectory }) {
             <div className="mb-3">
               <BookmarkRules fileType={file} onChange={updateFileInState} />
             </div>
-            <Button
+            {/* <Button
               variant="secondary"
               size="sm"
               onClick={handleBookmarkFilesWithFilename}
               disabled={reorderPagesMetals || reorderPagesDatetime}
             >
               Bookmark Files with Filenames
-            </Button>
+            </Button> */}
           </div>
 
           <Form className="ms-3">
