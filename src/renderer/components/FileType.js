@@ -57,14 +57,20 @@ function FileType({ fileType: file, parentDirectory }) {
     const path = findFileTypePath(file);
     if (!path) return;
 
+    // Navigate to the parent section to get its children
+    let currentLevel = state.report;
+    for (let i = 0; i < path.length - 1; i++) {
+      currentLevel = currentLevel.children[path[i]];
+    }
+
+    const lastIndex = path[path.length - 1];
     dispatch({
       type: 'UPDATE_SECTION',
       payload: {
         path: path.slice(0, -1),
         section: {
-          ...state.report,
-          children: state.report.children.map((child, index) =>
-            index === path[path.length - 1] ? updatedFile : child,
+          children: currentLevel.children.map((child, index) =>
+            index === lastIndex ? updatedFile : child,
           ),
         },
       },
@@ -224,10 +230,14 @@ function FileType({ fileType: file, parentDirectory }) {
             </div>
             <div className="d-flex align-items-center">
               <span
-                className={`me-3 ${file.files.length > 0 ? 'text-success' : 'text-danger'}`}
+                className={`me-3 ${
+                  file.files.length > 0 ? 'text-success' : 'text-danger'
+                }`}
               >
                 {file.files.length > 0
-                  ? `${file.files.length} ${file.files.length === 1 ? 'file' : 'files'} found`
+                  ? `${file.files.length} ${
+                      file.files.length === 1 ? 'file' : 'files'
+                    } found`
                   : 'No files found'}
               </span>
               <Button
