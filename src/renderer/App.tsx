@@ -19,6 +19,7 @@ import { FiRefreshCw } from 'react-icons/fi';
 import { useLoading } from './contexts/LoadingContext';
 import ChangeLog from './components/ChangeLog';
 import { ReportProvider, useReport } from './contexts/ReportContext';
+import meritLogo from '../../assets/merit-logo.jpeg';
 
 // Types
 interface ProblemFile {
@@ -325,6 +326,7 @@ function AppContent() {
       </Modal>
 
       <div className="floating-buttons">
+        <img src={meritLogo} alt="Merit Logo" className="merit-logo" />
         <div className="buttons-container">
           <Button variant="secondary" onClick={handleRefresh}>
             <FiRefreshCw /> Refresh

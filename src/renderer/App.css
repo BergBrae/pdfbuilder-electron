@@ -580,3 +580,11 @@
 .add-component-wrapper.hovered {
   border-radius: 4px;
 }
+
+.merit-logo {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 1rem;
+  display: block;
+}
