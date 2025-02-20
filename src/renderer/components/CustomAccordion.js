@@ -12,17 +12,21 @@ const CustomAccordion = ({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const handleToggle = () => {
-    setIsExpanded(!isExpanded);
+    if (!defaultExpanded) {
+      setIsExpanded(!isExpanded);
+    }
   };
 
   return (
     <Card className={`${className} mb-3`}>
-      <Card.Header className="py-2">
+      <Card.Header
+        className={`py-2 ${defaultExpanded ? 'non-collapsible' : ''}`}
+      >
         <div className="d-flex justify-content-between align-items-center">
           <div
             style={{ flex: 1 }}
             onClick={handleToggle}
-            role="button"
+            role={defaultExpanded ? undefined : 'button'}
             className="d-flex justify-content-between align-items-center"
           >
             {header}
@@ -40,7 +44,9 @@ const CustomAccordion = ({
           )}
         </div>
       </Card.Header>
-      <div className={`collapse ${isExpanded ? 'show' : ''}`}>
+      <div
+        className={`collapse ${defaultExpanded || isExpanded ? 'show' : ''}`}
+      >
         <Card.Body className="py-3">{children}</Card.Body>
       </div>
     </Card>

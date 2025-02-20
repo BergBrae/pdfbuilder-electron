@@ -501,6 +501,14 @@
   background-color: #f0f0f0;
 }
 
+.card-header.non-collapsible {
+  cursor: default;
+}
+
+.card-header.non-collapsible:hover {
+  background-color: #e7f1ff;
+}
+
 /* Zoom Controls */
 .zoom-wrapper {
   transform-origin: top center;
