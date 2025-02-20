@@ -162,9 +162,10 @@ def build_pdf(data: dict, output_path: str):
             raise HTTPException(status_code=400, detail=problem)
 
         builder = PDFBuilder()  # Instantiate the PDFBuilder
-        builder.generate_pdf(data, output_path)  # Generate the PDF
+        result = builder.generate_pdf(data, output_path)  # Generate the PDF
 
-        return {"success": True, "output_path": output_path}
+        return result  # Return the complete result including problematic_files
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:

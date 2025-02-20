@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Section from './components/Section';
-import Help from './components/Help';
+import Help from './components/help';
 import Zoom from './components/Zoom';
 import Outline from './components/Outline';
 import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap';
@@ -16,10 +16,34 @@ import {
 import { IoHammer } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
+// @ts-ignore
 import logo from '../../assets/merit-logo.jpeg';
+// @ts-ignore
 import appIcon from '../../assets/icon.png';
 import { useLoading } from './contexts/LoadingContext';
 import ChangeLog from './components/ChangeLog';
+
+interface ProblemFile {
+  path: string;
+  count: number;
+}
+
+interface APIError {
+  detail: string;
+  problematic_files?: ProblemFile[];
+}
+
+interface BuildResponse {
+  success: boolean;
+  output_path: string;
+  problematic_files: ProblemFile[];
+}
+
+interface BuildError extends Error {
+  message: string;
+  problematicFiles: ProblemFile[];
+}
+
 function App() {
   const emptyReport = {
     type: 'Section',
@@ -30,22 +54,22 @@ function App() {
   };
 
   const [report, setReport] = useState(emptyReport);
-  const [builtPDF, setBuiltPDF] = useState(null);
+  const [builtPDF, setBuiltPDF] = useState<BuildResponse | null>(null);
   const [savePath, setSavePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showBuildModal, setShowBuildModal] = useState(false); // New state for build modal
-  const [buildStatus, setBuildStatus] = useState(''); // New state for build status
-  const [zoom, setZoom] = useState(1); // New state for zoom level
-  const [error, setError] = useState(null);
-  const [apiStatus, setApiStatus] = useState(''); // New state for API status
-  const [showApiErrorModal, setShowApiErrorModal] = useState(false); // New state for API error modal
+  const [showBuildModal, setShowBuildModal] = useState(false);
+  const [buildStatus, setBuildStatus] = useState('');
+  const [error, setError] = useState<BuildError | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [apiStatus, setApiStatus] = useState('');
+  const [showApiErrorModal, setShowApiErrorModal] = useState(false);
   const { loadingCount } = useLoading();
   const [version, setVersion] = useState('');
-  const [showWhatsNew, setShowWhatsNew] = useState(false); // New state for "What's New?" modal
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
-  const handleSectionChange = (newSection) => {
+  const handleSectionChange = (newSection: any) => {
     setReport(newSection);
   };
 
@@ -71,8 +95,8 @@ function App() {
     if (chosenPath) {
       setSavePath(chosenPath);
       setIsLoading(true);
-      setShowBuildModal(true); // Show build modal
-      setBuildStatus('building'); // Set status to building
+      setShowBuildModal(true);
+      setBuildStatus('building');
       try {
         const response = await fetch(
           `http://localhost:8000/buildpdf?output_path=${encodeURIComponent(
@@ -84,29 +108,42 @@ function App() {
             body: JSON.stringify(report),
           },
         );
-        const data = await response.json();
 
-        if (data.error) {
-          throw new Error(data.error);
+        if (!response.ok) {
+          throw await response.json();
         }
 
-        setBuiltPDF(data);
-        setBuildStatus('success'); // Set status to success
+        const data = await response.json();
 
-        // Send notification
-        console.log('Sending notification...');
+        const responseData: BuildResponse = {
+          success: true,
+          output_path: data.output_path,
+          problematic_files: Array.isArray(data.problematic_files)
+            ? data.problematic_files
+            : [],
+        };
+
+        setBuiltPDF(responseData);
+        setBuildStatus('success');
+
         new Notification('Complete', {
           body: 'PDF built successfully!',
           icon: appIcon,
         });
-      } catch (error_object) {
-        console.error(error_object);
-        setError(error_object);
-        setBuildStatus('failure'); // Set status to failure
+      } catch (err) {
+        const apiError = err as APIError;
+        const buildError: BuildError = {
+          name: 'BuildError',
+          message: apiError.detail || 'Unknown error occurred',
+          problematicFiles: Array.isArray(apiError.problematic_files)
+            ? apiError.problematic_files
+            : [],
+        };
+        setError(buildError);
+        setBuildStatus('failure');
 
-        // Send error notification
         new Notification('Error', {
-          body: `Failed to build PDF: ${error_object.message}`,
+          body: `Failed to build PDF: ${buildError.message}`,
           icon: appIcon,
         });
       } finally {
@@ -134,7 +171,7 @@ function App() {
 
   const closeBuildModal = () => {
     setShowBuildModal(false);
-    setBuildStatus(''); // Reset status
+    setBuildStatus('');
   };
 
   const handleZoomIn = () => {
@@ -149,10 +186,10 @@ function App() {
     try {
       const response = await fetch('http://localhost:8000/');
       if (!response.ok) {
-        setShowApiErrorModal(true); // Show modal if API connection fails
+        setShowApiErrorModal(true);
       }
     } catch (error) {
-      setShowApiErrorModal(true); // Show modal if API connection fails
+      setShowApiErrorModal(true);
     }
   };
 
@@ -162,7 +199,7 @@ function App() {
         console.log('Notification permission:', permission);
       });
     }
-    setTimeout(checkApiConnection, 5000); // Add a 5-second delay before checking API connection
+    setTimeout(checkApiConnection, 5000);
   }, []);
 
   useEffect(() => {
@@ -185,12 +222,10 @@ function App() {
       const newReport = { ...prevReport };
       let currentLevel = newReport;
 
-      // Navigate to the correct level in the tree
       for (const index of parentPath) {
         currentLevel = currentLevel.children[index];
       }
 
-      // Perform the swap
       const dragItem = currentLevel.children[dragIndex];
       const newChildren = [...currentLevel.children];
       newChildren.splice(dragIndex, 1);
@@ -251,10 +286,14 @@ function App() {
             <div className="d-flex justify-content-center">
               <Spinner animation="border" />
             </div>
-          ) : buildStatus === 'success' ? (
-            <p>PDF built successfully!</p>
-          ) : buildStatus === 'failure' ? (
-            <p>{error.message}</p>
+          ) : buildStatus === 'success' && builtPDF ? (
+            <div>
+              <p>PDF built successfully!</p>
+            </div>
+          ) : buildStatus === 'failure' && error ? (
+            <div>
+              <p>{error.message}</p>
+            </div>
           ) : null}
         </Modal.Body>
         <Modal.Footer>
@@ -367,7 +406,6 @@ function App() {
               report={report}
             />
           </div>
-          {/* <pre>{JSON.stringify(report, null, 2)}</pre> */}
         </Col>
       </Row>
     </Container>

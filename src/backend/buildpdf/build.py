@@ -20,14 +20,15 @@ class PDFBuilder:
         self.page_number_offset: int = (
             0  # used for table of contents. Adds a specified number to each page number
         )
+        self.problematic_files: List[Dict[str, Any]] = []  # Track problematic files
 
-    def generate_pdf(self, report: Dict[str, Any], output_path: str) -> bool:
+    def generate_pdf(self, report: Dict[str, Any], output_path: str) -> Dict[str, Any]:
         """
         Generates a PDF from the given report data and writes it to the output path.
 
         :param report: Dictionary containing report structure and data.
         :param output_path: Path where the generated PDF will be saved.
-        :return: True if PDF generation is successful.
+        :return: Dictionary containing success status, output path and any problematic files.
         """
         report["bookmark_name"] = None  # Remove top-level bookmark
 
@@ -44,7 +45,12 @@ class PDFBuilder:
         writer.write(output_path)
         if self.table_of_contents_docx:
             self.table_of_contents_docx.save(toc_filename(output_path))
-        return True
+
+        return {
+            "success": True,
+            "output_path": output_path,
+            "problematic_files": self.problematic_files,
+        }
 
     def _generate_pdf_pass_one(self, report: Dict[str, Any]) -> None:
         """
@@ -557,40 +563,86 @@ class PDFBuilder:
             self.bookmark_data[i].page_end = page_end
 
     def _extract_existing_bookmarks(
-        self, pdf: PdfReader, parent_bookmark: BookmarkItem
+        self, pdf: PdfReader, parent_bookmark: BookmarkItem, file_path: str = None
     ) -> List[BookmarkItem]:
         """
         Extracts existing bookmarks from a PDF and returns them as a list of BookmarkItems.
+        Handles malformed bookmarks gracefully and tracks problematic files.
 
         :param pdf: The PdfReader object of the PDF.
         :param parent_bookmark: The parent bookmark for these bookmarks.
+        :param file_path: The path to the PDF file being processed.
         :return: List of BookmarkItems representing the existing bookmarks.
         """
         existing_bookmarks = []
+        problematic_count = 0
 
         def process_outline(outline, parent):
+            nonlocal problematic_count
             if isinstance(outline, list):
                 for item in outline:
                     process_outline(item, parent)
             elif isinstance(outline, Destination):
-                # Convert the IndirectObject to an integer page number
-                page_number = (
-                    pdf.get_page_number(outline.page)
-                    if isinstance(outline.page, IndirectObject)
-                    else outline.page
-                )
-                bookmark = BookmarkItem(
-                    title=outline.title,
-                    page=page_number + self.current_page,  # Adjust page number
-                    parent=parent,
-                    id=str(uuid.uuid4()),
-                    include_in_table_of_contents=False,
-                )
-                existing_bookmarks.append(bookmark)
-                if hasattr(outline, "children"):
-                    process_outline(outline.children, bookmark)
+                try:
+                    # Convert the IndirectObject to an integer page number
+                    if not hasattr(outline, "page") or outline.page is None:
+                        problematic_count += 1
+                        return
 
-        process_outline(pdf.outline, parent_bookmark)
+                    page_number = (
+                        pdf.get_page_number(outline.page)
+                        if isinstance(outline.page, IndirectObject)
+                        else outline.page
+                    )
+
+                    if page_number is None or page_number < 0:
+                        problematic_count += 1
+                        return
+
+                    bookmark = BookmarkItem(
+                        title=(
+                            outline.title
+                            if hasattr(outline, "title")
+                            else "Untitled Bookmark"
+                        ),
+                        page=page_number + self.current_page,  # Adjust page number
+                        parent=parent,
+                        id=str(uuid.uuid4()),
+                        include_in_table_of_contents=False,
+                    )
+                    existing_bookmarks.append(bookmark)
+
+                    # Process children if they exist
+                    if hasattr(outline, "children") and outline.children:
+                        process_outline(outline.children, bookmark)
+                except Exception as e:
+                    problematic_count += 1
+            else:
+                # Handle unexpected outline types
+                problematic_count += 1
+
+        try:
+            if pdf.outline:
+                process_outline(pdf.outline, parent_bookmark)
+        except Exception as e:
+            print(f"Error processing PDF outline: {str(e)}")
+            return []
+
+        if problematic_count > 0:
+            # Use the provided file path, or try to get it from the pdf stream as fallback
+            if file_path is None:
+                file_path = (
+                    getattr(pdf.stream, "name", "Unknown PDF")
+                    if hasattr(pdf, "stream")
+                    else "Unknown PDF"
+                )
+            print(
+                f"Warning: File '{file_path}' contains {problematic_count} problematic bookmarks"
+            )
+            self.problematic_files.append(
+                {"path": file_path, "count": problematic_count}
+            )
+
         return existing_bookmarks
 
 
