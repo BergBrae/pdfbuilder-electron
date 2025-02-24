@@ -76,6 +76,9 @@ class PDFBuilder:
             return
         root_bookmark = self._create_root_bookmark_if_needed(section, root_bookmark)
         for child in section["children"]:
+            child["variables"] = section[
+                "variables"
+            ]  # Pass variables to docx child because they are stored in section
             self._process_child(child, base_directory, root_bookmark)
 
     def _process_child(

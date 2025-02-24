@@ -6,31 +6,31 @@
     {
       "template_text": "Report Date mm/dd/yyyy",
       "is_constant": true,
-      "constant_value": "",
+      "constant_value": "Report Date",
       "id": "bc5ec59d-2cb5-4905-a1eb-08337500cbff"
     },
     {
       "template_text": "Merit ID",
       "is_constant": true,
-      "constant_value": "",
+      "constant_value": "Merit ID",
       "id": "9bb1744d-e4f1-4bca-a7db-00097e4568a9"
     },
     {
       "template_text": "Report Attention",
       "is_constant": true,
-      "constant_value": "",
+      "constant_value": "Report Attention",
       "id": "cd324a75-86cf-4153-97f1-443464478cb0"
     },
     {
       "template_text": "Client Name",
       "is_constant": true,
-      "constant_value": "",
+      "constant_value": "Client Name",
       "id": "1c6d1d18-d7ac-4188-8d1b-e1ca3b754ec2"
     },
     {
       "template_text": "Project Name",
       "is_constant": true,
-      "constant_value": "",
+      "constant_value": "Project Name",
       "id": "e4d75037-07ef-4d18-87c0-00c9559a8ab8"
     }
   ],
