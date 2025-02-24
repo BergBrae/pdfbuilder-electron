@@ -51,6 +51,7 @@ function AppContent() {
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showBuildModal, setShowBuildModal] = useState(false);
+  const [showJsonModal, setShowJsonModal] = useState(false);
   const [buildStatus, setBuildStatus] = useState('');
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<BuildError | null>(null);
@@ -223,6 +224,10 @@ function AppContent() {
     });
   };
 
+  const handleLogoDoubleClick = () => {
+    setShowJsonModal(true);
+  };
+
   return (
     <Container fluid className="App">
       {loadingCount > 0 && (
@@ -325,8 +330,34 @@ function AppContent() {
         </Modal.Footer>
       </Modal>
 
+      <Modal
+        show={showJsonModal}
+        onHide={() => setShowJsonModal(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Report Data (JSON)</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre style={{ maxHeight: '70vh', overflow: 'auto' }}>
+            {JSON.stringify(state.report, null, 2)}
+          </pre>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowJsonModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <div className="floating-buttons">
-        <img src={meritLogo} alt="Merit Logo" className="merit-logo" />
+        <img
+          src={meritLogo}
+          alt="Merit Logo"
+          className="merit-logo"
+          onDoubleClick={handleLogoDoubleClick}
+          style={{ cursor: 'pointer' }}
+        />
         <div className="buttons-container">
           <Button variant="secondary" onClick={handleRefresh}>
             <FiRefreshCw /> Refresh
