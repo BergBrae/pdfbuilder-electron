@@ -31,6 +31,15 @@ const electronHandler = {
     await ipcRenderer.invoke('resolve-path', paths),
   openFile: async (filePath: string) =>
     await ipcRenderer.invoke('open-file', filePath),
+  confirmCloseApp: async (shouldClose: boolean) =>
+    await ipcRenderer.invoke('confirm-close-app', shouldClose),
+  onCloseRequested: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('app-close-requested', handler);
+    return () => {
+      ipcRenderer.removeListener('app-close-requested', handler);
+    };
+  },
 
   Notification: Notification,
 };

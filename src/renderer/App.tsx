@@ -79,6 +79,7 @@ function AppContent() {
   const { loadingCount } = useLoading();
   const [version, setVersion] = useState('');
   const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [showCloseConfirmModal, setShowCloseConfirmModal] = useState(false);
 
   const handleSave = async () => {
     try {
@@ -321,6 +322,34 @@ function AppContent() {
       : `${unsavedIndicator}PDF Builder`;
   }, [state.filePath, state.hasUnsavedChanges]);
 
+  // Add window close handler
+  useEffect(() => {
+    // Set up listener for close requests
+    const removeListener = window.electron.onCloseRequested(() => {
+      if (state.hasUnsavedChanges) {
+        setShowCloseConfirmModal(true);
+      } else {
+        // No unsaved changes, confirm close immediately
+        window.electron.confirmCloseApp(true);
+      }
+    });
+
+    // Clean up listener on component unmount
+    return () => {
+      removeListener();
+    };
+  }, [state.hasUnsavedChanges]);
+
+  const handleConfirmClose = () => {
+    setShowCloseConfirmModal(false);
+    window.electron.confirmCloseApp(true);
+  };
+
+  const handleCancelClose = () => {
+    setShowCloseConfirmModal(false);
+    window.electron.confirmCloseApp(false);
+  };
+
   return (
     <Container fluid className="App">
       {loadingCount > 0 && (
@@ -343,6 +372,63 @@ function AppContent() {
           </Button>
           <Button variant="primary" onClick={confirmNew}>
             Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showCloseConfirmModal} onHide={handleCancelClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Unsaved Changes</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          You have unsaved changes. Do you want to save before closing?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelClose}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmClose}>
+            Discard Changes
+          </Button>
+          <Button
+            variant="primary"
+            onClick={async () => {
+              // For new files without a path, we need to handle the save dialog
+              if (!state.filePath) {
+                try {
+                  const result = await window.electron.saveReport(
+                    state.report,
+                    null,
+                  );
+                  if (result && result.filePath) {
+                    dispatch({
+                      type: 'SET_FILE_PATH',
+                      payload: result.filePath,
+                    });
+                    dispatch({ type: 'MARK_SAVED' });
+                    // Only close after successful save
+                    window.electron.confirmCloseApp(true);
+                  } else {
+                    // User cancelled the save dialog, don't close
+                    setShowCloseConfirmModal(false);
+                  }
+                } catch (error) {
+                  console.error('Error saving report:', error);
+                  setShowCloseConfirmModal(false);
+                }
+              } else {
+                // For existing files, use the regular save
+                try {
+                  await handleSave();
+                  handleConfirmClose();
+                } catch (error) {
+                  console.error('Error saving report:', error);
+                  setShowCloseConfirmModal(false);
+                }
+              }
+            }}
+          >
+            Save and Close
           </Button>
         </Modal.Footer>
       </Modal>

@@ -48,12 +48,12 @@ const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], {
 });
 
 // Pipe stdout and stderr to the log file
-exeProcess.stdout.on('data', (data) => {
+exeProcess.stdout?.on('data', (data) => {
   logFile.write(`stdout: ${data}\n`);
   console.log(`stdout: ${data}`);
 });
 
-exeProcess.stderr.on('data', (data) => {
+exeProcess.stderr?.on('data', (data) => {
   logFile.write(`stderr: ${data}\n`);
   console.error(`stderr: ${data}`);
 });
@@ -92,7 +92,7 @@ ipcMain.handle(
       filters: [{ name: 'JSON Files', extensions: ['json'] }],
     };
     const { filePath: selectedPath, canceled } = await dialog.showSaveDialog(
-      window,
+      window!,
       options,
     );
 
@@ -113,7 +113,7 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
     buttonLabel: 'Build',
     filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
   };
-  const { filePath } = await dialog.showSaveDialog(window, options);
+  const { filePath } = await dialog.showSaveDialog(window!, options);
   if (filePath) {
     return filePath;
   }
@@ -127,9 +127,9 @@ ipcMain.handle(
       title: 'Base Directory',
       defaultPath: currentDirectory || app.getPath('downloads'),
       buttonLabel: 'Set',
-      properties: ['openDirectory'],
+      properties: ['openDirectory' as const],
     };
-    const { filePaths } = await dialog.showOpenDialog(window, options);
+    const { filePaths } = await dialog.showOpenDialog(window!, options);
     if (!filePaths || filePaths.length === 0) {
       return null;
     }
@@ -150,7 +150,7 @@ ipcMain.handle('load-report-dialog', async (event) => {
     buttonLabel: 'Open',
     filters: [{ name: 'JSON Files', extensions: ['json'] }],
   };
-  const { filePaths, canceled } = await dialog.showOpenDialog(window, options);
+  const { filePaths, canceled } = await dialog.showOpenDialog(window!, options);
   if (filePaths && filePaths[0] && !canceled) {
     const data = fs.readFileSync(filePaths[0], 'utf-8');
     return {
@@ -186,6 +186,15 @@ ipcMain.handle('open-file', async (event, filePath) => {
   } catch (error) {
     console.error('Error opening file:', error);
     return false;
+  }
+});
+
+// Add a new IPC handler for confirming app close
+ipcMain.handle('confirm-close-app', async (event, shouldClose) => {
+  if (shouldClose && mainWindow) {
+    // Force close the window
+    mainWindow.removeAllListeners('close');
+    mainWindow.close();
   }
 });
 
@@ -235,6 +244,14 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+
+  // Add a close handler to check for unsaved changes
+  mainWindow.on('close', (e) => {
+    if (mainWindow) {
+      e.preventDefault(); // Prevent the window from closing immediately
+      mainWindow.webContents.send('app-close-requested'); // Send a message to the renderer
+    }
+  });
 
   mainWindow.on('ready-to-show', () => {
     if (mainWindow == null) {
