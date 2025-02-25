@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { MdOutlineToc } from 'react-icons/md';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const OutlineItem = ({ item, index, parentPath = [], moveItem, depth = 1 }) => {
   const ref = useRef(null);
@@ -48,6 +49,40 @@ const OutlineItem = ({ item, index, parentPath = [], moveItem, depth = 1 }) => {
 
   drag(drop(ref));
 
+  // Render the appropriate status based on item type and exists property
+  const renderStatus = () => {
+    if (item.type === 'DocxTemplate') {
+      if (item.exists) {
+        return (
+          <span className="text-success">
+            Found <FaCheck />
+          </span>
+        );
+      } else {
+        return (
+          <span className="text-danger">
+            Not Found <FaTimes />
+          </span>
+        );
+      }
+    } else {
+      // For other types (FileType, Section), show files count
+      return (
+        <span
+          className={`${
+            item.totalFiles > 0 ? 'text-success' : 'text-danger'
+          } ms-2`}
+        >
+          {item.totalFiles > 0
+            ? `(${item.totalFiles} ${
+                item.totalFiles === 1 ? 'file' : 'files'
+              } found)`
+            : '(No files found)'}
+        </span>
+      );
+    }
+  };
+
   return (
     <div
       ref={ref}
@@ -60,17 +95,11 @@ const OutlineItem = ({ item, index, parentPath = [], moveItem, depth = 1 }) => {
     >
       <div className="d-flex justify-content-between align-items-center">
         <span>{item.bookmarkName}</span>
-        <span
-          className={`${item.totalFiles > 0 ? 'text-success' : 'text-danger'} ms-2`}
-        >
-          {item.totalFiles > 0
-            ? `(${item.totalFiles} ${item.totalFiles === 1 ? 'file' : 'files'} found)`
-            : '(No files found)'}
-        </span>
+        {renderStatus()}
       </div>
       {item.children?.map((child, childIndex) => (
         <OutlineItem
-          key={child.bookmarkName}
+          key={child.id || `${child.type}-${childIndex}`}
           item={child}
           index={childIndex}
           parentPath={[...parentPath, index]}
@@ -96,6 +125,11 @@ export default function Outline({ report, moveItem }) {
       total += report.files.length;
     }
 
+    // Count DocxTemplate files that exist
+    if (report.type === 'DocxTemplate' && report.exists === true) {
+      total += 1;
+    }
+
     // Recursively count files in children
     if (report.children) {
       for (const child of report.children) {
@@ -107,15 +141,31 @@ export default function Outline({ report, moveItem }) {
   };
 
   const convertToOutlineData = (report) => {
-    let exists = report.exists
-      ? report.exists
-      : report.files && report.files.length > 0;
-    if (report.children) {
-      for (const child of report.children) {
-        if (child.exists || (child.files && child.files.length > 0)) {
-          exists = true;
-        }
-      }
+    // Set exists property based on the item type
+    let exists = false;
+
+    if (report.type === 'DocxTemplate') {
+      // For DocxTemplates, use the exists flag directly
+      exists = report.exists || false;
+    } else if (report.type === 'FileType') {
+      // For FileTypes, check if files exist
+      exists = report.files && report.files.length > 0;
+    } else if (report.type === 'Section') {
+      // For Sections, check if any children exist
+      exists =
+        report.children &&
+        report.children.some((child) => {
+          if (child.type === 'DocxTemplate') {
+            return child.exists;
+          } else if (child.type === 'FileType') {
+            return child.files && child.files.length > 0;
+          } else if (child.type === 'Section') {
+            // Recursive check for nested sections
+            const childData = convertToOutlineData(child);
+            return childData.exists;
+          }
+          return false;
+        });
     }
 
     const totalFiles = calculateTotalFiles(report);
@@ -127,6 +177,7 @@ export default function Outline({ report, moveItem }) {
       type: report.type,
       exists: exists,
       totalFiles: totalFiles,
+      id: report.id, // Include the ID for unique keys
       children: report.children?.map((child) => {
         return convertToOutlineData(child);
       }),
@@ -134,6 +185,23 @@ export default function Outline({ report, moveItem }) {
   };
 
   const outlineData = convertToOutlineData(report);
+
+  // Root level status renderer
+  const renderRootStatus = () => {
+    return (
+      <span
+        className={`${
+          outlineData.totalFiles > 0 ? 'text-success' : 'text-danger'
+        } ms-2`}
+      >
+        {outlineData.totalFiles > 0
+          ? `(${outlineData.totalFiles} ${
+              outlineData.totalFiles === 1 ? 'file' : 'files'
+            } found)`
+          : '(No files found)'}
+      </span>
+    );
+  };
 
   return (
     <>
@@ -152,18 +220,12 @@ export default function Outline({ report, moveItem }) {
             >
               <div className="d-flex justify-content-between align-items-center">
                 <span>{outlineData.bookmarkName}</span>
-                <span
-                  className={`${outlineData.totalFiles > 0 ? 'text-success' : 'text-danger'} ms-2`}
-                >
-                  {outlineData.totalFiles > 0
-                    ? `(${outlineData.totalFiles} ${outlineData.totalFiles === 1 ? 'file' : 'files'} found)`
-                    : '(No files found)'}
-                </span>
+                {renderRootStatus()}
               </div>
               <div style={{ marginLeft: '10px' }}>
                 {outlineData.children?.map((child, index) => (
                   <OutlineItem
-                    key={child.bookmarkName}
+                    key={child.id || `${child.type}-${index}`}
                     item={child}
                     index={index}
                     parentPath={[]}

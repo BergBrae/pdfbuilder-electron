@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DocxTemplate from './DocxTemplate';
 import FileType from './FileType';
 import TemplateVariable from './TemplateVariable';
@@ -25,6 +25,11 @@ function Section({ section, isRoot = false, parentDirectory }) {
     for (const child of section.children) {
       if (child.type === 'FileType') {
         total += child.files.length;
+      } else if (child.type === 'DocxTemplate') {
+        // Count a found DocxTemplate as one file
+        if (child.exists) {
+          total += 1;
+        }
       } else if (child.type === 'Section') {
         total += calculateTotalFiles(child);
       }
@@ -32,7 +37,12 @@ function Section({ section, isRoot = false, parentDirectory }) {
     return total;
   };
 
-  const totalFiles = calculateTotalFiles(section);
+  const [totalFiles, setTotalFiles] = useState(calculateTotalFiles(section));
+
+  // Recalculate total files when section.children changes
+  useEffect(() => {
+    setTotalFiles(calculateTotalFiles(section));
+  }, [section.children]);
 
   const getUpdatedVariables = (section) => {
     const currentTemplateTexts = section.variables.map(

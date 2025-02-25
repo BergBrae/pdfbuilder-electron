@@ -142,22 +142,9 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
     const path = findDocxTemplatePath(docxTemplate);
     if (!path) return;
 
-    // First update the template itself
-    dispatch({
-      type: 'UPDATE_SECTION',
-      payload: {
-        path: path.slice(0, -1),
-        section: {
-          ...state.report,
-          children: state.report.children.map((child, index) =>
-            index === path[path.length - 1] ? updatedTemplate : child,
-          ),
-        },
-      },
-    });
-
     // Get the parent section's path
     const parentPath = path.slice(0, -1);
+    const childIndex = path[path.length - 1];
 
     // Get the parent section from the state
     let parentSection = state.report;
@@ -169,28 +156,28 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
       parentSection = currentSection;
     }
 
+    // Create a new children array with the updated template
+    const updatedChildren = [...parentSection.children];
+    updatedChildren[childIndex] = updatedTemplate;
+
     // Update the variables in the parent section based on the new template state
     const updatedVariables = getUpdatedVariables(
       parentSection,
       updatedTemplate.variables_in_doc || [], // Ensure we pass an empty array if variables_in_doc is undefined
     );
 
-    // Always update variables if they've changed (either additions or removals)
-    if (
-      JSON.stringify(updatedVariables.map((v) => v.template_text).sort()) !==
-      JSON.stringify(parentSection.variables.map((v) => v.template_text).sort())
-    ) {
-      dispatch({
-        type: 'UPDATE_SECTION',
-        payload: {
-          path: parentPath,
-          section: {
-            ...parentSection,
-            variables: updatedVariables,
-          },
+    // Update the parent section with both the new children and variables
+    dispatch({
+      type: 'UPDATE_SECTION',
+      payload: {
+        path: parentPath,
+        section: {
+          ...parentSection,
+          children: updatedChildren,
+          variables: updatedVariables,
         },
-      });
-    }
+      },
+    });
   };
 
   const handleBookmarkChange = (newBookmarkName) => {
@@ -228,6 +215,13 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
 
     const requestPathValue = newDocxPath; // Capture the value at this point in time
 
+    // Immediately update the template with the new path, marking it as checking
+    updateTemplateInState({
+      ...docxTemplate,
+      docx_path: requestPathValue,
+      checking: true,
+    });
+
     // Store this timeoutId so we can cancel it if needed
     const timeoutId = setTimeout(async () => {
       try {
@@ -242,6 +236,15 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
             if (requestPathValue === latestInputValueRef.current) {
               setFileExists(false);
               setIsCheckingPath(false);
+
+              // Update the global state to reflect that the file doesn't exist
+              updateTemplateInState({
+                ...docxTemplate,
+                docx_path: requestPathValue,
+                exists: false,
+                variables_in_doc: [],
+                checking: false,
+              });
             }
           },
         );
@@ -254,7 +257,10 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
             setIsCheckingPath(false);
 
             // Update the global state
-            updateTemplateInState(updatedTemplate);
+            updateTemplateInState({
+              ...updatedTemplate,
+              checking: false,
+            });
           }
         } else {
           // If API call fails, revert to the original path value in the template
@@ -270,6 +276,7 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
               ...docxTemplate,
               exists: false,
               variables_in_doc: [],
+              checking: false,
             });
           }
         }
