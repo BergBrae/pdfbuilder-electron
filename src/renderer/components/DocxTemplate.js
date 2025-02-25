@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
@@ -8,7 +8,7 @@ import CustomAccordion from './CustomAccordion';
 import { handleAPIUpdate } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
 import { useReport } from '../contexts/ReportContext';
-
+import { v4 as uuidv4 } from 'uuid';
 
 const docxIcon = (
   <span className="docx-icon">
@@ -23,9 +23,11 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
   const { state, dispatch } = useReport();
   const { incrementLoading, decrementLoading } = useLoading();
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
+  const latestInputValueRef = useRef(docxTemplate.docx_path);
 
   useEffect(() => {
     setDocxPath(docxTemplate.docx_path);
+    latestInputValueRef.current = docxTemplate.docx_path;
   }, [docxTemplate]);
 
   const findDocxTemplatePath = (
@@ -49,10 +51,85 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
     return null;
   };
 
+  const findParentSection = (
+    templatePath,
+    currentSection = state.report,
+    currentPath = [],
+  ) => {
+    for (let i = 0; i < currentSection.children.length; i++) {
+      const child = currentSection.children[i];
+      if (child.id === docxTemplate.id) {
+        return { section: currentSection, path: currentPath };
+      }
+    }
+
+    for (let i = 0; i < currentSection.children.length; i++) {
+      const child = currentSection.children[i];
+      if (child.type === 'Section') {
+        const result = findParentSection(templatePath, child, [
+          ...currentPath,
+          i,
+        ]);
+        if (result) return result;
+      }
+    }
+
+    return null;
+  };
+
+  const getUpdatedVariables = (section, variablesInDoc) => {
+    // If variablesInDoc is empty or undefined, we may need to remove variables
+    // that came from this template
+    if (!variablesInDoc || variablesInDoc.length === 0) {
+      // Get variables from all other DocxTemplate children in this section
+      const otherTemplateVariables = [];
+
+      // Collect variables from all other docx templates in this section
+      for (const child of section.children) {
+        if (
+          child.type === 'DocxTemplate' &&
+          child.id !== docxTemplate.id &&
+          child.variables_in_doc &&
+          child.variables_in_doc.length > 0
+        ) {
+          otherTemplateVariables.push(...child.variables_in_doc);
+        }
+      }
+
+      // Keep variables that are in other templates or manually added variables
+      // that don't match any template
+      return section.variables.filter((variable) => {
+        return (
+          otherTemplateVariables.includes(variable.template_text) ||
+          !docxTemplate.variables_in_doc?.includes(variable.template_text)
+        );
+      });
+    }
+
+    // Normal case: add new variables
+    const currentTemplateTexts = section.variables.map(
+      (variable) => variable.template_text,
+    );
+    const updatedVariables = [...section.variables];
+
+    for (const templateText of variablesInDoc) {
+      if (!currentTemplateTexts.includes(templateText)) {
+        updatedVariables.push({
+          template_text: templateText,
+          is_constant: true,
+          constant_value: '',
+          id: uuidv4(),
+        });
+      }
+    }
+    return updatedVariables;
+  };
+
   const updateTemplateInState = (updatedTemplate) => {
     const path = findDocxTemplatePath(docxTemplate);
     if (!path) return;
 
+    // First update the template itself
     dispatch({
       type: 'UPDATE_SECTION',
       payload: {
@@ -65,6 +142,42 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
         },
       },
     });
+
+    // Get the parent section's path
+    const parentPath = path.slice(0, -1);
+
+    // Get the parent section from the state
+    let parentSection = state.report;
+    if (parentPath.length > 0) {
+      let currentSection = state.report;
+      for (const index of parentPath) {
+        currentSection = currentSection.children[index];
+      }
+      parentSection = currentSection;
+    }
+
+    // Update the variables in the parent section based on the new template state
+    const updatedVariables = getUpdatedVariables(
+      parentSection,
+      updatedTemplate.variables_in_doc || [], // Ensure we pass an empty array if variables_in_doc is undefined
+    );
+
+    // Always update variables if they've changed (either additions or removals)
+    if (
+      JSON.stringify(updatedVariables.map((v) => v.template_text).sort()) !==
+      JSON.stringify(parentSection.variables.map((v) => v.template_text).sort())
+    ) {
+      dispatch({
+        type: 'UPDATE_SECTION',
+        payload: {
+          path: parentPath,
+          section: {
+            ...parentSection,
+            variables: updatedVariables,
+          },
+        },
+      });
+    }
   };
 
   const handleBookmarkChange = (newBookmarkName) => {
@@ -87,24 +200,39 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
   const handleDocxPathChange = async (event) => {
     const newDocxPath = event.target.value;
     setDocxPath(newDocxPath);
+    // Update the ref with the latest value
+    latestInputValueRef.current = newDocxPath;
 
-    // Debounce the API call
+    const requestPathValue = newDocxPath; // Capture the value at this point in time
+
+    // Store this timeoutId so we can cancel it if needed
     const timeoutId = setTimeout(async () => {
       try {
         incrementLoading();
         const updatedTemplate = await handleAPIUpdate(
           `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectory}`,
-          { ...docxTemplate, docx_path: newDocxPath },
+          { ...docxTemplate, docx_path: requestPathValue },
           null,
           (error) => console.log(error),
         );
+
         if (updatedTemplate) {
-          updateTemplateInState(updatedTemplate);
+          // Only update if the input hasn't changed since we started this request
+          if (requestPathValue === latestInputValueRef.current) {
+            updateTemplateInState(updatedTemplate);
+          }
+        } else {
+          // If API call fails, revert to the original path value in the template
+          // Only do this if the current input value still matches what we sent to the API
+          if (requestPathValue === latestInputValueRef.current) {
+            setDocxPath(docxTemplate.docx_path);
+            latestInputValueRef.current = docxTemplate.docx_path;
+          }
         }
       } finally {
         decrementLoading();
       }
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   };
