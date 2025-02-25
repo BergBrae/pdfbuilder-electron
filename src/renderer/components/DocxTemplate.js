@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import Select from 'react-select';
 import BookmarkIcon from './BookmarkIcon';
 import { FaFileWord } from 'react-icons/fa6';
-import { FaCheck } from 'react-icons/fa';
-import { Row, Col, Form, Container, Button } from 'react-bootstrap';
+import { FaCheck, FaTimes } from 'react-icons/fa';
+import { Row, Col, Form, Container, Button, Spinner } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import { handleAPIUpdate } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
@@ -24,10 +24,23 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
   const { incrementLoading, decrementLoading } = useLoading();
   const [docxPath, setDocxPath] = useState(docxTemplate.docx_path);
   const latestInputValueRef = useRef(docxTemplate.docx_path);
+  const [fileExists, setFileExists] = useState(docxTemplate.exists || false);
+  const [isCheckingPath, setIsCheckingPath] = useState(false);
+  const [bookmarkName, setBookmarkName] = useState(
+    docxTemplate.bookmark_name || '',
+  );
+
+  // Log the current bookmark name for debugging
+  useEffect(() => {
+    console.log('DocxTemplate bookmark_name:', docxTemplate.bookmark_name);
+    setBookmarkName(docxTemplate.bookmark_name || '');
+  }, [docxTemplate.bookmark_name]);
 
   useEffect(() => {
     setDocxPath(docxTemplate.docx_path);
     latestInputValueRef.current = docxTemplate.docx_path;
+    setFileExists(docxTemplate.exists || false);
+    setBookmarkName(docxTemplate.bookmark_name || '');
   }, [docxTemplate]);
 
   const findDocxTemplatePath = (
@@ -181,10 +194,17 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
   };
 
   const handleBookmarkChange = (newBookmarkName) => {
-    updateTemplateInState({
+    // Update local state immediately
+    setBookmarkName(newBookmarkName || '');
+
+    // Ensure we update our local knowledge of the bookmark name
+    const updatedTemplate = {
       ...docxTemplate,
       bookmark_name: newBookmarkName || null,
-    });
+    };
+
+    // Update the template in the global state
+    updateTemplateInState(updatedTemplate);
   };
 
   const handleDelete = () => {
@@ -203,6 +223,9 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
     // Update the ref with the latest value
     latestInputValueRef.current = newDocxPath;
 
+    // Immediately set to loading status
+    setIsCheckingPath(true);
+
     const requestPathValue = newDocxPath; // Capture the value at this point in time
 
     // Store this timeoutId so we can cancel it if needed
@@ -213,12 +236,24 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
           `http://localhost:8000/docxtemplate?parent_directory_source=${parentDirectory}`,
           { ...docxTemplate, docx_path: requestPathValue },
           null,
-          (error) => console.log(error),
+          (error) => {
+            console.log(error);
+            // On error, mark as not found
+            if (requestPathValue === latestInputValueRef.current) {
+              setFileExists(false);
+              setIsCheckingPath(false);
+            }
+          },
         );
 
         if (updatedTemplate) {
           // Only update if the input hasn't changed since we started this request
           if (requestPathValue === latestInputValueRef.current) {
+            // Immediately update local state to show correct exists status
+            setFileExists(updatedTemplate.exists || false);
+            setIsCheckingPath(false);
+
+            // Update the global state
             updateTemplateInState(updatedTemplate);
           }
         } else {
@@ -227,14 +262,31 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
           if (requestPathValue === latestInputValueRef.current) {
             setDocxPath(docxTemplate.docx_path);
             latestInputValueRef.current = docxTemplate.docx_path;
+            setFileExists(docxTemplate.exists || false);
+            setIsCheckingPath(false);
+
+            // Update the template to show it as not found
+            updateTemplateInState({
+              ...docxTemplate,
+              exists: false,
+              variables_in_doc: [],
+            });
           }
         }
       } finally {
         decrementLoading();
+        // Ensure we always clear the checking state
+        if (requestPathValue === latestInputValueRef.current) {
+          setIsCheckingPath(false);
+        }
       }
     }, 500);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      // If unmounting while checking, clear the state
+      setIsCheckingPath(false);
+    };
   };
 
   const handlePageStartColChange = (event) => {
@@ -270,6 +322,29 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
     });
   };
 
+  // Status display logic
+  const renderStatus = () => {
+    if (isCheckingPath) {
+      return (
+        <span className="text-secondary">
+          Checking <Spinner animation="border" size="sm" />
+        </span>
+      );
+    } else if (fileExists) {
+      return (
+        <span className="text-success">
+          Found <FaCheck />
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-danger">
+          Not Found <FaTimes />
+        </span>
+      );
+    }
+  };
+
   return (
     <CustomAccordion
       defaultExpanded={false}
@@ -278,19 +353,14 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
           <div className="d-flex justify-content-between align-items-center mb-2">
             <div className="d-flex align-items-center">
               <BookmarkIcon
-                bookmark_name={docxTemplate.bookmark_name}
+                isBookmarked={!!bookmarkName}
+                bookmarkName={bookmarkName}
                 onBookmarkChange={handleBookmarkChange}
+                includeIcon={true}
               />
             </div>
             <div className="d-flex align-items-center">
-              <span className="me-3">
-                {docxTemplate.bookmark_name || 'Docx Template'}{' '}
-                {docxTemplate.exists ? (
-                  <FaCheck className="text-success" />
-                ) : (
-                  <span className="text-danger">(Not Found)</span>
-                )}
-              </span>
+              <span className="me-3">{renderStatus()}</span>
               <Button
                 variant="outline-danger"
                 size="sm"
