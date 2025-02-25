@@ -3,10 +3,12 @@ import React from 'react';
 import { Col, Card } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
 import BookmarkIcon from './BookmarkIcon';
+const path = require('path');
 
 export default function FileData({ fileData, onFileDataChange, showBookmark }) {
   const { file_path, num_pages } = fileData;
-  const fileName = file_path.split('\\').pop();
+  // Extract filename using path.basename for cross-platform compatibility
+  const fileName = path.basename(file_path);
 
   const handleBookmarkChange = (newBookmarkName) => {
     onFileDataChange({ ...fileData, bookmark_name: newBookmarkName || null });

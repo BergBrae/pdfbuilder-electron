@@ -333,7 +333,8 @@ function FileType({ fileType: file, parentDirectory }) {
                 <FileData
                   key={fileData.id || index}
                   fileData={fileData}
-                  onChange={handleFileDataChange}
+                  onFileDataChange={handleFileDataChange}
+                  showBookmark={true}
                 />
               ))}
             </div>
