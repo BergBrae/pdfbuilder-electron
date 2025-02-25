@@ -73,19 +73,37 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.handle('save-report-dialog', async (event, reportData) => {
-  const window = BrowserWindow.getFocusedWindow();
-  const options = {
-    title: 'Save Report',
-    defaultPath: app.getPath('downloads'),
-    buttonLabel: 'Save',
-    filters: [{ name: 'JSON Files', extensions: ['json'] }],
-  };
-  const { filePath } = await dialog.showSaveDialog(window, options);
-  if (filePath) {
-    fs.writeFileSync(filePath, JSON.stringify(reportData, null, 2));
-  }
-});
+ipcMain.handle(
+  'save-report-dialog',
+  async (event, { reportData, filePath }) => {
+    const window = BrowserWindow.getFocusedWindow();
+
+    // If filePath is provided, save directly to that path
+    if (filePath) {
+      fs.writeFileSync(filePath, JSON.stringify(reportData, null, 2));
+      return { filePath };
+    }
+
+    // Otherwise show save dialog
+    const options = {
+      title: 'Save Report',
+      defaultPath: app.getPath('downloads'),
+      buttonLabel: 'Save',
+      filters: [{ name: 'JSON Files', extensions: ['json'] }],
+    };
+    const { filePath: selectedPath, canceled } = await dialog.showSaveDialog(
+      window,
+      options,
+    );
+
+    if (selectedPath && !canceled) {
+      fs.writeFileSync(selectedPath, JSON.stringify(reportData, null, 2));
+      return { filePath: selectedPath };
+    }
+
+    return { filePath: null };
+  },
+);
 
 ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   const window = BrowserWindow.getFocusedWindow();
@@ -119,8 +137,8 @@ ipcMain.handle(
     return isRoot
       ? chosenPath
       : currentDirectory != null
-        ? path.relative(currentDirectory, chosenPath)
-        : chosenPath;
+      ? path.relative(currentDirectory, chosenPath)
+      : chosenPath;
   },
 );
 
@@ -132,10 +150,13 @@ ipcMain.handle('load-report-dialog', async (event) => {
     buttonLabel: 'Open',
     filters: [{ name: 'JSON Files', extensions: ['json'] }],
   };
-  const { filePaths } = await dialog.showOpenDialog(window, options);
-  if (filePaths && filePaths[0]) {
+  const { filePaths, canceled } = await dialog.showOpenDialog(window, options);
+  if (filePaths && filePaths[0] && !canceled) {
     const data = fs.readFileSync(filePaths[0], 'utf-8');
-    return JSON.parse(data);
+    return {
+      report: JSON.parse(data),
+      filePath: filePaths[0],
+    };
   }
   return null;
 });

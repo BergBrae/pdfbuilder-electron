@@ -596,3 +596,14 @@
   margin-bottom: 1rem;
   display: block;
 }
+
+/* Custom styling for the save dropdown button */
+.save-dropdown-button {
+  width: 30px !important;
+  padding: 0 8px !important;
+  flex: 0 0 auto !important;
+}
+
+.save-main-button {
+  flex: 1 1 auto !important;
+}

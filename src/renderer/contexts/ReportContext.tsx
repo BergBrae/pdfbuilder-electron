@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { areReportsEqual } from '../components/utils';
 
 // Types
 export interface Variable {
@@ -16,10 +17,16 @@ export interface Section {
 
 interface ReportState {
   report: Section;
+  originalReport: Section | null; // The report as it was last saved
+  filePath: string | null;
+  hasUnsavedChanges: boolean;
 }
 
 type ReportAction =
   | { type: 'SET_REPORT'; payload: Section }
+  | { type: 'SET_FILE_PATH'; payload: string | null }
+  | { type: 'SET_SAVED'; payload: boolean }
+  | { type: 'MARK_SAVED' }
   | {
       type: 'UPDATE_SECTION';
       payload: { path: number[]; section: Partial<Section> };
@@ -50,6 +57,9 @@ const initialReport: Section = {
 
 const initialState: ReportState = {
   report: initialReport,
+  originalReport: null,
+  filePath: null,
+  hasUnsavedChanges: false,
 };
 
 // Create context
@@ -62,6 +72,27 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
       return {
         ...state,
         report: action.payload,
+        originalReport: JSON.parse(JSON.stringify(action.payload)), // Deep copy
+        hasUnsavedChanges: false,
+      };
+
+    case 'SET_FILE_PATH':
+      return {
+        ...state,
+        filePath: action.payload,
+      };
+
+    case 'SET_SAVED':
+      return {
+        ...state,
+        hasUnsavedChanges: action.payload,
+      };
+
+    case 'MARK_SAVED':
+      return {
+        ...state,
+        originalReport: JSON.parse(JSON.stringify(state.report)), // Deep copy
+        hasUnsavedChanges: false,
       };
 
     case 'UPDATE_SECTION': {
@@ -77,9 +108,14 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
       // Update the target section
       if (path.length === 0) {
         // Updating root section
+        const updatedReport = { ...state.report, ...section };
         return {
           ...state,
-          report: { ...state.report, ...section },
+          report: updatedReport,
+          hasUnsavedChanges: !areReportsEqual(
+            updatedReport,
+            state.originalReport,
+          ),
         };
       } else {
         // Updating nested section
@@ -90,7 +126,11 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
         };
       }
 
-      return { ...state, report: newReport };
+      return {
+        ...state,
+        report: newReport,
+        hasUnsavedChanges: !areReportsEqual(newReport, state.originalReport),
+      };
     }
 
     case 'ADD_CHILD': {
@@ -107,10 +147,14 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
       if (typeof index === 'number') {
         currentLevel.children.splice(index, 0, child);
       } else {
-      currentLevel.children.push(child);
+        currentLevel.children.push(child);
       }
 
-      return { ...state, report: newReport };
+      return {
+        ...state,
+        report: newReport,
+        hasUnsavedChanges: !areReportsEqual(newReport, state.originalReport),
+      };
     }
 
     case 'DELETE_CHILD': {
@@ -127,7 +171,11 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
       const lastIndex = path[path.length - 1];
       currentLevel.children.splice(lastIndex, 1);
 
-      return { ...state, report: newReport };
+      return {
+        ...state,
+        report: newReport,
+        hasUnsavedChanges: !areReportsEqual(newReport, state.originalReport),
+      };
     }
 
     case 'MOVE_ITEM': {
@@ -147,7 +195,11 @@ function reportReducer(state: ReportState, action: ReportAction): ReportState {
       newChildren.splice(hoverIndex, 0, dragItem);
       currentLevel.children = newChildren;
 
-      return { ...state, report: newReport };
+      return {
+        ...state,
+        report: newReport,
+        hasUnsavedChanges: !areReportsEqual(newReport, state.originalReport),
+      };
     }
 
     default:

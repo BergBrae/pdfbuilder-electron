@@ -3,7 +3,17 @@ import Section from './components/Section';
 import Help from './components/help';
 import Zoom from './components/Zoom';
 import Outline from './components/Outline';
-import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap';
+import {
+  Container,
+  Spinner,
+  Modal,
+  Button,
+  Row,
+  Col,
+  Badge,
+  Dropdown,
+  ButtonGroup,
+} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { setFlags } from './components/utils';
@@ -20,6 +30,7 @@ import { useLoading } from './contexts/LoadingContext';
 import ChangeLog from './components/ChangeLog';
 import { ReportProvider, useReport } from './contexts/ReportContext';
 import meritLogo from '../../assets/merit-logo.jpeg';
+import path from 'path';
 
 // Types
 interface ProblemFile {
@@ -43,6 +54,14 @@ interface BuildError extends Error {
   problematicFiles: ProblemFile[];
 }
 
+// Add this type declaration before the AppContent function
+interface SectionProps {
+  section: any;
+  isRoot?: boolean;
+  parentDirectory: any;
+  filename?: string;
+}
+
 function AppContent() {
   const { state, dispatch } = useReport();
   const [builtPDF, setBuiltPDF] = useState<BuildResponse | null>(null);
@@ -62,20 +81,72 @@ function AppContent() {
   const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const handleSave = async () => {
-    await window.electron.saveReport(state.report);
+    try {
+      const result = await window.electron.saveReport(
+        state.report,
+        state.filePath || undefined,
+      );
+      if (result && result.filePath) {
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+        // Mark document as saved
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error saving report:', error);
+    }
+  };
+
+  const handleSaveAs = async () => {
+    try {
+      const result = await window.electron.saveReport(state.report, null);
+      if (result && result.filePath) {
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+        // Mark document as saved
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error saving report:', error);
+    }
   };
 
   const handleLoad = async () => {
-    let report = await window.electron.loadReport();
-    if (report) {
-      report = setFlags(report);
-      dispatch({ type: 'SET_REPORT', payload: report });
+    try {
+      const result = await window.electron.loadReport();
+      if (result && result.report) {
+        // First apply setFlags to update the report with needs_update flags
+        const report = setFlags(result.report);
+
+        // SET_REPORT will initialize originalReport with a deep copy
+        dispatch({ type: 'SET_REPORT', payload: report });
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+
+        // Explicitly mark as saved to ensure the originalReport is properly set
+        // This ensures that any technical fields added by setFlags don't cause false unsaved changes
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error loading report:', error);
     }
   };
 
   const handleRefresh = () => {
+    // Apply setFlags to update the report with needs_update flags
     const unrefreshedReport = setFlags(state.report);
+
+    // We need to preserve the unsaved changes state when refreshing
+    const wasUnsaved = state.hasUnsavedChanges;
+
+    // First update the report
     dispatch({ type: 'SET_REPORT', payload: unrefreshedReport });
+
+    // If there were unsaved changes before, restore that state
+    if (wasUnsaved) {
+      dispatch({ type: 'SET_SAVED', payload: true });
+    } else {
+      // If there were no unsaved changes, ensure the originalReport is updated
+      // to match the refreshed report to prevent false unsaved changes
+      dispatch({ type: 'MARK_SAVED' });
+    }
   };
 
   const handleBuildPDF = async () => {
@@ -144,10 +215,15 @@ function AppContent() {
   };
 
   const handleNew = () => {
-    setShowModal(true);
+    if (state.hasUnsavedChanges) {
+      setShowModal(true);
+    } else {
+      confirmNew();
+    }
   };
 
   const confirmNew = () => {
+    // SET_REPORT will initialize originalReport with a deep copy
     dispatch({
       type: 'SET_REPORT',
       payload: {
@@ -158,6 +234,7 @@ function AppContent() {
         children: [],
       },
     });
+    dispatch({ type: 'SET_FILE_PATH', payload: null });
     setShowModal(false);
   };
 
@@ -199,7 +276,7 @@ function AppContent() {
         console.log('Notification permission:', permission);
       });
     }
-    setTimeout(checkApiConnection, 5000);
+    setTimeout(checkApiConnection, 10000);
   }, []);
 
   useEffect(() => {
@@ -227,6 +304,22 @@ function AppContent() {
   const handleLogoDoubleClick = () => {
     setShowJsonModal(true);
   };
+
+  // Get filename from path without extension
+  const getFilename = (filePath: string | null): string => {
+    if (!filePath) return '';
+    const basename = path.basename(filePath);
+    return basename.replace(/\.[^/.]+$/, ''); // Remove file extension
+  };
+
+  // Add window title update based on file state
+  useEffect(() => {
+    const filename = getFilename(state.filePath);
+    const unsavedIndicator = state.hasUnsavedChanges ? '* ' : '';
+    document.title = filename
+      ? `${unsavedIndicator}${filename} - PDF Builder`
+      : `${unsavedIndicator}PDF Builder`;
+  }, [state.filePath, state.hasUnsavedChanges]);
 
   return (
     <Container fluid className="App">
@@ -368,11 +461,33 @@ function AppContent() {
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleNew}>
-            <IoIosCreate /> Clear
+            <IoIosCreate /> New
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            <IoIosSave /> Save
-          </Button>
+
+          <Dropdown as={ButtonGroup}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              className="save-main-button"
+            >
+              <IoIosSave /> Save{' '}
+              {state.hasUnsavedChanges && (
+                <Badge bg="warning" className="ms-1">
+                  *
+                </Badge>
+              )}
+            </Button>
+            <Dropdown.Toggle
+              split
+              variant="primary"
+              id="save-dropdown"
+              className="save-dropdown-button"
+            />
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={handleSaveAs}>Save As...</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+
           <Button variant="primary" onClick={handleLoad}>
             <FaBoxOpen /> Open
           </Button>
@@ -402,7 +517,12 @@ function AppContent() {
 
       <div className="main-content">
         <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-          <Section section={state.report} isRoot parentDirectory={null} />
+          <Section
+            section={state.report}
+            isRoot={true}
+            parentDirectory={null}
+            filename={getFilename(state.filePath)}
+          />
         </div>
       </div>
 

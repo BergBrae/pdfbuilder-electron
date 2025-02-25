@@ -32,7 +32,6 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
 
   // Log the current bookmark name for debugging
   useEffect(() => {
-    console.log('DocxTemplate bookmark_name:', docxTemplate.bookmark_name);
     setBookmarkName(docxTemplate.bookmark_name || '');
   }, [docxTemplate.bookmark_name]);
 
@@ -119,14 +118,32 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
       });
     }
 
-    // Normal case: add new variables
-    const currentTemplateTexts = section.variables.map(
-      (variable) => variable.template_text,
-    );
-    const updatedVariables = [...section.variables];
+    // Store the existing variables for reference
+    const existingVariables = [...section.variables];
+    const existingVariableMap = {};
 
-    for (const templateText of variablesInDoc) {
-      if (!currentTemplateTexts.includes(templateText)) {
+    // Create a map of existing variables by template_text for quick lookup
+    existingVariables.forEach((variable) => {
+      existingVariableMap[variable.template_text] = variable;
+    });
+
+    // Create the updated variables array
+    const updatedVariables = [];
+
+    // First, add all variables that aren't from this template
+    section.variables.forEach((variable) => {
+      if (!variablesInDoc.includes(variable.template_text)) {
+        updatedVariables.push(variable);
+      }
+    });
+
+    // Then add all variables from this template, preserving existing ones
+    variablesInDoc.forEach((templateText) => {
+      if (existingVariableMap[templateText]) {
+        // If the variable already exists, preserve it with its ID and values
+        updatedVariables.push(existingVariableMap[templateText]);
+      } else {
+        // If it's a new variable, create a new one
         updatedVariables.push({
           template_text: templateText,
           is_constant: true,
@@ -134,7 +151,8 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
           id: uuidv4(),
         });
       }
-    }
+    });
+
     return updatedVariables;
   };
 
@@ -166,16 +184,19 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
       updatedTemplate.variables_in_doc || [], // Ensure we pass an empty array if variables_in_doc is undefined
     );
 
-    // Update the parent section with both the new children and variables
+    // Create the updated section with both new children and variables
+    const updatedSection = {
+      ...parentSection,
+      children: updatedChildren,
+      variables: updatedVariables,
+    };
+
+    // Update the parent section
     dispatch({
       type: 'UPDATE_SECTION',
       payload: {
         path: parentPath,
-        section: {
-          ...parentSection,
-          children: updatedChildren,
-          variables: updatedVariables,
-        },
+        section: updatedSection,
       },
     });
   };
@@ -215,6 +236,10 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
 
     const requestPathValue = newDocxPath; // Capture the value at this point in time
 
+    // Store the original path for comparison
+    const originalPath = docxTemplate.docx_path;
+    const isRestoringPath = originalPath === requestPathValue;
+
     // Immediately update the template with the new path, marking it as checking
     updateTemplateInState({
       ...docxTemplate,
@@ -231,7 +256,6 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
           { ...docxTemplate, docx_path: requestPathValue },
           null,
           (error) => {
-            console.log(error);
             // On error, mark as not found
             if (requestPathValue === latestInputValueRef.current) {
               setFileExists(false);
@@ -242,9 +266,14 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
                 ...docxTemplate,
                 docx_path: requestPathValue,
                 exists: false,
-                variables_in_doc: [],
+                variables_in_doc: [], // Clear variables when file doesn't exist
                 checking: false,
               });
+
+              // If we're not restoring to the original path, we need to mark as unsaved
+              if (!isRestoringPath) {
+                dispatch({ type: 'SET_SAVED', payload: true });
+              }
             }
           },
         );
@@ -256,11 +285,23 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
             setFileExists(updatedTemplate.exists || false);
             setIsCheckingPath(false);
 
-            // Update the global state
+            // Update the global state with the updated template
+            // This will include the correct variables_in_doc from the API
             updateTemplateInState({
               ...updatedTemplate,
               checking: false,
             });
+
+            // If we're restoring to the original path, we should check if we need to mark as saved
+            if (isRestoringPath && updatedTemplate.exists) {
+              // We need to wait for the state to update before checking
+              setTimeout(() => {
+                // Check if the reports are now equal after the update
+                if (areReportsEqual(state.report, state.originalReport)) {
+                  dispatch({ type: 'SET_SAVED', payload: false });
+                }
+              }, 0);
+            }
           }
         } else {
           // If API call fails, revert to the original path value in the template
@@ -275,7 +316,7 @@ function DocxTemplate({ template: docxTemplate, parentDirectory }) {
             updateTemplateInState({
               ...docxTemplate,
               exists: false,
-              variables_in_doc: [],
+              variables_in_doc: [], // Clear variables when file doesn't exist
               checking: false,
             });
           }

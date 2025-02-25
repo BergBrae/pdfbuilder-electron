@@ -4,7 +4,7 @@ import FileType from './FileType';
 import TemplateVariable from './TemplateVariable';
 import BookmarkIcon from './BookmarkIcon';
 import AddComponent from './AddComponent';
-import { Row, Col, Container, Accordion, Button } from 'react-bootstrap';
+import { Row, Col, Container, Accordion, Button, Badge } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import { v4 as uuidv4 } from 'uuid';
 import { handleAPIUpdate, setFlags } from './utils';
@@ -12,7 +12,7 @@ import { useLoading } from '../contexts/LoadingContext';
 import { useReport } from '../contexts/ReportContext';
 import path from 'path';
 
-function Section({ section, isRoot = false, parentDirectory }) {
+function Section({ section, isRoot = false, parentDirectory, filename }) {
   const { state, dispatch } = useReport();
   const { incrementLoading, decrementLoading } = useLoading();
 
@@ -403,6 +403,19 @@ function Section({ section, isRoot = false, parentDirectory }) {
               )}
             </div>
           </div>
+
+          {isRoot && filename && (
+            <div className="d-flex align-items-center mb-2">
+              <small className="text-muted me-2">Template:</small>
+              <span className="fw-bold">{filename}</span>
+              {state.hasUnsavedChanges && (
+                <Badge bg="warning" className="ms-2">
+                  Unsaved Changes
+                </Badge>
+              )}
+            </div>
+          )}
+
           <div className="d-flex align-items-center">
             <small className="text-muted me-2">Base Directory:</small>
             <Button

@@ -14,8 +14,8 @@ const electronHandler = {
       /* ... */
     },
   },
-  saveReport: async (reportData) =>
-    await ipcRenderer.invoke('save-report-dialog', reportData),
+  saveReport: async (reportData, filePath: string | null | undefined = null) =>
+    await ipcRenderer.invoke('save-report-dialog', { reportData, filePath }),
   loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
   buildPathDialog: async (defaultPath) =>
     await ipcRenderer.invoke('build-path-dialog', defaultPath),
