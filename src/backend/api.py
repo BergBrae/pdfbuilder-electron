@@ -10,6 +10,8 @@ from buildpdf.build import PDFBuilder
 from buildpdf.convert_docx import get_variables_in_docx
 from utils.qualify_filename import qualify_filename
 import platform
+from initialization.extract_RPT import extract_rpt_data
+from pydantic import BaseModel
 
 from schema import DocxTemplate, FileType, FileData, Section
 from validate import validate_report
@@ -171,6 +173,45 @@ def build_pdf(data: dict, output_path: str):
     finally:
         if platform.system() == "Windows":
             pythoncom.CoUninitialize()  # Uninitialize COM library only on Windows
+
+
+class RPTExtractionRequest(BaseModel):
+    pdf_path: str
+    output_json_path: str = None
+
+
+@app.post("/extract_rpt")
+def extract_rpt(request: RPTExtractionRequest):
+    """
+    Extract data from an RPT PDF file.
+
+    Args:
+        request: RPTExtractionRequest containing:
+            - pdf_path: Path to the RPT PDF file
+            - output_json_path: Optional path to save the extracted data as JSON
+
+    Returns:
+        Dictionary containing the extracted data
+    """
+    try:
+        # Validate that the file exists
+        if not os.path.exists(request.pdf_path):
+            raise HTTPException(
+                status_code=404, detail=f"File not found: {request.pdf_path}"
+            )
+
+        # Validate that the file is a PDF
+        if not request.pdf_path.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=400, detail=f"File is not a PDF: {request.pdf_path}"
+            )
+
+        # Extract data from the RPT PDF
+        data = extract_rpt_data(request.pdf_path, request.output_json_path)
+
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
