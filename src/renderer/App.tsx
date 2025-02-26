@@ -556,12 +556,7 @@ function AppContent() {
               onClick={handleSave}
               className="save-main-button"
             >
-              <IoIosSave /> Save{' '}
-              {state.hasUnsavedChanges && (
-                <Badge bg="warning" className="ms-1">
-                  *
-                </Badge>
-              )}
+              <IoIosSave /> Save
             </Button>
             <Dropdown.Toggle
               split
