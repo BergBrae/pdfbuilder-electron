@@ -81,9 +81,25 @@ try {
   // Run PyInstaller using the virtual environment's Python
   const apiPath = path.join(currentDir, 'api.py');
   const pyinstallerPath = path.join(venvBinPath, 'pyinstaller');
+
+  // Define the path to all_methods.txt
+  const allMethodsPath = path.join(
+    currentDir,
+    'initialization',
+    'all_methods.txt',
+  );
+
+  // Create the PyInstaller command with the --add-data option to include all_methods.txt
+  // The format is source;destination where destination is relative to the executable
+  const dataOption =
+    process.platform === 'win32'
+      ? `--add-data ${escapePath(allMethodsPath)};initialization`
+      : `--add-data ${escapePath(allMethodsPath)}:initialization`;
+
   const runPyInstallerCommand = `${escapePath(
     pyinstallerPath,
-  )} --onefile ${escapePath(apiPath)}`;
+  )} --onefile ${dataOption} ${escapePath(apiPath)}`;
+
   console.log(`Running PyInstaller: ${runPyInstallerCommand}`);
   execSync(runPyInstallerCommand, { stdio: 'inherit', shell: true });
 

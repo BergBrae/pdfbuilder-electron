@@ -3,6 +3,7 @@ import re
 import json
 from PyPDF2 import PdfReader
 from typing import Dict, List, Any, Optional, Tuple
+import sys
 
 
 class RPTExtractor:
@@ -195,11 +196,12 @@ class RPTExtractor:
         methods_found = []
 
         try:
-            # Get the directory of the current script
-            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Get the path to all_methods.txt, handling both development and PyInstaller environments
+            methods_file_path = self._get_methods_file_path()
 
-            # Path to the methods file
-            methods_file_path = os.path.join(current_dir, "all_methods.txt")
+            if not methods_file_path or not os.path.exists(methods_file_path):
+                print(f"Warning: Methods file not found at {methods_file_path}")
+                return data
 
             # Read all method codes from the file
             with open(methods_file_path, "r") as f:
@@ -223,6 +225,45 @@ class RPTExtractor:
             print(f"Error extracting methods: {e}")
 
         return data
+
+    def _get_methods_file_path(self) -> str:
+        """
+        Get the path to the all_methods.txt file, handling both development and PyInstaller environments.
+
+        Returns:
+            Path to the all_methods.txt file
+        """
+        # Try multiple possible locations for the methods file
+        possible_paths = []
+
+        # 1. Current directory of the script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        possible_paths.append(os.path.join(current_dir, "all_methods.txt"))
+
+        # 2. PyInstaller bundle directory (_MEIPASS is defined when running from a PyInstaller bundle)
+        if hasattr(sys, "_MEIPASS"):
+            possible_paths.append(
+                os.path.join(sys._MEIPASS, "initialization", "all_methods.txt")
+            )
+
+        # 3. Parent directory of the current script
+        parent_dir = os.path.dirname(current_dir)
+        possible_paths.append(
+            os.path.join(parent_dir, "initialization", "all_methods.txt")
+        )
+
+        # 4. Working directory
+        possible_paths.append(
+            os.path.join(os.getcwd(), "initialization", "all_methods.txt")
+        )
+
+        # Try each path and return the first one that exists
+        for path in possible_paths:
+            if os.path.exists(path):
+                return path
+
+        # If no path exists, return the default path and let the caller handle the error
+        return possible_paths[0]
 
     def save_to_json(self, output_path: str) -> None:
         """
