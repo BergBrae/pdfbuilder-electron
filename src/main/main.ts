@@ -63,7 +63,7 @@ exeProcess.on('close', (code) => {
 });
 
 // End backend code
-ipcMain.handle('get-version', async (event, arg) => {
+ipcMain.handle('get-version', async () => {
   return app.getVersion();
 });
 
@@ -163,11 +163,20 @@ ipcMain.handle('load-report-dialog', async (event) => {
 
 ipcMain.handle('get-relative-path', async (event, { from, to }) => {
   try {
-    return path.relative(from, to);
+    const relativePath = path.relative(from, to);
+    return relativePath;
   } catch (error) {
-    console.error('Error calculating relative path:', error);
-    return to; // fallback to absolute path if relative calculation fails
+    console.error('Error getting relative path:', error);
+    return null;
   }
+});
+
+ipcMain.handle('open-file-dialog', async (_, options) => {
+  return dialog.showOpenDialog(options);
+});
+
+ipcMain.handle('open-directory-dialog', async (_, options) => {
+  return dialog.showOpenDialog(options);
 });
 
 ipcMain.handle('resolve-path', async (event, { base, relative }) => {

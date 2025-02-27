@@ -1,4 +1,10 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent, app } from 'electron';
+import {
+  contextBridge,
+  ipcRenderer,
+  IpcRendererEvent,
+  app,
+  OpenDialogOptions,
+} from 'electron';
 
 export type Channels = 'ipc-example';
 
@@ -14,10 +20,12 @@ const electronHandler = {
       /* ... */
     },
   },
-  saveReport: async (reportData, filePath: string | null | undefined = null) =>
-    await ipcRenderer.invoke('save-report-dialog', { reportData, filePath }),
+  saveReport: async (
+    reportData: any,
+    filePath: string | null | undefined = null,
+  ) => await ipcRenderer.invoke('save-report-dialog', { reportData, filePath }),
   loadReport: async () => await ipcRenderer.invoke('load-report-dialog'),
-  buildPathDialog: async (defaultPath) =>
+  buildPathDialog: async (defaultPath: string) =>
     await ipcRenderer.invoke('build-path-dialog', defaultPath),
   directoryDialog: async (defaultPath: string, isRoot: boolean = false) =>
     await ipcRenderer.invoke('directory-dialog', {
@@ -40,6 +48,12 @@ const electronHandler = {
       ipcRenderer.removeListener('app-close-requested', handler);
     };
   },
+
+  openFileDialog: async (options: OpenDialogOptions) =>
+    await ipcRenderer.invoke('open-file-dialog', options),
+
+  openDirectoryDialog: async (options: OpenDialogOptions) =>
+    await ipcRenderer.invoke('open-directory-dialog', options),
 
   Notification: Notification,
 };

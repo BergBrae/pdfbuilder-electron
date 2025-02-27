@@ -23,7 +23,7 @@ import {
   IoIosCreate,
   IoIosHelpCircle,
 } from 'react-icons/io';
-import { IoHammer } from 'react-icons/io5';
+import { IoHammer, IoAnalytics } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
 import { useLoading } from './contexts/LoadingContext';
@@ -31,6 +31,7 @@ import ChangeLog from './components/ChangeLog';
 import { ReportProvider, useReport } from './contexts/ReportContext';
 import meritLogo from '../../assets/merit-logo.jpeg';
 import path from 'path';
+import CreateFromReportModal from './components/CreateFromReportModal';
 
 // Types
 interface ProblemFile {
@@ -71,6 +72,8 @@ function AppContent() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showBuildModal, setShowBuildModal] = useState(false);
   const [showJsonModal, setShowJsonModal] = useState(false);
+  const [showAnalyticalReportModal, setShowAnalyticalReportModal] =
+    useState(false);
   const [buildStatus, setBuildStatus] = useState('');
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<BuildError | null>(null);
@@ -350,6 +353,10 @@ function AppContent() {
     window.electron.confirmCloseApp(false);
   };
 
+  const handleCreateFromAnalyticalReport = () => {
+    setShowAnalyticalReportModal(true);
+  };
+
   return (
     <Container fluid className="App">
       {loadingCount > 0 && (
@@ -357,6 +364,12 @@ function AppContent() {
           <Spinner animation="border" className="loading-spinner" />
         </div>
       )}
+
+      {/* Create from Analytical Report Modal */}
+      <CreateFromReportModal
+        show={showAnalyticalReportModal}
+        onHide={() => setShowAnalyticalReportModal(false)}
+      />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
@@ -548,6 +561,9 @@ function AppContent() {
         <div className="buttons-container">
           <Button variant="primary" onClick={handleNew}>
             <IoIosCreate /> New
+          </Button>
+          <Button variant="primary" onClick={handleCreateFromAnalyticalReport}>
+            <IoAnalytics /> Create from Analytical Report
           </Button>
 
           <Dropdown as={ButtonGroup}>
