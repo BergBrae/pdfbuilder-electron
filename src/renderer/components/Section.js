@@ -451,22 +451,27 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
                 className="mx-3 border-start h-75"
                 style={{ width: '1px' }}
               ></div>
-              <small className="text-muted me-2">Method Codes:</small>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMethodCodesModal(true);
-                }}
-              >
-                Edit
-                {section.method_codes && section.method_codes.length > 0 && (
-                  <Badge bg="primary" className="ms-1">
-                    {section.method_codes.length}
-                  </Badge>
-                )}
-              </Button>
+              {!isRoot && (
+                <>
+                  <small className="text-muted me-2">Method Codes:</small>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowMethodCodesModal(true);
+                    }}
+                  >
+                    Edit
+                    {section.method_codes &&
+                      section.method_codes.length > 0 && (
+                        <Badge bg="primary" className="ms-1">
+                          {section.method_codes.length}
+                        </Badge>
+                      )}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         }
