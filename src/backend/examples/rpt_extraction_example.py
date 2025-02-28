@@ -14,7 +14,7 @@ def main():
     Main function demonstrating the usage of the RPT extraction module.
     """
     # Example PDF path - replace with your actual PDF path
-    pdf_path = input("Enter the path to the RPT PDF file: ")
+    pdf_path = input("Enter the path to the Analytical Report PDF file: ")
 
     if not os.path.exists(pdf_path):
         print(f"Error: File not found: {pdf_path}")
