@@ -295,10 +295,17 @@ def create_directory_structure(request: CreateDirectoryRequest):
         os.makedirs(root_dir, exist_ok=True)
         created_dirs.append(root_dir)
 
-        # Update the report's base_directory to just the Merit ID, not the full path
-        # This prevents creating a duplicate directory level
-        report["base_directory"] = safe_dir_name
-        print(f"Setting report base_directory to: {safe_dir_name}")
+        # Check if the base_path is already an absolute path
+        if os.path.isabs(request.base_path):
+            # Update the report's base_directory to the full path
+            report["base_directory"] = root_dir
+            print(f"Setting report base_directory to absolute path: {root_dir}")
+        else:
+            # For relative paths, we need to make sure it's properly handled
+            # Get the absolute path
+            abs_root_dir = os.path.abspath(root_dir)
+            report["base_directory"] = abs_root_dir
+            print(f"Setting report base_directory to absolute path: {abs_root_dir}")
 
         # Save the report.json in the root directory with Merit set ID in the filename
         report_json_filename = f"report_{safe_dir_name}.json"
@@ -371,7 +378,6 @@ def _create_section_directories(section, parent_path, created_dirs):
             and isinstance(base_directory, str)
             and base_directory.strip()
         ):
-            # Extract just the directory name, not the full path
             # First clean the directory name to ensure it's valid
             safe_dir_name = base_directory.strip()
 
@@ -384,47 +390,65 @@ def _create_section_directories(section, parent_path, created_dirs):
                 f"Original base_directory: {base_directory} (cleaned: {safe_dir_name})"
             )
 
-            # If it's a full path, extract just the last directory name
-            if "/" in safe_dir_name or "\\" in safe_dir_name:
-                # Replace both slashes with the system separator
-                safe_dir_name = safe_dir_name.replace("\\", os.sep).replace("/", os.sep)
-                # Get the last component (the actual directory name)
-                safe_dir_name = os.path.basename(safe_dir_name)
-                print(f"Extracted directory name: {safe_dir_name}")
+            # Check if this is an absolute path (likely the root section)
+            is_absolute_path = os.path.isabs(safe_dir_name)
 
-            # Further clean the name for filesystem safety
-            safe_dir_name = safe_dir_name.replace("/", "_").replace("\\", "_")
-            print(f"Final safe directory name: {safe_dir_name}")
+            # Special handling for the root section (first level)
+            # We can detect this by checking if parent_path is in safe_dir_name
+            # or if safe_dir_name is an absolute path
+            is_root_section = is_absolute_path or parent_path in safe_dir_name
 
-            # Check if this directory would create a duplicate of the parent directory name
-            parent_dir_name = os.path.basename(parent_path)
-
-            # Skip creating this directory if it would create a duplicate level with the same name
-            if safe_dir_name == parent_dir_name:
-                print(f"Skipping duplicate directory level: {safe_dir_name}")
-                # Don't create a new directory, but still process children with the same parent_path
+            if is_root_section:
+                # For the root section, use the directory as is
+                section_dir = safe_dir_name
+                print(f"Using root section path directly: {section_dir}")
             else:
-                # Use section's base_directory relative to parent
-                section_dir = os.path.join(parent_path, safe_dir_name)
+                # For non-root sections, handle relative paths
 
-                # Normalize the path to avoid issues with slashes
-                section_dir = os.path.normpath(section_dir)
+                # If it contains slashes, extract just the last directory name
+                if "/" in safe_dir_name or "\\" in safe_dir_name:
+                    # Replace both slashes with the system separator
+                    safe_dir_name = safe_dir_name.replace("\\", os.sep).replace(
+                        "/", os.sep
+                    )
+                    # Get the last component (the actual directory name)
+                    safe_dir_name = os.path.basename(safe_dir_name)
+                    print(f"Extracted directory name: {safe_dir_name}")
 
-                print(f"Creating directory: {section_dir}")
+                # Further clean the name for filesystem safety
+                safe_dir_name = safe_dir_name.replace("/", "_").replace("\\", "_")
+                print(f"Final safe directory name: {safe_dir_name}")
 
-                if not os.path.exists(section_dir):
-                    os.makedirs(section_dir, exist_ok=True)
+                # Check if this directory would create a duplicate of the parent directory name
+                parent_dir_name = os.path.basename(parent_path)
 
-                # Only add to created_dirs if it's not already in the list
-                # Check using normalized paths
-                if section_dir not in [os.path.normpath(d) for d in created_dirs]:
-                    created_dirs.append(section_dir)
-                    print(f"Added to created_dirs: {section_dir}")
+                # Skip creating this directory if it would create a duplicate level with the same name
+                if safe_dir_name == parent_dir_name:
+                    print(f"Skipping duplicate directory level: {safe_dir_name}")
+                    # Don't create a new directory, but still process children with the same parent_path
+                    section_dir = parent_path
                 else:
-                    print(f"Directory already in created_dirs: {section_dir}")
+                    # Use section's base_directory relative to parent
+                    section_dir = os.path.join(parent_path, safe_dir_name)
 
-                # Update the parent path for children
-                parent_path = section_dir
+            # Normalize the path to avoid issues with slashes
+            section_dir = os.path.normpath(section_dir)
+
+            print(f"Creating directory: {section_dir}")
+
+            if not os.path.exists(section_dir):
+                os.makedirs(section_dir, exist_ok=True)
+
+            # Only add to created_dirs if it's not already in the list
+            # Check using normalized paths
+            if section_dir not in [os.path.normpath(d) for d in created_dirs]:
+                created_dirs.append(section_dir)
+                print(f"Added to created_dirs: {section_dir}")
+            else:
+                print(f"Directory already in created_dirs: {section_dir}")
+
+            # Update the parent path for children
+            parent_path = section_dir
 
         # Process children recursively
         children = section.get("children", [])
@@ -572,22 +596,30 @@ def _fill_variables(section, data):
     try:
         # Check if section and data are valid
         if not section or not isinstance(section, dict) or not data:
+            print(f"Skipping variable filling: Invalid section or data")
             return
+
+        print(
+            f"Filling variables for section: {section.get('bookmark_name', 'Unnamed Section')}"
+        )
+        print(f"Available data keys: {list(data.keys())}")
+
+        # Create a normalized version of the data keys for more flexible matching
+        normalized_data = {}
+        for key, value in data.items():
+            # Convert to lowercase and remove spaces for more flexible matching
+            normalized_key = key.lower().replace(" ", "_").replace("/", "_")
+            normalized_data[normalized_key] = value
+            # Also keep the original key
+            normalized_data[key] = value
+
+        print(f"Normalized data keys: {list(normalized_data.keys())}")
 
         # Fill variables at root level
         variables = section.get("variables", [])
-        if not variables or not isinstance(variables, list):
-            return
-
-        for variable in variables:
-            if not variable or not isinstance(variable, dict):
-                continue
-
-            if variable.get("is_constant"):
-                # Try to find a matching variable in the data
-                var_id = variable.get("id")
-                if var_id and var_id in data:
-                    variable["constant_value"] = str(data[var_id])
+        if variables and isinstance(variables, list):
+            print(f"Found {len(variables)} variables to process in section")
+            _process_variables(variables, data, normalized_data)
 
         # Process children recursively
         children = section.get("children", [])
@@ -595,11 +627,171 @@ def _fill_variables(section, data):
             return
 
         for child in children:
-            if child and isinstance(child, dict) and child.get("type") == "Section":
+            if not child or not isinstance(child, dict):
+                continue
+
+            child_type = child.get("type")
+
+            # Process Section children recursively
+            if child_type == "Section":
                 _fill_variables(child, data)
+
+            # Also process DocxTemplate children directly
+            elif child_type == "DocxTemplate":
+                # Get variables from the parent section that match this template's variables_in_doc
+                variables_in_doc = child.get("variables_in_doc", [])
+                if not variables_in_doc:
+                    continue
+
+                print(f"Processing DocxTemplate with {len(variables_in_doc)} variables")
+
+                # Find matching variables in the parent section
+                matching_variables = []
+                for var_text in variables_in_doc:
+                    # Look for existing variable in parent section's variables
+                    found = False
+                    if variables and isinstance(variables, list):
+                        for var in variables:
+                            if var.get("template_text") == var_text:
+                                matching_variables.append(var)
+                                found = True
+                                break
+
+                    # If not found, create a new variable
+                    if not found:
+                        new_var = {
+                            "template_text": var_text,
+                            "is_constant": True,
+                            "constant_value": "",
+                            "id": str(uuid.uuid4()),
+                        }
+                        matching_variables.append(new_var)
+
+                # Process these variables
+                if matching_variables:
+                    _process_variables(matching_variables, data, normalized_data)
+
+                    # Update the parent section's variables with any new ones
+                    if not variables:
+                        section["variables"] = matching_variables
+                    else:
+                        # Add any new variables that don't exist in the parent
+                        existing_template_texts = {
+                            v.get("template_text")
+                            for v in variables
+                            if v.get("template_text")
+                        }
+                        for var in matching_variables:
+                            if var.get("template_text") not in existing_template_texts:
+                                variables.append(var)
+                                existing_template_texts.add(var.get("template_text"))
     except Exception as e:
         # Log error but continue processing
         print(f"Error filling variables: {str(e)}")
+
+
+def _process_variables(variables, data, normalized_data):
+    """
+    Process a list of variables and fill them with data.
+
+    Args:
+        variables: List of variables to process
+        data: Original data dictionary
+        normalized_data: Normalized data dictionary
+    """
+    for variable in variables:
+        if not variable or not isinstance(variable, dict):
+            continue
+
+        if variable.get("is_constant"):
+            # Try to find a matching variable in the data by template_text
+            template_text = variable.get("template_text")
+            print(f"Processing variable: {template_text}")
+
+            # Try different variations of the template_text for matching
+            if template_text:
+                # Try direct match first
+                if template_text in data:
+                    print(f"  Direct match found for '{template_text}'")
+                    variable["constant_value"] = str(data[template_text])
+                    continue
+
+                # Try normalized version (lowercase, spaces replaced with underscores)
+                normalized_template = (
+                    template_text.lower().replace(" ", "_").replace("/", "_")
+                )
+                print(f"  Trying normalized template: '{normalized_template}'")
+                if normalized_template in normalized_data:
+                    print(
+                        f"  Normalized match found for '{template_text}' as '{normalized_template}'"
+                    )
+                    variable["constant_value"] = str(
+                        normalized_data[normalized_template]
+                    )
+                    continue
+
+                # Handle date format patterns (e.g., "Report Date mm/dd/yyyy" -> "Report Date")
+                # Common patterns in templates include date format indicators
+                date_pattern_match = None
+                for pattern in [
+                    " mm/dd/yyyy",
+                    " MM/DD/YYYY",
+                    " dd/mm/yyyy",
+                    " DD/MM/YYYY",
+                ]:
+                    if pattern in template_text:
+                        base_name = template_text.replace(pattern, "")
+                        print(f"  Trying date pattern match: '{base_name}'")
+                        if base_name in data:
+                            date_pattern_match = base_name
+                            break
+                        # Also try normalized version
+                        normalized_base = (
+                            base_name.lower().replace(" ", "_").replace("/", "_")
+                        )
+                        if normalized_base in normalized_data:
+                            date_pattern_match = normalized_base
+                            break
+
+                if date_pattern_match:
+                    print(
+                        f"  Date pattern match found for '{template_text}' as '{date_pattern_match}'"
+                    )
+                    if date_pattern_match in data:
+                        variable["constant_value"] = str(data[date_pattern_match])
+                    else:
+                        variable["constant_value"] = str(
+                            normalized_data[date_pattern_match]
+                        )
+                    continue
+
+                # Try matching by removing common prefixes/suffixes
+                # For example, "merit_set_id" might match "Merit ID" in the template
+                for data_key in data.keys():
+                    # Convert both to lowercase for comparison
+                    if data_key.lower().replace(
+                        "_", " "
+                    ) in template_text.lower() or template_text.lower() in data_key.lower().replace(
+                        "_", " "
+                    ):
+                        print(
+                            f"  Partial match found: '{template_text}' ~ '{data_key}'"
+                        )
+                        variable["constant_value"] = str(data[data_key])
+                        break
+
+                if variable.get("constant_value"):
+                    continue
+
+                print(f"  No match found for '{template_text}'")
+
+            # If not found, try with id as fallback
+            var_id = variable.get("id")
+            if var_id and var_id in data:
+                print(f"  Match found by ID: {var_id}")
+                variable["constant_value"] = str(data[var_id])
+            else:
+                print(f"  No match found by ID: {var_id}")
 
 
 if __name__ == "__main__":
