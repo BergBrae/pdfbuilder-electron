@@ -173,8 +173,12 @@ function AppContent() {
         );
 
         if (!response.ok) {
-          throw data;
+          const errorData = await response.json();
+          throw errorData;
         }
+
+        // Parse the response data
+        const data = await response.json();
 
         // Ensure we have the correct structure
         const responseData: BuildResponse = {
