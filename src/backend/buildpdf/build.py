@@ -76,6 +76,9 @@ class PDFBuilder:
             return
         root_bookmark = self._create_root_bookmark_if_needed(section, root_bookmark)
         for child in section["children"]:
+            child["variables"] = section[
+                "variables"
+            ]  # Pass variables to docx child because they are stored in section
             self._process_child(child, base_directory, root_bookmark)
 
     def _process_child(
@@ -323,7 +326,9 @@ class PDFBuilder:
 
         # Extract existing bookmarks from the PDF
         if keep_existing_bookmarks:
-            existing_bookmarks = self._extract_existing_bookmarks(pdf, file_bookmark)
+            existing_bookmarks = self._extract_existing_bookmarks(
+                pdf, file_bookmark, file_path
+            )
             # Add existing bookmarks to the bookmark data
             self.bookmark_data.extend(existing_bookmarks)
 

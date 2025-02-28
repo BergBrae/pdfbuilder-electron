@@ -48,12 +48,12 @@ const exeProcess: ChildProcess = spawn(BACKEND_API_PATH, [], {
 });
 
 // Pipe stdout and stderr to the log file
-exeProcess.stdout.on('data', (data) => {
+exeProcess.stdout?.on('data', (data) => {
   logFile.write(`stdout: ${data}\n`);
   console.log(`stdout: ${data}`);
 });
 
-exeProcess.stderr.on('data', (data) => {
+exeProcess.stderr?.on('data', (data) => {
   logFile.write(`stderr: ${data}\n`);
   console.error(`stderr: ${data}`);
 });
@@ -63,7 +63,7 @@ exeProcess.on('close', (code) => {
 });
 
 // End backend code
-ipcMain.handle('get-version', async (event, arg) => {
+ipcMain.handle('get-version', async () => {
   return app.getVersion();
 });
 
@@ -73,19 +73,37 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.handle('save-report-dialog', async (event, reportData) => {
-  const window = BrowserWindow.getFocusedWindow();
-  const options = {
-    title: 'Save Report',
-    defaultPath: app.getPath('downloads'),
-    buttonLabel: 'Save',
-    filters: [{ name: 'JSON Files', extensions: ['json'] }],
-  };
-  const { filePath } = await dialog.showSaveDialog(window, options);
-  if (filePath) {
-    fs.writeFileSync(filePath, JSON.stringify(reportData, null, 2));
-  }
-});
+ipcMain.handle(
+  'save-report-dialog',
+  async (event, { reportData, filePath }) => {
+    const window = BrowserWindow.getFocusedWindow();
+
+    // If filePath is provided, save directly to that path
+    if (filePath) {
+      fs.writeFileSync(filePath, JSON.stringify(reportData, null, 2));
+      return { filePath };
+    }
+
+    // Otherwise show save dialog
+    const options = {
+      title: 'Save Report',
+      defaultPath: app.getPath('downloads'),
+      buttonLabel: 'Save',
+      filters: [{ name: 'JSON Files', extensions: ['json'] }],
+    };
+    const { filePath: selectedPath, canceled } = await dialog.showSaveDialog(
+      window!,
+      options,
+    );
+
+    if (selectedPath && !canceled) {
+      fs.writeFileSync(selectedPath, JSON.stringify(reportData, null, 2));
+      return { filePath: selectedPath };
+    }
+
+    return { filePath: null };
+  },
+);
 
 ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
   const window = BrowserWindow.getFocusedWindow();
@@ -95,29 +113,34 @@ ipcMain.handle('build-path-dialog', async (event, defaultPath) => {
     buttonLabel: 'Build',
     filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
   };
-  const { filePath } = await dialog.showSaveDialog(window, options);
+  const { filePath } = await dialog.showSaveDialog(window!, options);
   if (filePath) {
     return filePath;
   }
 });
 
-ipcMain.handle('directory-dialog', async (event, currentDirectory) => {
-  const window = BrowserWindow.getFocusedWindow();
-  const options = {
-    title: 'Base Directory',
-    defaultPath: currentDirectory || app.getPath('downloads'),
-    buttonLabel: 'Set',
-    properties: ['openDirectory'],
-  };
-  const { filePaths } = await dialog.showOpenDialog(window, options);
-  if (!filePaths || filePaths.length === 0) {
-    return null;
-  }
-  const chosenPath = filePaths[0];
-  return currentDirectory != null
-    ? path.relative(currentDirectory, chosenPath)
-    : chosenPath;
-});
+ipcMain.handle(
+  'directory-dialog',
+  async (event, { currentDirectory, isRoot }) => {
+    const window = BrowserWindow.getFocusedWindow();
+    const options = {
+      title: 'Base Directory',
+      defaultPath: currentDirectory || app.getPath('downloads'),
+      buttonLabel: 'Set',
+      properties: ['openDirectory' as const],
+    };
+    const { filePaths } = await dialog.showOpenDialog(window!, options);
+    if (!filePaths || filePaths.length === 0) {
+      return null;
+    }
+    const chosenPath = filePaths[0];
+    return isRoot
+      ? chosenPath
+      : currentDirectory != null
+      ? path.relative(currentDirectory, chosenPath)
+      : chosenPath;
+  },
+);
 
 ipcMain.handle('load-report-dialog', async (event) => {
   const window = BrowserWindow.getFocusedWindow();
@@ -127,21 +150,33 @@ ipcMain.handle('load-report-dialog', async (event) => {
     buttonLabel: 'Open',
     filters: [{ name: 'JSON Files', extensions: ['json'] }],
   };
-  const { filePaths } = await dialog.showOpenDialog(window, options);
-  if (filePaths && filePaths[0]) {
+  const { filePaths, canceled } = await dialog.showOpenDialog(window!, options);
+  if (filePaths && filePaths[0] && !canceled) {
     const data = fs.readFileSync(filePaths[0], 'utf-8');
-    return JSON.parse(data);
+    return {
+      report: JSON.parse(data),
+      filePath: filePaths[0],
+    };
   }
   return null;
 });
 
 ipcMain.handle('get-relative-path', async (event, { from, to }) => {
   try {
-    return path.relative(from, to);
+    const relativePath = path.relative(from, to);
+    return relativePath;
   } catch (error) {
-    console.error('Error calculating relative path:', error);
-    return to; // fallback to absolute path if relative calculation fails
+    console.error('Error getting relative path:', error);
+    return null;
   }
+});
+
+ipcMain.handle('open-file-dialog', async (_, options) => {
+  return dialog.showOpenDialog(options);
+});
+
+ipcMain.handle('open-directory-dialog', async (_, options) => {
+  return dialog.showOpenDialog(options);
 });
 
 ipcMain.handle('resolve-path', async (event, { base, relative }) => {
@@ -160,6 +195,15 @@ ipcMain.handle('open-file', async (event, filePath) => {
   } catch (error) {
     console.error('Error opening file:', error);
     return false;
+  }
+});
+
+// Add a new IPC handler for confirming app close
+ipcMain.handle('confirm-close-app', async (event, shouldClose) => {
+  if (shouldClose && mainWindow) {
+    // Force close the window
+    mainWindow.removeAllListeners('close');
+    mainWindow.close();
   }
 });
 
@@ -209,6 +253,14 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+
+  // Add a close handler to check for unsaved changes
+  mainWindow.on('close', (e) => {
+    if (mainWindow) {
+      e.preventDefault(); // Prevent the window from closing immediately
+      mainWindow.webContents.send('app-close-requested'); // Send a message to the renderer
+    }
+  });
 
   mainWindow.on('ready-to-show', () => {
     if (mainWindow == null) {
@@ -273,13 +325,13 @@ app
 function killAllApiProcesses() {
   const isWin = process.platform === 'win32';
   if (isWin) {
-  exec('taskkill /IM api.exe /F', (err, stdout, stderr) => {
+    exec('taskkill /IM api.exe /F', (err, stdout, stderr) => {
       if (err) {
-      console.error(`Error killing api.exe processes: ${stderr}`);
-    } else {
-      console.log(`Killed all api.exe processes: ${stdout}`);
-    }
-  });
+        console.error(`Error killing api.exe processes: ${stderr}`);
+      } else {
+        console.log(`Killed all api.exe processes: ${stdout}`);
+      }
+    });
   } else {
     // On Unix-like systems (Mac/Linux), use pkill
     exec('pkill -f api', (err, stdout, stderr) => {

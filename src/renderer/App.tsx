@@ -3,7 +3,17 @@ import Section from './components/Section';
 import Help from './components/help';
 import Zoom from './components/Zoom';
 import Outline from './components/Outline';
-import { Container, Spinner, Modal, Button, Row, Col } from 'react-bootstrap';
+import {
+  Container,
+  Spinner,
+  Modal,
+  Button,
+  Row,
+  Col,
+  Badge,
+  Dropdown,
+  ButtonGroup,
+} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { setFlags } from './components/utils';
@@ -13,16 +23,17 @@ import {
   IoIosCreate,
   IoIosHelpCircle,
 } from 'react-icons/io';
-import { IoHammer } from 'react-icons/io5';
+import { IoHammer, IoAnalytics } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
-// @ts-ignore
-import logo from '../../assets/merit-logo.jpeg';
-// @ts-ignore
-import appIcon from '../../assets/icon.png';
 import { useLoading } from './contexts/LoadingContext';
 import ChangeLog from './components/ChangeLog';
+import { ReportProvider, useReport } from './contexts/ReportContext';
+import meritLogo from '../../assets/merit-logo.jpeg';
+import path from 'path';
+import CreateFromReportModal from './components/CreateFromReportModal';
 
+// Types
 interface ProblemFile {
   path: string;
   count: number;
@@ -44,50 +55,102 @@ interface BuildError extends Error {
   problematicFiles: ProblemFile[];
 }
 
-function App() {
-  const emptyReport = {
-    type: 'Section',
-    bookmark_name: 'Quality Control Report',
-    base_directory: '',
-    variables: [],
-    children: [],
-  };
+// Add this type declaration before the AppContent function
+interface SectionProps {
+  section: any;
+  isRoot?: boolean;
+  parentDirectory: any;
+  filename?: string;
+}
 
-  const [report, setReport] = useState(emptyReport);
+function AppContent() {
+  const { state, dispatch } = useReport();
   const [builtPDF, setBuiltPDF] = useState<BuildResponse | null>(null);
   const [savePath, setSavePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showBuildModal, setShowBuildModal] = useState(false);
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [showAnalyticalReportModal, setShowAnalyticalReportModal] =
+    useState(false);
   const [buildStatus, setBuildStatus] = useState('');
-  const [error, setError] = useState<BuildError | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [error, setError] = useState<BuildError | null>(null);
   const [apiStatus, setApiStatus] = useState('');
   const [showApiErrorModal, setShowApiErrorModal] = useState(false);
   const { loadingCount } = useLoading();
   const [version, setVersion] = useState('');
   const [showWhatsNew, setShowWhatsNew] = useState(false);
-
-  const handleSectionChange = (newSection: any) => {
-    setReport(newSection);
-  };
+  const [showCloseConfirmModal, setShowCloseConfirmModal] = useState(false);
 
   const handleSave = async () => {
-    await window.electron.saveReport(report);
+    try {
+      const result = await window.electron.saveReport(
+        state.report,
+        state.filePath || undefined,
+      );
+      if (result && result.filePath) {
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+        // Mark document as saved
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error saving report:', error);
+    }
+  };
+
+  const handleSaveAs = async () => {
+    try {
+      const result = await window.electron.saveReport(state.report, null);
+      if (result && result.filePath) {
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+        // Mark document as saved
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error saving report:', error);
+    }
   };
 
   const handleLoad = async () => {
-    let report = await window.electron.loadReport();
-    if (report) {
-      report = setFlags(report);
-      setReport(report);
+    try {
+      const result = await window.electron.loadReport();
+      if (result && result.report) {
+        // First apply setFlags to update the report with needs_update flags
+        const report = setFlags(result.report);
+
+        // SET_REPORT will initialize originalReport with a deep copy
+        dispatch({ type: 'SET_REPORT', payload: report });
+        dispatch({ type: 'SET_FILE_PATH', payload: result.filePath });
+
+        // Explicitly mark as saved to ensure the originalReport is properly set
+        // This ensures that any technical fields added by setFlags don't cause false unsaved changes
+        dispatch({ type: 'MARK_SAVED' });
+      }
+    } catch (error) {
+      console.error('Error loading report:', error);
     }
   };
 
   const handleRefresh = () => {
-    const unrefreshedReport = setFlags(report);
-    setReport(unrefreshedReport);
+    // Apply setFlags to update the report with needs_update flags
+    const unrefreshedReport = setFlags(state.report);
+
+    // We need to preserve the unsaved changes state when refreshing
+    const wasUnsaved = state.hasUnsavedChanges;
+
+    // First update the report
+    dispatch({ type: 'SET_REPORT', payload: unrefreshedReport });
+
+    // If there were unsaved changes before, restore that state
+    if (wasUnsaved) {
+      dispatch({ type: 'SET_SAVED', payload: true });
+    } else {
+      // If there were no unsaved changes, ensure the originalReport is updated
+      // to match the refreshed report to prevent false unsaved changes
+      dispatch({ type: 'MARK_SAVED' });
+    }
   };
 
   const handleBuildPDF = async () => {
@@ -105,16 +168,15 @@ function App() {
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(report),
+            body: JSON.stringify(state.report),
           },
         );
 
         if (!response.ok) {
-          throw await response.json();
+          throw data;
         }
 
-        const data = await response.json();
-
+        // Ensure we have the correct structure
         const responseData: BuildResponse = {
           success: true,
           output_path: data.output_path,
@@ -126,9 +188,11 @@ function App() {
         setBuiltPDF(responseData);
         setBuildStatus('success');
 
+        // Create notification message
+        let notificationMessage = 'PDF built successfully!';
+
         new Notification('Complete', {
-          body: 'PDF built successfully!',
-          icon: appIcon,
+          body: notificationMessage,
         });
       } catch (err) {
         const apiError = err as APIError;
@@ -142,9 +206,10 @@ function App() {
         setError(buildError);
         setBuildStatus('failure');
 
+        let errorMessage = `Failed to build PDF: ${buildError.message}`;
+
         new Notification('Error', {
-          body: `Failed to build PDF: ${buildError.message}`,
-          icon: appIcon,
+          body: errorMessage,
         });
       } finally {
         setIsLoading(false);
@@ -153,11 +218,26 @@ function App() {
   };
 
   const handleNew = () => {
-    setShowModal(true);
+    if (state.hasUnsavedChanges) {
+      setShowModal(true);
+    } else {
+      confirmNew();
+    }
   };
 
   const confirmNew = () => {
-    setReport(emptyReport);
+    // SET_REPORT will initialize originalReport with a deep copy
+    dispatch({
+      type: 'SET_REPORT',
+      payload: {
+        type: 'Section',
+        bookmark_name: 'Quality Control Report',
+        base_directory: '',
+        variables: [],
+        children: [],
+      },
+    });
+    dispatch({ type: 'SET_FILE_PATH', payload: null });
     setShowModal(false);
   };
 
@@ -199,7 +279,7 @@ function App() {
         console.log('Notification permission:', permission);
       });
     }
-    setTimeout(checkApiConnection, 5000);
+    setTimeout(checkApiConnection, 10000);
   }, []);
 
   useEffect(() => {
@@ -218,22 +298,62 @@ function App() {
     hoverIndex: number,
     parentPath: number[] = [],
   ) => {
-    setReport((prevReport) => {
-      const newReport = { ...prevReport };
-      let currentLevel = newReport;
-
-      for (const index of parentPath) {
-        currentLevel = currentLevel.children[index];
-      }
-
-      const dragItem = currentLevel.children[dragIndex];
-      const newChildren = [...currentLevel.children];
-      newChildren.splice(dragIndex, 1);
-      newChildren.splice(hoverIndex, 0, dragItem);
-      currentLevel.children = newChildren;
-
-      return newReport;
+    dispatch({
+      type: 'MOVE_ITEM',
+      payload: { parentPath, dragIndex, hoverIndex },
     });
+  };
+
+  const handleLogoDoubleClick = () => {
+    setShowJsonModal(true);
+  };
+
+  // Get filename from path without extension
+  const getFilename = (filePath: string | null): string => {
+    if (!filePath) return '';
+    const basename = path.basename(filePath);
+    return basename.replace(/\.[^/.]+$/, ''); // Remove file extension
+  };
+
+  // Add window title update based on file state
+  useEffect(() => {
+    const filename = getFilename(state.filePath);
+    const unsavedIndicator = state.hasUnsavedChanges ? '* ' : '';
+    document.title = filename
+      ? `${unsavedIndicator}${filename} - PDF Builder`
+      : `${unsavedIndicator}PDF Builder`;
+  }, [state.filePath, state.hasUnsavedChanges]);
+
+  // Add window close handler
+  useEffect(() => {
+    // Set up listener for close requests
+    const removeListener = window.electron.onCloseRequested(() => {
+      if (state.hasUnsavedChanges) {
+        setShowCloseConfirmModal(true);
+      } else {
+        // No unsaved changes, confirm close immediately
+        window.electron.confirmCloseApp(true);
+      }
+    });
+
+    // Clean up listener on component unmount
+    return () => {
+      removeListener();
+    };
+  }, [state.hasUnsavedChanges]);
+
+  const handleConfirmClose = () => {
+    setShowCloseConfirmModal(false);
+    window.electron.confirmCloseApp(true);
+  };
+
+  const handleCancelClose = () => {
+    setShowCloseConfirmModal(false);
+    window.electron.confirmCloseApp(false);
+  };
+
+  const handleCreateFromAnalyticalReport = () => {
+    setShowAnalyticalReportModal(true);
   };
 
   return (
@@ -243,6 +363,12 @@ function App() {
           <Spinner animation="border" className="loading-spinner" />
         </div>
       )}
+
+      {/* Create from Analytical Report Modal */}
+      <CreateFromReportModal
+        show={showAnalyticalReportModal}
+        onHide={() => setShowAnalyticalReportModal(false)}
+      />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
@@ -262,6 +388,63 @@ function App() {
         </Modal.Footer>
       </Modal>
 
+      <Modal show={showCloseConfirmModal} onHide={handleCancelClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Unsaved Changes</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          You have unsaved changes. Do you want to save before closing?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelClose}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmClose}>
+            Discard Changes
+          </Button>
+          <Button
+            variant="primary"
+            onClick={async () => {
+              // For new files without a path, we need to handle the save dialog
+              if (!state.filePath) {
+                try {
+                  const result = await window.electron.saveReport(
+                    state.report,
+                    null,
+                  );
+                  if (result && result.filePath) {
+                    dispatch({
+                      type: 'SET_FILE_PATH',
+                      payload: result.filePath,
+                    });
+                    dispatch({ type: 'MARK_SAVED' });
+                    // Only close after successful save
+                    window.electron.confirmCloseApp(true);
+                  } else {
+                    // User cancelled the save dialog, don't close
+                    setShowCloseConfirmModal(false);
+                  }
+                } catch (error) {
+                  console.error('Error saving report:', error);
+                  setShowCloseConfirmModal(false);
+                }
+              } else {
+                // For existing files, use the regular save
+                try {
+                  await handleSave();
+                  handleConfirmClose();
+                } catch (error) {
+                  console.error('Error saving report:', error);
+                  setShowCloseConfirmModal(false);
+                }
+              }
+            }}
+          >
+            Save and Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Modal size="xl" show={showHelpModal} onHide={closeHelpModal}>
         <Modal.Header closeButton>
           <Modal.Title>Help</Modal.Title>
@@ -277,7 +460,7 @@ function App() {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showBuildModal} onHide={closeBuildModal}>
+      <Modal show={showBuildModal} onHide={closeBuildModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Building PDF</Modal.Title>
         </Modal.Header>
@@ -338,13 +521,34 @@ function App() {
         </Modal.Footer>
       </Modal>
 
+      <Modal
+        show={showJsonModal}
+        onHide={() => setShowJsonModal(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Report Data (JSON)</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre style={{ maxHeight: '70vh', overflow: 'auto' }}>
+            {JSON.stringify(state.report, null, 2)}
+          </pre>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowJsonModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <div className="floating-buttons">
         <img
-          src={logo}
+          src={meritLogo}
           alt="Merit Logo"
-          style={{ maxWidth: '15vw', marginBottom: '30px' }}
+          className="merit-logo"
+          onDoubleClick={handleLogoDoubleClick}
+          style={{ cursor: 'pointer' }}
         />
-        <Zoom handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
         <div className="buttons-container">
           <Button variant="secondary" onClick={handleRefresh}>
             <FiRefreshCw /> Refresh
@@ -355,25 +559,42 @@ function App() {
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleNew}>
-            <IoIosCreate /> Clear
+            <IoIosCreate /> New
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            <IoIosSave /> Save
+          <Button variant="primary" onClick={handleCreateFromAnalyticalReport}>
+            <IoAnalytics /> Create from Analytical Report
           </Button>
+
+          <Dropdown as={ButtonGroup}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              className="save-main-button"
+            >
+              <IoIosSave /> Save
+            </Button>
+            <Dropdown.Toggle
+              split
+              variant="primary"
+              id="save-dropdown"
+              className="save-dropdown-button"
+            />
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={handleSaveAs}>Save As...</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+
           <Button variant="primary" onClick={handleLoad}>
             <FaBoxOpen /> Open
           </Button>
-          <Outline report={report} moveItem={moveItem} />
+          <Outline report={state.report} moveItem={moveItem} />
         </div>
         <div className="buttons-container">
           <Button variant="primary" onClick={handleBuildPDF}>
             <IoHammer /> Build PDF
           </Button>
         </div>
-        <div
-          className="text-center text-muted mt-3"
-          style={{ fontSize: '0.8rem', textAlign: 'center', margin: 'auto' }}
-        >
+        <div className="text-center text-muted mt-3">
           {version && <p className="mb-0">Version: {version}</p>}
           <div>
             <a
@@ -390,25 +611,29 @@ function App() {
         </div>
       </div>
 
+      <div className="main-content">
+        <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
+          <Section
+            section={state.report}
+            isRoot={true}
+            parentDirectory={null}
+            filename={getFilename(state.filePath)}
+          />
+        </div>
+      </div>
+
       <div className="api-status d-flex justify-content-center">
         <p>{apiStatus}</p>
       </div>
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <div className="mt-3" />
-          <div className="zoom-wrapper" style={{ transform: `scale(${zoom})` }}>
-            <Section
-              section={report}
-              isRoot
-              onSectionChange={handleSectionChange}
-              onDelete={null}
-              parentDirectory={null}
-              report={report}
-            />
-          </div>
-        </Col>
-      </Row>
     </Container>
+  );
+}
+
+function App() {
+  return (
+    <ReportProvider>
+      <AppContent />
+    </ReportProvider>
   );
 }
 

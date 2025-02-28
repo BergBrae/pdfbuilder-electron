@@ -212,6 +212,50 @@ function SectionHelp() {
           one section's directory to point to the new report's files.
         </li>
       </ul>
+
+      <h5>Method Codes</h5>
+      <p>
+        Sections can be associated with specific method codes, which determine
+        whether the section should be included in a report based on the methods
+        used in the analytical report.
+      </p>
+      <p>How method codes work:</p>
+      <ul>
+        <li>
+          When you assign method codes to a section, that section will only be
+          included in the final report if at least one of its method codes
+          matches a method code in the analytical report.
+        </li>
+        <li>
+          If a section has no method codes assigned, it will always be included
+          in the report.
+        </li>
+        <li>
+          The root-level section is always included regardless of method codes
+          and cannot have method codes assigned to it.
+        </li>
+        <li>
+          When creating a report from an analytical PDF, the system extracts
+          method codes from the PDF and compares them with the method codes
+          assigned to each section.
+        </li>
+        <li>
+          Sections with matching method codes are kept, while sections with
+          non-matching method codes are removed from the report.
+        </li>
+        <li>
+          This allows you to create comprehensive templates that automatically
+          adapt to different types of reports by including only the relevant
+          sections.
+        </li>
+      </ul>
+      <p>
+        <b>Example:</b> If you have sections for different analytical methods
+        (e.g., "GC-MS", "LC-MS", "ICP-MS"), you can assign the appropriate
+        method code to each section. When generating a report from an analytical
+        PDF that only uses "GC-MS", only the section with the "GC-MS" method
+        code will be included.
+      </p>
     </div>
   );
 }

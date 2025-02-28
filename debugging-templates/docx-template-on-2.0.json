@@ -1,0 +1,559 @@
+{
+  "type": "Section",
+  "bookmark_name": null,
+  "base_directory": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822",
+  "variables": [
+    {
+      "template_text": "Report Date mm/dd/yyyy",
+      "is_constant": true,
+      "constant_value": "Report Date here",
+      "id": "a5b11565-0830-45e3-8b37-e81dee44b511"
+    },
+    {
+      "template_text": "Merit ID",
+      "is_constant": true,
+      "constant_value": "merit ID here",
+      "id": "8e5fbec1-8cec-45eb-85a2-eefc7cdf7ec4"
+    },
+    {
+      "template_text": "Report Attention",
+      "is_constant": true,
+      "constant_value": "Attention person here",
+      "id": "0f0854e6-22a3-4038-834b-8be3d24132f1"
+    },
+    {
+      "template_text": "Client Name",
+      "is_constant": true,
+      "constant_value": "client name here",
+      "id": "9077283c-4529-4c77-9b5b-9c37777b8a6b"
+    },
+    {
+      "template_text": "Project Name",
+      "is_constant": true,
+      "constant_value": "project name here",
+      "id": "4cad96e4-9bcc-43e3-ab3b-794609f9ecd3"
+    },
+    {
+      "template_text": "Last Page",
+      "is_constant": true,
+      "constant_value": "last page number here",
+      "id": "d4f7ede1-b46f-4138-ae01-4bc1f43e9052"
+    },
+    {
+      "template_text": "Merit ID Range",
+      "is_constant": true,
+      "constant_value": "merit id range here",
+      "id": "03ab9f60-947f-4356-8070-75519c0df7ca"
+    },
+    {
+      "template_text": "Sampler",
+      "is_constant": true,
+      "constant_value": "person who sampled here",
+      "id": "8f7f32c6-f413-418b-84c7-a73c9ece39a7"
+    },
+    {
+      "template_text": "Sample Received mm/dd/yyyy",
+      "is_constant": true,
+      "constant_value": "sample received date here",
+      "id": "1cecfba6-d16f-4a8a-a478-f263cd6dff76"
+    }
+  ],
+  "children": [
+    {
+      "type": "DocxTemplate",
+      "id": "6df5f5ab-e126-42f0-9e2f-35d5d44c1ddf",
+      "bookmark_name": "",
+      "docx_path": "G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [
+        "Report Date mm/dd/yyyy",
+        "Merit ID",
+        "Report Attention",
+        "Client Name",
+        "Project Name"
+      ],
+      "is_table_of_contents": false,
+      "page_number_offset": 0,
+      "needs_update": false,
+      "page_start_col": 3,
+      "page_end_col": null
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "ccb8ecb9-d101-42c6-aefc-6f40542df871",
+      "bookmark_name": "",
+      "docx_path": "G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [
+        "Merit ID",
+        "Last Page",
+        "Client Name",
+        "Merit ID Range",
+        "Project Name"
+      ],
+      "is_table_of_contents": false,
+      "page_number_offset": 0,
+      "needs_update": false,
+      "page_start_col": 3,
+      "page_end_col": null
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "ad260e8c-97eb-4344-8aa6-ee6e54cf2f2a",
+      "bookmark_name": "",
+      "docx_path": "G:\\data\\PDFBuilder\\Master Templates\\Master Inventory Sheet Template.docx",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [],
+      "is_table_of_contents": true,
+      "page_number_offset": 0,
+      "needs_update": false,
+      "page_start_col": 2,
+      "page_end_col": null
+    },
+    {
+      "type": "DocxTemplate",
+      "id": "3f9b4ac3-a6af-4086-b2a3-d746ca7a22c6",
+      "bookmark_name": "",
+      "docx_path": "G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx",
+      "exists": true,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [
+        "Report Date mm/dd/yyyy",
+        "Sampler",
+        "Merit ID",
+        "Client Name",
+        "Merit ID Range",
+        "Project Name",
+        "Sample Received mm/dd/yyyy"
+      ],
+      "is_table_of_contents": false,
+      "page_number_offset": 0,
+      "needs_update": false,
+      "page_start_col": 3,
+      "page_end_col": null
+    },
+    {
+      "type": "FileType",
+      "id": "a3d61014-b741-425e-a18d-23db3c25d78c",
+      "bookmark_name": "Analytical Report",
+      "directory_source": "./",
+      "filename_text_to_match": "\"RPT.\"",
+      "will_have_page_numbers": false,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "4f8da10d-dd35-408f-8761-b1f57c91431d",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\RPT.COC.S70822.01(01)_RVAAP_MULTI_AOC.PDF",
+          "num_pages": 37,
+          "current_page_num": null,
+          "bookmark_name": null
+        }
+      ],
+      "needs_update": false,
+      "bookmark_rules": [
+        {
+          "bookmark_name": "Accreditations",
+          "rule": "\"Laboratory Accreditations\" and not \"\"Laboratory Accreditations (P\""
+        },
+        {
+          "bookmark_name": "Qualifiers",
+          "rule": "\"Qualifier Descriptions\" and not \"Qualifier Descriptions (P\""
+        },
+        {
+          "bookmark_name": "Glossary",
+          "rule": "\"Glossary of Abbreviations\" and not \"Glossary of Abbreviations (P\""
+        },
+        {
+          "bookmark_name": "Sample Summary",
+          "rule": "\"Sample Summary\" and not \"Glossary of Abbreviations (P\""
+        },
+        {
+          "bookmark_name": "Sample Receiving Checklist",
+          "rule": "\"Merit Laboratories Login Checklist\" and not \"Merit Laboratories Login Checklist (P\""
+        },
+        {
+          "bookmark_name": "SAMPLEID",
+          "rule": "SAMPLEID"
+        }
+      ],
+      "reorder_pages_metals": false,
+      "reorder_pages_datetime": false,
+      "keep_existing_bookmarks": true
+    },
+    {
+      "type": "Section",
+      "id": "40c1d061-42f6-48da-aeb4-195269fdd7c4",
+      "base_directory": "SVOCs",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "9b06ddfe-b0a5-49f0-91b6-9506af297bbc",
+          "bookmark_name": "Sequence / Injection Log",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM0\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "f07dd464-1f3b-4a7a-9153-2fe8c50a7d5f",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM0.pdf",
+              "num_pages": 1,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "ed4ac818-23af-4438-849f-769dd0462c93",
+          "bookmark_name": "Surrogate Compound Summary",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM2\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "c0b564f6-2a15-48a2-93fb-4c8f363c7e17",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM2.pdf",
+              "num_pages": 5,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "3fb247cb-ba71-42dd-9824-ccf2b11b99cc",
+          "bookmark_name": "LCS/MS/MSD/DUP Summary",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM3\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "7664118c-09bb-439d-9195-eefa6d9eac31",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM3.pdf",
+              "num_pages": 9,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "cd012124-0725-47b6-8cb8-55476d3e2271",
+          "bookmark_name": "Method Blank Summary",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM4\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "adf7d3ae-0b55-4e90-a14a-9aca457b05ae",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM4.pdf",
+              "num_pages": 4,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "f2ecf4f2-3692-4eaf-86f6-f1ec08674378",
+          "bookmark_name": "Internal Standard Area and RT Summary",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM8\" or \"RT\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "4230f5a4-4032-4e3d-9cf3-d44a84b9998f",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM8_ICAL.pdf",
+              "num_pages": 6,
+              "current_page_num": null,
+              "bookmark_name": null
+            },
+            {
+              "type": "FileData",
+              "id": "cce002a5-9310-4042-b65e-822c315e2865",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM_RT.pdf",
+              "num_pages": 6,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "97737035-a106-4de8-821a-9858c2bc6d60",
+          "bookmark_name": "TCL Results",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM1\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "1f4e6f3f-d009-40b5-8f0d-42733da5399b",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\S70822_LV3FORM1_SV.PDF",
+              "num_pages": 1,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [
+            {
+              "bookmark_name": "SAMPLEID",
+              "rule": "SAMPLEID"
+            }
+          ],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "3f614e39-5ab2-4eb0-9baf-416d52aea703",
+          "bookmark_name": "Initial Calibration Data",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM6\" or \"o\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "a7c4fec5-8181-4d99-87e9-6ec0de0f2da8",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM6.pdf",
+              "num_pages": 2,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "0885cec4-5281-4e94-8e4c-3e3b53ac8385",
+          "bookmark_name": "Calibration Verification Summary",
+          "directory_source": "./",
+          "filename_text_to_match": "\"FORM7\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "cb57e289-950c-4ef5-9724-6128c8eafe6c",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\SVOCs\\QC_K250203_FORM7.pdf",
+              "num_pages": 2,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "ce199e33-d75d-476d-a503-8a72132f65e5",
+          "bookmark_name": "Raw QC Data",
+          "directory_source": "./",
+          "filename_text_to_match": "sd.qc",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        },
+        {
+          "type": "FileType",
+          "id": "4b1f0b4f-63b8-4ca3-bc7d-cc83605b2b97",
+          "bookmark_name": "GC/MS Instrument Performance Check",
+          "directory_source": "./",
+          "filename_text_to_match": "",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": true,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        }
+      ],
+      "bookmark_name": "Semi-Volatiles",
+      "needs_update": false
+    },
+    {
+      "type": "FileType",
+      "id": "7ba26280-8e35-4f1e-a83e-6621993f6a4e",
+      "bookmark_name": "COAs",
+      "directory_source": "COAs",
+      "filename_text_to_match": "COA",
+      "will_have_page_numbers": true,
+      "files": [
+        {
+          "type": "FileData",
+          "id": "6e3f8af2-b907-456d-a142-cb405238aa71",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA 250123 PAH-01 EXP 05.22.2029.pdf",
+          "num_pages": 2,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "e8d82b08-68fd-47b8-a0e1-a9cc8c94f7c1",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA 250123 TS2-01 EXP 02.28.2029.pdf",
+          "num_pages": 2,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "074354b6-4e80-4cec-9469-122cd28a9bcc",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA CGSN1_U2-SN734462.EXP.pdf",
+          "num_pages": 4,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "43158c5b-ed73-4e44-832a-96b5d0e25aa5",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA ICV Lot# SPEX.9-089EL. EXP.pdf",
+          "num_pages": 2,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "9c2eeca2-587a-4b4e-99f9-b8f65666b8ef",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA IV-28_U2-MEB732928.EXP.pdf",
+          "num_pages": 6,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "3ee88910-34f1-414d-a2a1-2bd34fe63f3c",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA Mercury (HPS) Lot# 2431907-100 EXP 11.30.2025.pdf",
+          "num_pages": 2,
+          "current_page_num": null,
+          "bookmark_name": null
+        },
+        {
+          "type": "FileData",
+          "id": "937e6742-df73-4c02-af86-bd3cefb8e0bb",
+          "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\COAs\\COA XMLMI-1-100 (SPEX) Lot# 27-121HGY EXP n.a..pdf",
+          "num_pages": 2,
+          "current_page_num": null,
+          "bookmark_name": null
+        }
+      ],
+      "needs_update": false,
+      "bookmark_rules": [],
+      "reorder_pages_metals": false,
+      "reorder_pages_datetime": false,
+      "keep_existing_bookmarks": true
+    },
+    {
+      "type": "Section",
+      "id": "5bc0a84a-6f16-484a-97ee-aa73ae52e331",
+      "base_directory": "./",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "4eb4df05-2756-4131-8fbf-fc6d334f7fe8",
+          "bookmark_name": "Bench Sheet - sample and QC sample evaluation",
+          "directory_source": "./",
+          "filename_text_to_match": "\"TS\"",
+          "will_have_page_numbers": true,
+          "files": [
+            {
+              "type": "FileData",
+              "id": "533b6cbb-3119-44aa-bd1c-41642e2f64f3",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\TS250130B.pdf",
+              "num_pages": 1,
+              "current_page_num": null,
+              "bookmark_name": null
+            },
+            {
+              "type": "FileData",
+              "id": "54c7fb32-a74f-4693-af7a-dda8965c075d",
+              "file_path": "F:\\users\\maya-mur\\Level.III\\Leidos\\70822\\TS250130C.pdf",
+              "num_pages": 1,
+              "current_page_num": null,
+              "bookmark_name": null
+            }
+          ],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        }
+      ],
+      "bookmark_name": "Total Solids",
+      "needs_update": false
+    },
+    {
+      "type": "Section",
+      "id": "5066bbc8-f129-4237-b3fc-ecaa6a7489f5",
+      "base_directory": "./",
+      "variables": [],
+      "children": [
+        {
+          "type": "FileType",
+          "id": "108298a5-70f6-4842-a5b2-a48e4816eee4",
+          "bookmark_name": "\"Reciept\"",
+          "directory_source": "./",
+          "filename_text_to_match": "\"RECEIPT\"",
+          "will_have_page_numbers": true,
+          "files": [],
+          "needs_update": false,
+          "bookmark_rules": [],
+          "reorder_pages_metals": false,
+          "reorder_pages_datetime": false,
+          "keep_existing_bookmarks": true
+        }
+      ],
+      "bookmark_name": "Shipping and Receiving Documents",
+      "needs_update": false
+    }
+  ],
+  "needs_update": false
+}

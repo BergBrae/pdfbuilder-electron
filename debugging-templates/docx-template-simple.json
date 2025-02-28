@@ -1,0 +1,23 @@
+{
+  "type": "Section",
+  "bookmark_name": "Quality Control Report",
+  "base_directory": "C:\\Users\\brad-ber\\Downloads",
+  "variables": [],
+  "children": [
+    {
+      "type": "DocxTemplate",
+      "id": "3b414659-d813-4c34-90b4-9e1f99513152",
+      "bookmark_name": "",
+      "docx_path": "E:\\Merit\\pdfbuilder\\Master Templates\\Master Cover Page Template.docx",
+      "exists": false,
+      "will_have_page_numbers": false,
+      "variables_in_doc": [],
+      "is_table_of_contents": false,
+      "page_number_offset": 0,
+      "needs_update": false,
+      "page_start_col": 3,
+      "page_end_col": null
+    }
+  ],
+  "needs_update": false
+}

@@ -1,6 +1,29 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.0.1</h5>
+      <ul>
+        <li>Added Microsoft Office-like saving and closing behavior</li>
+        <li>Improved error handling for malformed bookmarks in PDFs</li>
+        <li>Fixed nested FileType updates in report structure</li>
+        <li>Improved root section positioning and scrolling behavior</li>
+        <li>
+          Enhanced DocxTemplate component with better variable handling and
+          state management
+        </li>
+        <li>Fixed file counting in Sections and Outline components</li>
+        <li>
+          Improved display of file names using basenames instead of full paths
+        </li>
+        <li>
+          Added confirmation dialog for unsaved changes when closing the app
+        </li>
+      </ul>
+      <h5>Version 2.0.0</h5>
+      <ul>
+        <li>Changed the way the underlying data is handled</li>
+        <li>Minor cosmetic changes</li>
+      </ul>
       <h5>Version 1.5.5</h5>
       <ul>
         <li>

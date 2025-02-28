@@ -1,11 +1,24 @@
 .docx-icon {
   color: #2b579a;
-  background-color: aliceblue;
   border: 1px solid #2b579a;
   border-radius: 4px;
-  padding: 2px;
-  display: flex;
+  padding: 4px;
+  font-size: 14px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  margin-top: -3px;
+  background-color: #f3f9ff;
+  text-align: center;
+}
+
+.docx-icon-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 8px;
 }
 
 .bookmark-container {
@@ -24,9 +37,8 @@
 }
 
 .pdf-icon {
-  color: #d80303be;
-  background-color: rgb(255, 238, 233);
-  border: 1px solid #d80303be;
+  color: #1b2157be;
+  border: 1px solid #151b50be;
   border-radius: 4px;
   padding: 4px;
   font-size: 14px;
@@ -97,15 +109,6 @@
 .docx-header .header-content > span,
 .docx-header .header-content > .form-check {
   margin-bottom: 0.5rem;
-}
-
-.docx-icon {
-  display: flex;
-  align-items: center;
-}
-
-.docx-icon .fa-file-word {
-  /* margin-right: 0.5rem; */
 }
 
 .section-header {
@@ -206,18 +209,36 @@
   position: fixed;
   top: 10px;
   left: 10px;
+  width: 15vw;
+  z-index: 1000;
+  background-color: white;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
 }
 
 .main-content {
-  margin-left: auto;
-  margin-right: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(85vw - 40px);
+  margin-left: calc(15vw + 20px);
+  margin-right: 20px;
+  padding-top: 10px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .zoom-wrapper {
   transform-origin: top center;
+  transition: transform 0.2s ease-in-out;
+  padding: 20px;
+  min-height: min-content;
+  width: 100%;
 }
 
 .zoom-container {
@@ -231,14 +252,15 @@
 }
 
 .buttons-container {
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-  border: 1px solid;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: white;
+  border: 1px solid #dee2e6;
   border-radius: 5px;
-  padding: 4px;
-  max-width: 15vw;
+  padding: 0.5rem;
 }
 
 .outline {
@@ -249,7 +271,8 @@
 }
 
 .buttons-container button {
-  margin: 3px;
+  width: 100%;
+  margin: 2px 0;
 }
 
 .table-container {
@@ -331,4 +354,256 @@
 
 .outline-item.red {
   border-left: 4px solid #dc3545;
+}
+
+/* Section Styles */
+.section {
+  margin-bottom: 1rem;
+}
+
+.section .card-header {
+  background-color: #f8f9fa;
+}
+
+.section-header {
+  padding: 0.5rem 0;
+}
+
+.section.root-section > .card {
+  border: 2px solid #007bff;
+}
+
+.section.root-section > .card > .card-header {
+  background-color: #e7f1ff;
+}
+
+/* File Type Styles */
+.file-found .card-header {
+  background-color: #e8f5e9;
+}
+
+.file-not-found .card-header {
+  background-color: #ffebee;
+}
+
+/* DocxTemplate Styles */
+.docx-template .card-header {
+  background-color: #e3f2fd;
+}
+
+.docx-template.file-not-found .card-header {
+  background-color: #ffebee;
+}
+
+/* Icons */
+.pdf-icon,
+.docx-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #050c4bbe;
+}
+
+.pdf-icon-content,
+.docx-icon-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Variables */
+.template-variable {
+  margin-bottom: 1rem;
+}
+
+/* Add Component */
+.add-component {
+  padding: 0.5rem;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  background-color: #f8f9fa;
+}
+
+/* Bookmark Icon */
+.bookmark-icon {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.bookmark-icon.bookmarked {
+  color: #ffc107;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Buttons Container */
+.buttons-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Form Controls */
+.form-control.narrow-input {
+  width: 150px;
+  display: inline-block;
+}
+
+.form-control.wide-input {
+  width: 250px;
+  display: inline-block;
+}
+
+/* File Data */
+.file-data {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  flex: 0 1 calc(33.333% - 1rem); /* Take up roughly a third of the container width */
+  min-width: 300px; /* Minimum width to maintain readability */
+  margin: 0.5rem;
+}
+
+.file-data-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem; /* Compensate for the margins of child elements */
+}
+
+/* Bookmark Rules */
+.bookmark-rules {
+  margin: 1rem 0;
+}
+
+/* Custom Accordion */
+.custom-accordion .card-header {
+  cursor: pointer;
+}
+
+.custom-accordion .card-header:hover {
+  background-color: #f0f0f0;
+}
+
+.card-header.non-collapsible {
+  cursor: default;
+}
+
+.card-header.non-collapsible:hover {
+  background-color: #e7f1ff;
+}
+
+/* Zoom Controls */
+.zoom-wrapper {
+  transform-origin: top center;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Floating Buttons */
+.floating-buttons {
+  position: sticky;
+  top: 1rem;
+  z-index: 1000;
+  background-color: white;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 2rem;
+}
+
+/* API Status */
+.api-status {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Add Component Styles */
+.add-component-wrapper {
+  position: relative;
+  height: 4px;
+  margin: -2px 0;
+  transition: all 0.2s ease-in-out;
+  z-index: 1;
+}
+
+.add-component-wrapper:hover {
+  height: 32px;
+  margin: 4px 0;
+}
+
+.add-component-buttons {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.add-component-wrapper:hover .add-component-buttons {
+  display: flex;
+}
+
+.add-component-btn {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.2s ease-in-out;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+}
+
+.add-component-wrapper:hover .add-component-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Adjust spacing of components when add component is hovered */
+.add-component-wrapper.hovered + * {
+  transform: translateY(16px);
+  transition: transform 0.2s ease-in-out;
+}
+
+.add-component-wrapper.hovered {
+  border-radius: 4px;
+}
+
+.merit-logo {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Custom styling for the save dropdown button */
+.save-dropdown-button {
+  width: 30px !important;
+  padding: 0 8px !important;
+  flex: 0 0 auto !important;
+}
+
+.save-main-button {
+  flex: 1 1 auto !important;
 }
