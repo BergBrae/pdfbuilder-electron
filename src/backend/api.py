@@ -210,7 +210,10 @@ def extract_rpt(request: RPTExtractionRequest):
         # Extract data from the RPT PDF
         data = extract_rpt_data(request.pdf_path, request.output_json_path)
 
+        if not data:
+            raise HTTPException(status_code=400, detail="No data extracted from RPT")
         return data
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
