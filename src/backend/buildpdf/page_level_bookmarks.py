@@ -16,12 +16,23 @@ def remove_consecutive_bookmarks(bookmarks):
 
 
 def convert_sample_id_forms(text):
-    # In some of the socuments, the sample id is listed as 1234567.d instead of S12345.01
+    # In some of the socuments, the sample id is listed in different formats
     # This function converts the sample id to the correct format
-    pattern = r"\b\d{7}\.d\b"
-    matches = re.findall(pattern, text)
+
+    # Convert 1234567.d to S12345.01
+    pattern_dot_d = r"\b\d{7}\.d\b"
+    matches = re.findall(pattern_dot_d, text)
     for match in matches:
         text = text.replace(match, f"S{match[:5]}.{match[5:7]}")
+
+    # Convert "Data File 1234567" to "S12345.67"
+    pattern_data_file = r"Data File (\d{7})"
+    matches = re.findall(pattern_data_file, text)
+    for match in matches:
+        text = text.replace(
+            f"Data File {match}", f"Data File S{match[:5]}.{match[5:7]}"
+        )
+
     return text
 
 
@@ -49,12 +60,18 @@ def get_page_level_bookmarks(
         page_data.sort(key=lambda x: (x[1], x[2]))
 
     for page, lab_sample_id, data_set_id, text in page_data:
+        # Skip pages with bottle preservation check text
+        if "merit laboratories bottle preservation check" in text.lower():
+            continue
+
         for rule in rules:
             if (rule["rule"] == "SAMPLEID") and (rule["bookmark_name"] == "SAMPLEID"):
-                expression = re.compile(
+                # Look for the standard Merit Sample ID format
+                expression_standard = re.compile(
                     r"(?<!-)(?<!Report ID: )(S\d{5}\.\d{2})(?!-)"
                 )  # Negative lookbehind to exclude "Report Id: S12345.67"
-                matches = expression.findall(text)
+
+                matches = expression_standard.findall(text)
                 if (
                     matches and len(set(matches)) == 1
                 ):  # Ensure all matches are the same
