@@ -18,7 +18,12 @@ export default function FileData({ fileData, onFileDataChange, showBookmark }) {
     <Col xs={12} sm={12} md={4} lg={4}>
       <Card
         className="mb-4"
-        onDoubleClick={() => window.electron.openFile(file_path)}
+        onDoubleClick={(e) => {
+          // Check if the click was on the bookmark area
+          if (!e.target.closest('.bookmark-container')) {
+            window.electron.openFile(file_path);
+          }
+        }}
       >
         <Card.Body>
           {showBookmark && (
