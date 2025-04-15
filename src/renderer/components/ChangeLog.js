@@ -1,6 +1,10 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.1.1</h5>
+      <ul>
+        <li>Fixed an issue with the 'keep existing bookmarks' button</li>
+      </ul>
       <h5>Version 2.1.0</h5>
       <ul>
         <li>
