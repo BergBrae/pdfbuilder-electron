@@ -526,17 +526,50 @@ class PDFBuilder:
 
     def _add_bookmarks(self, writer: PdfWriter) -> None:
         """
-        Adds bookmarks to the PDF writer.
+        Adds bookmarks to the PDF writer hierarchically using direct parent references.
 
         :param writer: The PdfWriter object where the bookmarks will be added.
         """
-        for bookmark in self.bookmark_data:
-            parent = bookmark.parent.outline_element if bookmark.parent else None
-            bookmark.outline_element = writer.add_outline_item(
-                bookmark.title,
-                bookmark.page - 1,
-                parent,  # -1 because PyPDF2 is 0-indexed
+        # Maps BookmarkItem IDs (UUID strings) to their corresponding PyPDF2 outline item reference
+        outline_elements = {}
+
+        # Recursive function to add a bookmark and its descendants
+        def add_bookmark_recursive(bookmark_item):
+            # Use the bookmark's unique ID as the key
+            bookmark_id = bookmark_item.id
+
+            # Base case: If already processed, return its outline element
+            if bookmark_id in outline_elements:
+                return outline_elements[bookmark_id]
+
+            # Ensure parent is processed first to get its outline element
+            parent_outline_element = None
+            if bookmark_item.parent:
+                # Recursively process the parent
+                # This ensures the parent exists in outline_elements before the child is added
+                parent_outline_element = add_bookmark_recursive(bookmark_item.parent)
+
+            # Add the current bookmark to the writer
+            current_outline_element = writer.add_outline_item(
+                bookmark_item.title,
+                bookmark_item.page - 1,  # PyPDF2 is 0-indexed
+                parent_outline_element,  # This is the object returned by the parent's add_outline_item call
             )
+
+            # Store the created outline element using the bookmark ID as the key
+            outline_elements[bookmark_id] = current_outline_element
+            # Optionally store on the item itself if needed elsewhere
+            bookmark_item.outline_element = current_outline_element
+
+            return current_outline_element
+
+        # Iterate through all bookmarks in the flat list
+        # The recursive function will handle the hierarchy
+        for bookmark in self.bookmark_data:
+            # If a bookmark hasn't been processed yet (identified by its ID)
+            # start the recursive process from it.
+            if bookmark.id not in outline_elements:
+                add_bookmark_recursive(bookmark)
 
     def _add_page_end_to_bookmarks(self) -> None:
         """
@@ -582,65 +615,97 @@ class PDFBuilder:
         existing_bookmarks = []
         problematic_count = 0
 
-        def process_outline(outline, parent):
+        # If file_path is not provided, try to get it from the pdf stream
+        if file_path is None and hasattr(pdf, "stream") and hasattr(pdf.stream, "name"):
+            file_path = pdf.stream.name
+        else:
+            file_path = file_path or "Unknown PDF"
+
+        def process_outline_item(outline_item, parent_bookmark):
             nonlocal problematic_count
-            if isinstance(outline, list):
-                for item in outline:
-                    process_outline(item, parent)
-            elif isinstance(outline, Destination):
-                try:
-                    # Convert the IndirectObject to an integer page number
-                    if not hasattr(outline, "page") or outline.page is None:
+            try:
+                if isinstance(outline_item, Destination):
+                    # Extract page number
+                    if not hasattr(outline_item, "page") or outline_item.page is None:
                         problematic_count += 1
-                        return
+                        return None
 
                     page_number = (
-                        pdf.get_page_number(outline.page)
-                        if isinstance(outline.page, IndirectObject)
-                        else outline.page
+                        pdf.get_page_number(outline_item.page)
+                        if isinstance(outline_item.page, IndirectObject)
+                        else outline_item.page
                     )
 
                     if page_number is None or page_number < 0:
                         problematic_count += 1
-                        return
+                        return None
 
+                    # Create bookmark
                     bookmark = BookmarkItem(
                         title=(
-                            outline.title
-                            if hasattr(outline, "title")
+                            outline_item.title
+                            if hasattr(outline_item, "title")
                             else "Untitled Bookmark"
                         ),
                         page=page_number + self.current_page,  # Adjust page number
-                        parent=parent,
+                        parent=parent_bookmark,
                         id=str(uuid.uuid4()),
                         include_in_table_of_contents=False,
                     )
                     existing_bookmarks.append(bookmark)
-
-                    # Process children if they exist
-                    if hasattr(outline, "children") and outline.children:
-                        process_outline(outline.children, bookmark)
-                except Exception as e:
+                    return bookmark
+                else:
                     problematic_count += 1
-            else:
-                # Handle unexpected outline types
+                    return None
+            except Exception as e:
                 problematic_count += 1
+                print(f"Error processing bookmark: {str(e)}")
+                return None
+
+        def process_outline(outline, parent_bookmark):
+            nonlocal problematic_count
+            current_parent = parent_bookmark
+
+            i = 0
+            while i < len(outline):
+                item = outline[i]
+
+                if isinstance(item, Destination):
+                    # Process a bookmark destination
+                    current_bookmark = process_outline_item(item, current_parent)
+
+                    # Check if the next item is a nested list (children)
+                    if i + 1 < len(outline) and isinstance(outline[i + 1], list):
+                        # Process children with this bookmark as their parent
+                        if current_bookmark:
+                            process_outline(outline[i + 1], current_bookmark)
+                        else:
+                            # If current bookmark failed to process, use the same parent
+                            process_outline(outline[i + 1], current_parent)
+                        i += 2  # Skip the nested list
+                    else:
+                        i += 1  # Move to next item
+                elif isinstance(item, list):
+                    # Process a nested list with the same parent
+                    process_outline(item, current_parent)
+                    i += 1
+                else:
+                    # Skip unknown item types
+                    problematic_count += 1
+                    i += 1
 
         try:
-            if pdf.outline:
-                process_outline(pdf.outline, parent_bookmark)
+            if hasattr(pdf, "outline") and pdf.outline:
+                if isinstance(pdf.outline, list):
+                    process_outline(pdf.outline, parent_bookmark)
+                else:
+                    # Handle non-list outline (could be a single Destination)
+                    process_outline_item(pdf.outline, parent_bookmark)
         except Exception as e:
-            print(f"Error processing PDF outline: {str(e)}")
-            return []
+            print(f"Error processing PDF outline in {file_path}: {str(e)}")
+            problematic_count += 1
 
         if problematic_count > 0:
-            # Use the provided file path, or try to get it from the pdf stream as fallback
-            if file_path is None:
-                file_path = (
-                    getattr(pdf.stream, "name", "Unknown PDF")
-                    if hasattr(pdf, "stream")
-                    else "Unknown PDF"
-                )
             print(
                 f"Warning: File '{file_path}' contains {problematic_count} problematic bookmarks"
             )
