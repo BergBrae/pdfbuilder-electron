@@ -32,7 +32,9 @@ function FileType({ fileType: file, parentDirectory }) {
     file.reorder_pages_datetime,
   );
   const [keepExistingBookmarks, setKeepExistingBookmarks] = useState(
-    file.keep_existing_bookmarks || true,
+    file.keep_existing_bookmarks !== undefined
+      ? file.keep_existing_bookmarks
+      : true,
   );
 
   const findFileTypePath = (
