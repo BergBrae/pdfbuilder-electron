@@ -69,6 +69,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
         title: 'Select Analytical Report',
         filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
         properties: ['openFile'],
+        defaultPath: 'C:/vlims.rpt/reports',
       });
 
       if (result && result.filePaths && result.filePaths.length > 0) {
