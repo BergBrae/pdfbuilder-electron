@@ -3,7 +3,10 @@ export default function ChangeLog() {
     <div>
       <h5>Version 2.1.1</h5>
       <ul>
-        <li>Fixed an issue with the 'keep existing bookmarks' button</li>
+        <li>
+          Fixed an issue when keeping existing bookmarks. Hierarchial bookmarks
+          are now preserved. Fixed a bug in the toggle button
+        </li>
       </ul>
       <h5>Version 2.1.0</h5>
       <ul>
