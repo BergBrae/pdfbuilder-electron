@@ -7,7 +7,7 @@ import PyPDF2
 import uuid
 import json
 from buildpdf.build import PDFBuilder
-from buildpdf.convert_docx import get_variables_in_docx
+from buildpdf.convert_docx import get_variables_in_docx, convert_docx_template_to_pdf
 from utils.qualify_filename import qualify_filename
 import platform
 from initialization.extract_RPT import extract_rpt_data
@@ -213,7 +213,7 @@ def extract_rpt(request: RPTExtractionRequest):
         if not data:
             raise HTTPException(status_code=400, detail="No data extracted from RPT")
         return data
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -225,6 +225,10 @@ class CreateDirectoryRequest(BaseModel):
     report: dict  # The report structure
     analytical_report_path: str = None  # Path to the analytical report PDF (optional)
     extracted_data: dict = None  # Extracted data from the analytical report (optional)
+    cover_page_template_path: str = None  # Optional path to cover page template
+    cover_pages_template_path: str = None  # Optional path to cover pages template
+    case_narrative_template_path: str = None  # Optional path to case narrative template
+    process_docx_templates: bool = False  # Optional flag to process DOCX templates
 
 
 @app.post("/create_directory_structure")
@@ -238,10 +242,21 @@ def create_directory_structure(request: CreateDirectoryRequest):
             - report: Report structure
             - analytical_report_path: Optional path to the analytical report PDF
             - extracted_data: Optional extracted data from the analytical report
+            - cover_page_template_path: Optional path to cover page template
+            - cover_pages_template_path: Optional path to cover pages template
+            - case_narrative_template_path: Optional path to case narrative template
+            - process_docx_templates: Optional flag to process DOCX templates
 
     Returns:
         Dictionary with success status and created directories
     """
+    created_dirs = []
+    generated_documents = []
+    report = None
+    report_path = None
+    analytical_report_path = None
+    success = False
+
     try:
         # Validate base path exists
         if not os.path.exists(request.base_path):
@@ -251,8 +266,6 @@ def create_directory_structure(request: CreateDirectoryRequest):
 
         # Get the extracted data from the report
         report = request.report
-        created_dirs = []
-
         # First check for merit_set_id in the extracted_data (highest priority)
         merit_set_id = None
         if request.extracted_data and "merit_set_id" in request.extracted_data:
@@ -311,13 +324,17 @@ def create_directory_structure(request: CreateDirectoryRequest):
             print(f"Setting report base_directory to absolute path: {abs_root_dir}")
 
         # Save the report.json in the root directory with Merit set ID in the filename
-        report_json_filename = f"report_{safe_dir_name}.json"
-        report_path = os.path.join(root_dir, report_json_filename)
-        with open(report_path, "w") as f:
-            json.dump(report, f, indent=4)
+        try:
+            report_json_filename = f"report_{safe_dir_name}.json"
+            report_path = os.path.join(root_dir, report_json_filename)
+            with open(report_path, "w") as f:
+                json.dump(report, f, indent=4)
+            print(f"Saved report JSON to: {report_path}")
+        except Exception as e:
+            print(f"Error saving report JSON: {str(e)}")
+            # If we can't save the report JSON, still try to continue
 
         # Copy the analytical report PDF to the root directory if provided
-        analytical_report_path = None
         if request.analytical_report_path and os.path.exists(
             request.analytical_report_path
         ):
@@ -332,9 +349,150 @@ def create_directory_structure(request: CreateDirectoryRequest):
                 print(f"Copied analytical report to: {dest_pdf_path}")
             except Exception as e:
                 print(f"Error copying analytical report: {str(e)}")
+                # Continue even if we couldn't copy the report
+
+        # Process DOCX templates if requested
+        processed_templates = False
+        if request.process_docx_templates:
+            processed_templates = True
+            # Create a dictionary of replacements from extracted data
+            replacements = {}
+            if request.extracted_data:
+                for key, value in request.extracted_data.items():
+                    if isinstance(value, str):
+                        replacements[key] = value
+                    elif isinstance(value, list):
+                        replacements[key] = ", ".join(value)
+
+            # Process Cover Page Template
+            if request.cover_page_template_path and os.path.exists(
+                request.cover_page_template_path
+            ):
+                try:
+                    # Get the filename from the original path
+                    cover_page_filename = os.path.basename(
+                        request.cover_page_template_path
+                    )
+                    base_filename = os.path.splitext(cover_page_filename)[0]
+
+                    # Copy the template to the root directory
+                    dest_docx_path = os.path.join(root_dir, cover_page_filename)
+                    shutil.copy2(request.cover_page_template_path, dest_docx_path)
+                    generated_documents.append(dest_docx_path)
+
+                    try:
+                        # Process the template and convert to PDF
+                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
+                            docx_path=dest_docx_path, replacements=replacements
+                        )
+
+                        # Save the PDF file
+                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
+                        with open(pdf_path, "wb") as f:
+                            pdf_writer = PyPDF2.PdfWriter()
+                            for page in range(num_pages):
+                                pdf_writer.add_page(pdf_reader.pages[page])
+                            pdf_writer.write(f)
+
+                        generated_documents.append(pdf_path)
+                        print(f"Generated Cover Page PDF: {pdf_path}")
+                    except Exception as conversion_error:
+                        print(
+                            f"Error converting Cover Page template to PDF: {str(conversion_error)}"
+                        )
+                        # Already added the DOCX file to generated documents
+
+                except Exception as e:
+                    print(f"Error processing Cover Page template: {str(e)}")
+
+            # Process Cover Pages Template
+            if request.cover_pages_template_path and os.path.exists(
+                request.cover_pages_template_path
+            ):
+                try:
+                    # Get the filename from the original path
+                    cover_pages_filename = os.path.basename(
+                        request.cover_pages_template_path
+                    )
+                    base_filename = os.path.splitext(cover_pages_filename)[0]
+
+                    # Copy the template to the root directory
+                    dest_docx_path = os.path.join(root_dir, cover_pages_filename)
+                    shutil.copy2(request.cover_pages_template_path, dest_docx_path)
+                    generated_documents.append(dest_docx_path)
+
+                    try:
+                        # Process the template and convert to PDF
+                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
+                            docx_path=dest_docx_path, replacements=replacements
+                        )
+
+                        # Save the PDF file
+                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
+                        with open(pdf_path, "wb") as f:
+                            pdf_writer = PyPDF2.PdfWriter()
+                            for page in range(num_pages):
+                                pdf_writer.add_page(pdf_reader.pages[page])
+                            pdf_writer.write(f)
+
+                        generated_documents.append(pdf_path)
+                        print(f"Generated Cover Pages PDF: {pdf_path}")
+                    except Exception as conversion_error:
+                        print(
+                            f"Error converting Cover Pages template to PDF: {str(conversion_error)}"
+                        )
+                        # Already added the DOCX file to generated documents
+
+                except Exception as e:
+                    print(f"Error processing Cover Pages template: {str(e)}")
+
+            # Process Case Narrative Template
+            if request.case_narrative_template_path and os.path.exists(
+                request.case_narrative_template_path
+            ):
+                try:
+                    # Get the filename from the original path
+                    case_narrative_filename = os.path.basename(
+                        request.case_narrative_template_path
+                    )
+                    base_filename = os.path.splitext(case_narrative_filename)[0]
+
+                    # Copy the template to the root directory
+                    dest_docx_path = os.path.join(root_dir, case_narrative_filename)
+                    shutil.copy2(request.case_narrative_template_path, dest_docx_path)
+                    generated_documents.append(dest_docx_path)
+
+                    try:
+                        # Process the template and convert to PDF
+                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
+                            docx_path=dest_docx_path, replacements=replacements
+                        )
+
+                        # Save the PDF file
+                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
+                        with open(pdf_path, "wb") as f:
+                            pdf_writer = PyPDF2.PdfWriter()
+                            for page in range(num_pages):
+                                pdf_writer.add_page(pdf_reader.pages[page])
+                            pdf_writer.write(f)
+
+                        generated_documents.append(pdf_path)
+                        print(f"Generated Case Narrative PDF: {pdf_path}")
+                    except Exception as conversion_error:
+                        print(
+                            f"Error converting Case Narrative template to PDF: {str(conversion_error)}"
+                        )
+                        # Already added the DOCX file to generated documents
+
+                except Exception as e:
+                    print(f"Error processing Case Narrative template: {str(e)}")
 
         # Create directories recursively
-        _create_section_directories(report, root_dir, created_dirs)
+        try:
+            _create_section_directories(report, root_dir, created_dirs)
+        except Exception as e:
+            print(f"Error creating section directories: {str(e)}")
+            # Continue even if we couldn't create all directories
 
         # Filter out duplicates and normalize paths
         unique_dirs = []
@@ -344,11 +502,15 @@ def create_directory_structure(request: CreateDirectoryRequest):
             if normalized_path not in unique_dirs:
                 unique_dirs.append(normalized_path)
 
+        success = True
+
         response_data = {
-            "success": True,
+            "success": success,
             "created_directories": unique_dirs,
             "report_path": report_path,
             "updated_report": report,  # Return the updated report
+            "generated_documents": generated_documents,  # Add generated documents
+            "processed_templates": processed_templates,
         }
 
         # Add analytical report path to response if available
@@ -361,7 +523,36 @@ def create_directory_structure(request: CreateDirectoryRequest):
         # Add more detailed error information
         error_msg = f"Error creating directory structure: {str(e)}"
         print(error_msg)  # Log the error for server-side debugging
-        raise HTTPException(status_code=500, detail=error_msg)
+
+        # If we got far enough to create some directories and files, return what we have
+        if len(created_dirs) > 0 or len(generated_documents) > 0:
+            print("Returning partial results despite error")
+
+            # Filter out duplicates and normalize paths
+            unique_dirs = []
+            for dir_path in created_dirs:
+                # Normalize path to remove trailing slashes and resolve .. references
+                normalized_path = os.path.normpath(dir_path)
+                if normalized_path not in unique_dirs:
+                    unique_dirs.append(normalized_path)
+
+            response_data = {
+                "success": False,
+                "error": error_msg,
+                "created_directories": unique_dirs,
+                "report_path": report_path,
+                "updated_report": report,
+                "generated_documents": generated_documents,
+                "partial_success": True,
+            }
+
+            # Add analytical report path to response if available
+            if analytical_report_path:
+                response_data["analytical_report_path"] = analytical_report_path
+
+            return response_data
+        else:
+            raise HTTPException(status_code=500, detail=error_msg)
 
 
 def _create_section_directories(section, parent_path, created_dirs):
@@ -470,6 +661,10 @@ class FilterTemplateRequest(BaseModel):
     template_path: str  # Path to the template JSON file
     extracted_data: dict  # Data extracted from RPT
     output_path: str = None  # Optional path to save the filtered template
+    docx_variables: dict = None  # Optional variables extracted from DOCX templates
+    cover_page_template_path: str = None  # Optional path to cover page template
+    cover_pages_template_path: str = None  # Optional path to cover pages template
+    case_narrative_template_path: str = None  # Optional path to case narrative template
 
 
 @app.post("/filter_template")
@@ -482,6 +677,7 @@ def filter_template(request: FilterTemplateRequest):
             - template_path: Path to the template JSON file
             - extracted_data: Data extracted from RPT
             - output_path: Optional path to save the filtered template
+            - docx_variables: Optional variables extracted from DOCX templates
 
     Returns:
         Filtered report
@@ -795,6 +991,46 @@ def _process_variables(variables, data, normalized_data):
                 variable["constant_value"] = str(data[var_id])
             else:
                 print(f"  No match found by ID: {var_id}")
+
+
+class DocxVariablesRequest(BaseModel):
+    """Request model for getting variables from a DOCX file."""
+
+    docx_path: str
+
+
+@app.post("/get_docx_variables")
+def get_docx_variables(request: DocxVariablesRequest):
+    """
+    Extract variables from a DOCX file.
+
+    Args:
+        request: DocxVariablesRequest containing:
+            - docx_path: Path to the DOCX file
+
+    Returns:
+        Dictionary containing the extracted variables
+    """
+    try:
+        # Validate that the file exists
+        if not os.path.exists(request.docx_path):
+            raise HTTPException(
+                status_code=404, detail=f"File not found: {request.docx_path}"
+            )
+
+        # Validate that the file is a DOCX
+        if not request.docx_path.lower().endswith(".docx"):
+            raise HTTPException(
+                status_code=400, detail=f"File is not a DOCX: {request.docx_path}"
+            )
+
+        # Extract variables from the DOCX
+        variables = get_variables_in_docx(request.docx_path)
+
+        return {"variables": variables}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

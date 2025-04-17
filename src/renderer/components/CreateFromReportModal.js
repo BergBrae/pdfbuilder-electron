@@ -19,6 +19,10 @@ const CreateFromReportModal = ({ show, onHide }) => {
   // State for file selection
   const [analyticalReportPath, setAnalyticalReportPath] = useState('');
   const [templatePath, setTemplatePath] = useState('');
+  const [coverPageTemplatePath, setCoverPageTemplatePath] = useState('');
+  const [coverPagesTemplatePath, setCoverPagesTemplatePath] = useState('');
+  const [caseNarrativeTemplatePath, setCaseNarrativeTemplatePath] =
+    useState('');
   const [outputDirectory, setOutputDirectory] = useState('');
 
   // State for backend processing
@@ -52,6 +56,9 @@ const CreateFromReportModal = ({ show, onHide }) => {
   const resetForm = () => {
     setAnalyticalReportPath('');
     setTemplatePath('');
+    setCoverPageTemplatePath('');
+    setCoverPagesTemplatePath('');
+    setCaseNarrativeTemplatePath('');
     setOutputDirectory('');
     setExtractedData(null);
     setEditedData(null);
@@ -87,6 +94,8 @@ const CreateFromReportModal = ({ show, onHide }) => {
         title: 'Select Report Template',
         filters: [{ name: 'JSON Files', extensions: ['json'] }],
         properties: ['openFile'],
+        defaultPath:
+          'G:\\data\\PDFBuilder\\Master Templates\\Master Template.json',
       });
 
       if (result && result.filePaths && result.filePaths.length > 0) {
@@ -95,6 +104,63 @@ const CreateFromReportModal = ({ show, onHide }) => {
     } catch (error) {
       console.error('Error selecting template:', error);
       setError('Error selecting template: ' + error.message);
+    }
+  };
+
+  const handleSelectCoverPageTemplate = async () => {
+    try {
+      const result = await window.electron.openFileDialog({
+        title: 'Select Cover Page Template',
+        filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+        properties: ['openFile'],
+        defaultPath:
+          'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx',
+      });
+
+      if (result && result.filePaths && result.filePaths.length > 0) {
+        setCoverPageTemplatePath(result.filePaths[0]);
+      }
+    } catch (error) {
+      console.error('Error selecting cover page template:', error);
+      setError('Error selecting cover page template: ' + error.message);
+    }
+  };
+
+  const handleSelectCoverPagesTemplate = async () => {
+    try {
+      const result = await window.electron.openFileDialog({
+        title: 'Select Cover Pages Template',
+        filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+        properties: ['openFile'],
+        defaultPath:
+          'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx',
+      });
+
+      if (result && result.filePaths && result.filePaths.length > 0) {
+        setCoverPagesTemplatePath(result.filePaths[0]);
+      }
+    } catch (error) {
+      console.error('Error selecting cover pages template:', error);
+      setError('Error selecting cover pages template: ' + error.message);
+    }
+  };
+
+  const handleSelectCaseNarrativeTemplate = async () => {
+    try {
+      const result = await window.electron.openFileDialog({
+        title: 'Select Case Narrative Template',
+        filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+        properties: ['openFile'],
+        defaultPath:
+          'G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx',
+      });
+
+      if (result && result.filePaths && result.filePaths.length > 0) {
+        setCaseNarrativeTemplatePath(result.filePaths[0]);
+      }
+    } catch (error) {
+      console.error('Error selecting case narrative template:', error);
+      setError('Error selecting case narrative template: ' + error.message);
     }
   };
 
@@ -124,6 +190,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
     setError(null);
 
     try {
+      // Extract data from the analytical report
       const response = await fetch('http://localhost:8000/extract_rpt', {
         method: 'POST',
         headers: {
@@ -140,7 +207,112 @@ const CreateFromReportModal = ({ show, onHide }) => {
       }
 
       const data = await response.json();
-      setExtractedData(data);
+      let extractedVariables = { ...data };
+
+      // Extract variables from DOCX templates and merge them
+      const docxVariables = {};
+      let hasDocxTemplates = false;
+
+      // Process Cover Page Template if selected
+      if (coverPageTemplatePath) {
+        hasDocxTemplates = true;
+        try {
+          const coverPageResponse = await fetch(
+            'http://localhost:8000/get_docx_variables',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                docx_path: coverPageTemplatePath,
+              }),
+            },
+          );
+
+          if (coverPageResponse.ok) {
+            const variables = await coverPageResponse.json();
+            docxVariables.coverPage = variables.variables;
+
+            // Add to extracted data without prefix
+            variables.variables.forEach((variable) => {
+              if (!extractedVariables[variable]) {
+                extractedVariables[variable] = '';
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error extracting Cover Page variables:', error);
+        }
+      }
+
+      // Process Cover Pages Template if selected
+      if (coverPagesTemplatePath) {
+        hasDocxTemplates = true;
+        try {
+          const coverPagesResponse = await fetch(
+            'http://localhost:8000/get_docx_variables',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                docx_path: coverPagesTemplatePath,
+              }),
+            },
+          );
+
+          if (coverPagesResponse.ok) {
+            const variables = await coverPagesResponse.json();
+            docxVariables.coverPages = variables.variables;
+
+            // Add to extracted data without prefix
+            variables.variables.forEach((variable) => {
+              if (!extractedVariables[variable]) {
+                extractedVariables[variable] = '';
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error extracting Cover Pages variables:', error);
+        }
+      }
+
+      // Process Case Narrative Template if selected
+      if (caseNarrativeTemplatePath) {
+        hasDocxTemplates = true;
+        try {
+          const caseNarrativeResponse = await fetch(
+            'http://localhost:8000/get_docx_variables',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                docx_path: caseNarrativeTemplatePath,
+              }),
+            },
+          );
+
+          if (caseNarrativeResponse.ok) {
+            const variables = await caseNarrativeResponse.json();
+            docxVariables.caseNarrative = variables.variables;
+
+            // Add to extracted data without prefix
+            variables.variables.forEach((variable) => {
+              if (!extractedVariables[variable]) {
+                extractedVariables[variable] = '';
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error extracting Case Narrative variables:', error);
+        }
+      }
+
+      setExtractedData(extractedVariables);
       setCurrentStep(2);
     } catch (error) {
       console.error('Error extracting data:', error);
@@ -162,6 +334,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
     setError(null);
 
     try {
+      // Now filter the template using the already extracted and potentially edited data
       const response = await fetch('http://localhost:8000/filter_template', {
         method: 'POST',
         headers: {
@@ -169,6 +342,9 @@ const CreateFromReportModal = ({ show, onHide }) => {
         },
         body: JSON.stringify({
           template_path: templatePath,
+          cover_page_template_path: coverPageTemplatePath,
+          cover_pages_template_path: coverPagesTemplatePath,
+          case_narrative_template_path: caseNarrativeTemplatePath,
           extracted_data: editedData,
         }),
       });
@@ -209,6 +385,9 @@ const CreateFromReportModal = ({ show, onHide }) => {
         report: filteredTemplate,
         analytical_report_path: analyticalReportPath,
         extracted_data: editedData,
+        cover_page_template_path: coverPageTemplatePath,
+        cover_pages_template_path: coverPagesTemplatePath,
+        case_narrative_template_path: caseNarrativeTemplatePath,
       });
 
       const response = await fetch(
@@ -223,6 +402,10 @@ const CreateFromReportModal = ({ show, onHide }) => {
             report: filteredTemplate,
             analytical_report_path: analyticalReportPath,
             extracted_data: editedData,
+            cover_page_template_path: coverPageTemplatePath,
+            cover_pages_template_path: coverPagesTemplatePath,
+            case_narrative_template_path: caseNarrativeTemplatePath,
+            process_docx_templates: true, // Flag to process DOCX templates
           }),
         },
       );
@@ -239,10 +422,11 @@ const CreateFromReportModal = ({ show, onHide }) => {
       console.log('Server response:', responseData);
 
       setSuccess({
-        message: 'Directory structure created successfully!',
+        message: 'Directory structure and documents created successfully!',
         reportPath: responseData.report_path,
         directories: responseData.created_directories,
         analyticalReportPath: responseData.analytical_report_path,
+        generatedDocuments: responseData.generated_documents || [],
       });
       setCurrentStep(4);
 
@@ -287,7 +471,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
         <p>
           This wizard will guide you through creating a new report project from
           an analytical report. First, select an analytical report (PDF) to
-          extract data from.
+          extract data from, and template files for various report components.
         </p>
 
         <Form.Group className="mb-3">
@@ -303,6 +487,79 @@ const CreateFromReportModal = ({ show, onHide }) => {
             <Button
               variant="outline-secondary"
               onClick={handleSelectAnalyticalReport}
+            >
+              Browse
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Report Template (JSON)</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={templatePath}
+              onChange={(e) => setTemplatePath(e.target.value)}
+              placeholder="Path to report template JSON"
+              readOnly
+            />
+            <Button variant="outline-secondary" onClick={handleSelectTemplate}>
+              Browse
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Cover Page Template (DOCX)</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={coverPageTemplatePath}
+              onChange={(e) => setCoverPageTemplatePath(e.target.value)}
+              placeholder="Path to cover page template DOCX"
+              readOnly
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={handleSelectCoverPageTemplate}
+            >
+              Browse
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Cover Pages Template (DOCX)</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={coverPagesTemplatePath}
+              onChange={(e) => setCoverPagesTemplatePath(e.target.value)}
+              placeholder="Path to cover pages template DOCX"
+              readOnly
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={handleSelectCoverPagesTemplate}
+            >
+              Browse
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Case Narrative Template (DOCX)</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={caseNarrativeTemplatePath}
+              onChange={(e) => setCaseNarrativeTemplatePath(e.target.value)}
+              placeholder="Path to case narrative template DOCX"
+              readOnly
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={handleSelectCaseNarrativeTemplate}
             >
               Browse
             </Button>
@@ -332,7 +589,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
               Processing...
             </>
           ) : (
-            'Extract Data'
+            'Extract Data & Variables'
           )}
         </Button>
       </Modal.Footer>
@@ -343,12 +600,11 @@ const CreateFromReportModal = ({ show, onHide }) => {
     <>
       <Modal.Body>
         <p>
-          Data extracted successfully! Please review the extracted data below
-          and select a template file.
+          Data extracted successfully! Please review the extracted data below.
         </p>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5>Extracted Data</h5>
+          <h5>Extracted Data & Template Variables</h5>
           <Button
             variant="outline-secondary"
             size="sm"
@@ -404,22 +660,6 @@ const CreateFromReportModal = ({ show, onHide }) => {
             ))}
           </ListGroup>
         )}
-
-        <Form.Group className="mb-3">
-          <Form.Label>Report Template (JSON)</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type="text"
-              value={templatePath}
-              onChange={(e) => setTemplatePath(e.target.value)}
-              placeholder="Path to report template JSON"
-              readOnly
-            />
-            <Button variant="outline-secondary" onClick={handleSelectTemplate}>
-              Browse
-            </Button>
-          </InputGroup>
-        </Form.Group>
 
         {error && <Alert variant="danger">{error}</Alert>}
       </Modal.Body>
@@ -528,7 +768,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
             {success.analyticalReportPath && (
               <p>Analytical report copied to: {success.analyticalReportPath}</p>
             )}
-            <h6>Created Directories:</h6>
+            <h6>Created Directories and Documents:</h6>
             <ListGroup>
               {success.directories
                 .sort((a, b) => a.localeCompare(b))
@@ -539,10 +779,28 @@ const CreateFromReportModal = ({ show, onHide }) => {
                     .replace(/^\/|\\/, '');
                   return (
                     <ListGroup.Item key={i}>
-                      {relativePath || dir}
+                      📁 {relativePath || dir}
                     </ListGroup.Item>
                   );
                 })}
+
+              {success.generatedDocuments &&
+                success.generatedDocuments.length > 0 && (
+                  <>
+                    {success.generatedDocuments.map((doc, i) => {
+                      // Extract just the filename
+                      const filename = doc.split(/[/\\]/).pop();
+                      return (
+                        <ListGroup.Item
+                          key={`doc-${i}`}
+                          className="text-primary"
+                        >
+                          📄 {filename}
+                        </ListGroup.Item>
+                      );
+                    })}
+                  </>
+                )}
             </ListGroup>
           </Alert>
         )}
