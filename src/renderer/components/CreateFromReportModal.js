@@ -436,12 +436,16 @@ const CreateFromReportModal = ({ show, onHide }) => {
 
       console.log('Server response:', responseData);
 
+      // Make sure generated_documents exists in the success state
+      const generatedDocuments = responseData.generated_documents || [];
+      console.log('Generated documents:', generatedDocuments);
+
       setSuccess({
         message: 'Directory structure and documents created successfully!',
         reportPath: responseData.report_path,
         directories: responseData.created_directories,
         analyticalReportPath: responseData.analytical_report_path,
-        generatedDocuments: responseData.generated_documents || [],
+        generatedDocuments: generatedDocuments,
       });
       setCurrentStep(4);
 
@@ -779,12 +783,29 @@ const CreateFromReportModal = ({ show, onHide }) => {
         {success && (
           <Alert variant="success">
             <p>{success.message}</p>
-            <p>Report saved to: {success.reportPath}</p>
-            {success.analyticalReportPath && (
-              <p>Analytical report copied to: {success.analyticalReportPath}</p>
-            )}
-            <h6>Created Directories and Documents:</h6>
-            <ListGroup>
+
+            <h6>Report Files:</h6>
+            <ListGroup className="mb-3">
+              {success.reportPath && (
+                <ListGroup.Item className="text-primary">
+                  📋 {success.reportPath.split(/[/\\]/).pop()}{' '}
+                  <Badge bg="primary" size="sm">
+                    JSON
+                  </Badge>
+                </ListGroup.Item>
+              )}
+              {success.analyticalReportPath && (
+                <ListGroup.Item className="text-secondary">
+                  🔬 {success.analyticalReportPath.split(/[/\\]/).pop()}{' '}
+                  <Badge bg="secondary" size="sm">
+                    PDF
+                  </Badge>
+                </ListGroup.Item>
+              )}
+            </ListGroup>
+
+            <h6>Created Directories:</h6>
+            <ListGroup className="mb-3">
               {success.directories
                 .sort((a, b) => a.localeCompare(b))
                 .map((dir, i) => {
@@ -798,25 +819,50 @@ const CreateFromReportModal = ({ show, onHide }) => {
                     </ListGroup.Item>
                   );
                 })}
+            </ListGroup>
 
-              {success.generatedDocuments &&
-                success.generatedDocuments.length > 0 && (
-                  <>
+            {success.generatedDocuments &&
+              success.generatedDocuments.length > 0 && (
+                <>
+                  <h6>Generated Documents:</h6>
+                  <ListGroup>
                     {success.generatedDocuments.map((doc, i) => {
                       // Extract just the filename
                       const filename = doc.split(/[/\\]/).pop();
+                      // Determine file type for icon and styling
+                      const isDocx = filename.toLowerCase().endsWith('.docx');
+                      const isPdf = filename.toLowerCase().endsWith('.pdf');
+
+                      let fileIcon = '📄';
+                      let fileClass = 'text-secondary';
+
+                      if (isDocx) {
+                        fileIcon = '📝';
+                        fileClass = 'text-success';
+                      } else if (isPdf) {
+                        fileIcon = '📊';
+                        fileClass = 'text-danger';
+                      }
+
                       return (
-                        <ListGroup.Item
-                          key={`doc-${i}`}
-                          className="text-primary"
-                        >
-                          📄 {filename}
+                        <ListGroup.Item key={`doc-${i}`} className={fileClass}>
+                          {fileIcon} {filename}{' '}
+                          {isDocx && (
+                            <Badge bg="success" size="sm">
+                              DOCX
+                            </Badge>
+                          )}
+                          {isPdf && (
+                            <Badge bg="danger" size="sm">
+                              PDF
+                            </Badge>
+                          )}
                         </ListGroup.Item>
                       );
                     })}
-                  </>
-                )}
-            </ListGroup>
+                  </ListGroup>
+                </>
+              )}
           </Alert>
         )}
 

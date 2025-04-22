@@ -367,128 +367,46 @@ def create_directory_structure(request: CreateDirectoryRequest):
                     elif isinstance(value, list):
                         replacements[key] = ", ".join(value)
 
-            # Process Cover Page Template
-            if request.cover_page_template_path and os.path.exists(
-                request.cover_page_template_path
-            ):
-                try:
-                    # Get the filename from the original path
-                    cover_page_filename = os.path.basename(
-                        request.cover_page_template_path
-                    )
-                    base_filename = os.path.splitext(cover_page_filename)[0]
-
-                    # Copy the template to the root directory
-                    dest_docx_path = os.path.join(root_dir, cover_page_filename)
-                    shutil.copy2(request.cover_page_template_path, dest_docx_path)
-                    generated_documents.append(dest_docx_path)
-
+            # --- Define a helper to process each template ---
+            def process_template(template_path, template_name):
+                if template_path and os.path.exists(template_path):
                     try:
-                        # Process the template and convert to PDF
-                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
-                            docx_path=dest_docx_path, replacements=replacements
+                        base_filename = os.path.splitext(
+                            os.path.basename(template_path)
+                        )[0]
+                        modified_docx_path = os.path.join(
+                            root_dir, f"{base_filename}_modified.docx"
                         )
 
-                        # Save the PDF file
-                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
-                        with open(pdf_path, "wb") as f:
-                            pdf_writer = PyPDF2.PdfWriter()
-                            for page in range(num_pages):
-                                pdf_writer.add_page(pdf_reader.pages[page])
-                            pdf_writer.write(f)
+                        pdf_reader, num_pages, created_pdf_path, created_docx_path = (
+                            convert_docx_template_to_pdf(
+                                docx_path=template_path,
+                                replacements=replacements,
+                                save_modified_to=modified_docx_path,
+                            )
+                        )
 
-                        generated_documents.append(pdf_path)
-                        print(f"Generated Cover Page PDF: {pdf_path}")
-                    except Exception as conversion_error:
+                        # Add successfully created files to the list
+                        if created_docx_path and os.path.exists(created_docx_path):
+                            generated_documents.append(created_docx_path)
+                        if created_pdf_path and os.path.exists(created_pdf_path):
+                            generated_documents.append(created_pdf_path)
+
+                    except Exception as e:
+                        # Log the error but continue processing other templates
                         print(
-                            f"Error converting Cover Page template to PDF: {str(conversion_error)}"
+                            f"Error processing {template_name} template '{template_path}': {str(e)}"
                         )
-                        # Already added the DOCX file to generated documents
-
-                except Exception as e:
-                    print(f"Error processing Cover Page template: {str(e)}")
-
-            # Process Cover Pages Template
-            if request.cover_pages_template_path and os.path.exists(
-                request.cover_pages_template_path
-            ):
-                try:
-                    # Get the filename from the original path
-                    cover_pages_filename = os.path.basename(
-                        request.cover_pages_template_path
-                    )
-                    base_filename = os.path.splitext(cover_pages_filename)[0]
-
-                    # Copy the template to the root directory
-                    dest_docx_path = os.path.join(root_dir, cover_pages_filename)
-                    shutil.copy2(request.cover_pages_template_path, dest_docx_path)
-                    generated_documents.append(dest_docx_path)
-
-                    try:
-                        # Process the template and convert to PDF
-                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
-                            docx_path=dest_docx_path, replacements=replacements
-                        )
-
-                        # Save the PDF file
-                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
-                        with open(pdf_path, "wb") as f:
-                            pdf_writer = PyPDF2.PdfWriter()
-                            for page in range(num_pages):
-                                pdf_writer.add_page(pdf_reader.pages[page])
-                            pdf_writer.write(f)
-
-                        generated_documents.append(pdf_path)
-                        print(f"Generated Cover Pages PDF: {pdf_path}")
-                    except Exception as conversion_error:
+                else:
+                    if template_path:
                         print(
-                            f"Error converting Cover Pages template to PDF: {str(conversion_error)}"
-                        )
-                        # Already added the DOCX file to generated documents
-
-                except Exception as e:
-                    print(f"Error processing Cover Pages template: {str(e)}")
-
-            # Process Case Narrative Template
-            if request.case_narrative_template_path and os.path.exists(
-                request.case_narrative_template_path
-            ):
-                try:
-                    # Get the filename from the original path
-                    case_narrative_filename = os.path.basename(
-                        request.case_narrative_template_path
-                    )
-                    base_filename = os.path.splitext(case_narrative_filename)[0]
-
-                    # Copy the template to the root directory
-                    dest_docx_path = os.path.join(root_dir, case_narrative_filename)
-                    shutil.copy2(request.case_narrative_template_path, dest_docx_path)
-                    generated_documents.append(dest_docx_path)
-
-                    try:
-                        # Process the template and convert to PDF
-                        pdf_reader, num_pages, _ = convert_docx_template_to_pdf(
-                            docx_path=dest_docx_path, replacements=replacements
+                            f"Skipping {template_name}: Template not found at {template_path}"
                         )
 
-                        # Save the PDF file
-                        pdf_path = os.path.join(root_dir, f"{base_filename}.pdf")
-                        with open(pdf_path, "wb") as f:
-                            pdf_writer = PyPDF2.PdfWriter()
-                            for page in range(num_pages):
-                                pdf_writer.add_page(pdf_reader.pages[page])
-                            pdf_writer.write(f)
-
-                        generated_documents.append(pdf_path)
-                        print(f"Generated Case Narrative PDF: {pdf_path}")
-                    except Exception as conversion_error:
-                        print(
-                            f"Error converting Case Narrative template to PDF: {str(conversion_error)}"
-                        )
-                        # Already added the DOCX file to generated documents
-
-                except Exception as e:
-                    print(f"Error processing Case Narrative template: {str(e)}")
+            # --- Process each template using the helper ---
+            process_template(request.cover_page_template_path, "Cover Page")
+            process_template(request.cover_pages_template_path, "Cover Pages")
+            process_template(request.case_narrative_template_path, "Case Narrative")
 
         # Create directories recursively
         try:
@@ -497,13 +415,19 @@ def create_directory_structure(request: CreateDirectoryRequest):
             print(f"Error creating section directories: {str(e)}")
             # Continue even if we couldn't create all directories
 
-        # Filter out duplicates and normalize paths
+        # Filter out duplicates and normalize paths for directories
         unique_dirs = []
         for dir_path in created_dirs:
-            # Normalize path to remove trailing slashes and resolve .. references
             normalized_path = os.path.normpath(dir_path)
             if normalized_path not in unique_dirs:
                 unique_dirs.append(normalized_path)
+
+        # Filter out duplicates and non-existent files for documents
+        unique_docs = []
+        for doc_path in generated_documents:
+            normalized_path = os.path.normpath(doc_path)
+            if os.path.exists(normalized_path) and normalized_path not in unique_docs:
+                unique_docs.append(normalized_path)
 
         success = True
 
@@ -512,7 +436,7 @@ def create_directory_structure(request: CreateDirectoryRequest):
             "created_directories": unique_dirs,
             "report_path": report_path,
             "updated_report": report,  # Return the updated report
-            "generated_documents": generated_documents,  # Add generated documents
+            "generated_documents": unique_docs,  # Use the filtered list of existing documents
             "processed_templates": processed_templates,
         }
 
@@ -527,14 +451,24 @@ def create_directory_structure(request: CreateDirectoryRequest):
         error_msg = f"Error creating directory structure: {str(e)}"
         print(error_msg)  # Log the error for server-side debugging
 
+        # Ensure generated_documents is filtered even in case of partial success
+        unique_docs = []
+        if generated_documents:
+            for doc_path in generated_documents:
+                normalized_path = os.path.normpath(doc_path)
+                if (
+                    os.path.exists(normalized_path)
+                    and normalized_path not in unique_docs
+                ):
+                    unique_docs.append(normalized_path)
+
         # If we got far enough to create some directories and files, return what we have
-        if len(created_dirs) > 0 or len(generated_documents) > 0:
+        if len(created_dirs) > 0 or len(unique_docs) > 0:
             print("Returning partial results despite error")
 
-            # Filter out duplicates and normalize paths
+            # Filter out duplicates and normalize paths for directories
             unique_dirs = []
             for dir_path in created_dirs:
-                # Normalize path to remove trailing slashes and resolve .. references
                 normalized_path = os.path.normpath(dir_path)
                 if normalized_path not in unique_dirs:
                     unique_dirs.append(normalized_path)
@@ -545,7 +479,7 @@ def create_directory_structure(request: CreateDirectoryRequest):
                 "created_directories": unique_dirs,
                 "report_path": report_path,
                 "updated_report": report,
-                "generated_documents": generated_documents,
+                "generated_documents": unique_docs,  # Return filtered documents
                 "partial_success": True,
             }
 
