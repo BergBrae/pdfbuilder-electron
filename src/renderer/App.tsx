@@ -154,7 +154,27 @@ function AppContent() {
   };
 
   const handleBuildPDF = async () => {
-    const chosenPath = await window.electron.buildPathDialog(savePath);
+    // Get the base directory from the root section, or use an empty string if not available
+    let defaultBuildPath = savePath;
+
+    // If we don't have a saved path yet, try to use the report's base directory
+    if (!defaultBuildPath && state.report && state.report.base_directory) {
+      const baseDir = state.report.base_directory;
+
+      // Only use the base directory if it's a valid non-empty path
+      if (baseDir && typeof baseDir === 'string' && baseDir.trim() !== '') {
+        defaultBuildPath = baseDir;
+
+        // If the base directory doesn't have a .pdf extension, suggest a default filename
+        if (!defaultBuildPath.toLowerCase().endsWith('.pdf')) {
+          const reportName = state.report.bookmark_name || 'report';
+          const sanitizedName = reportName.replace(/[^a-zA-Z0-9_-]/g, '_');
+          defaultBuildPath = path.join(baseDir, `${sanitizedName}.pdf`);
+        }
+      }
+    }
+
+    const chosenPath = await window.electron.buildPathDialog(defaultBuildPath);
     if (chosenPath) {
       setSavePath(chosenPath);
       setIsLoading(true);
@@ -237,8 +257,8 @@ function AppContent() {
         type: 'Section',
         bookmark_name: 'Quality Control Report',
         base_directory: '',
-        variables: [],
         children: [],
+        method_codes: [],
       },
     });
     dispatch({ type: 'SET_FILE_PATH', payload: null });

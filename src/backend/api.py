@@ -166,27 +166,41 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
             filename = os.path.basename(path)
             if not os.path.isdir(path):
                 if qualify_filename(file.filename_text_to_match, filename):
+                    # Calculate relative path from the directory_source
+                    relative_path = os.path.relpath(path, directory_source)
                     if path in previous_files:
+                        # Ensure existing file data uses relative path too
+                        previous_files[path].file_path = relative_path
                         file.files.append(previous_files[path])
                     else:
-                        file.files.append(FileData(file_path=path, id=createUUID()))
+                        # Store the relative path
+                        file.files.append(
+                            FileData(file_path=relative_path, id=createUUID())
+                        )
 
-    # sort files by filename
+    # sort files by filename (using the original full path for sorting robustness if needed,
+    # but the stored path remains relative/basename)
+    # Sorting key might need adjustment if we want to sort strictly by basename
     file.files = sorted(file.files, key=lambda x: os.path.basename(x.file_path))
 
     # Set num pages for PDF files only
     for file_data in file.files:
+        # Construct full path temporarily for reading
+        full_path = os.path.join(directory_source, file_data.file_path)
+
         # Skip page count for DOCX files
-        if file_data.file_path.lower().endswith((".docx")):
+        if full_path.lower().endswith((".docx")):
             file_data.num_pages = -1
             continue
 
         try:
-            with open(file_data.file_path, "rb") as f:
+            # Use the reconstructed full path to open the file
+            with open(full_path, "rb") as f:
                 pdf = PyPDF2.PdfReader(f)
                 file_data.num_pages = len(pdf.pages)
         except Exception as e:
-            print(f"Error: {e}")
+            # Add full_path to the error message for better debugging
+            print(f"Error reading PDF {full_path}: {e}")
             file_data.num_pages = -1
 
     # Page numbers aren't currently relevant

@@ -9,11 +9,8 @@ export default function Help() {
         three building blocks: Docx Templates, PDF Types, and Sections. Please
         read more on each below.
       </h6>
-      <Tabs defaultActiveKey="docxTemplate" id="help-tabs" className="mb-3">
-        <Tab eventKey="docxTemplate" title="Docx Template">
-          <DocxTemplateHelp />
-        </Tab>
-        <Tab eventKey="pdfType" title="PDF Type">
+      <Tabs defaultActiveKey="pdftype" id="help-tabs" className="mb-3">
+        <Tab eventKey="pdftype" title="PDF Type">
           <PdfTypeHelp />
         </Tab>
         <Tab eventKey="section" title="Section">

@@ -29,17 +29,13 @@ function FileType({ fileType: file, parentDirectory }) {
 
   // DocxTemplate-like fields
   const [isTableOfContents, setIsTableOfContents] = useState(
-    file.is_table_of_contents || false
+    file.is_table_of_contents || false,
   );
   const [pageNumberOffset, setPageNumberOffset] = useState(
-    file.page_number_offset || 0
+    file.page_number_offset || 0,
   );
-  const [pageStartCol, setPageStartCol] = useState(
-    file.page_start_col || 3
-  );
-  const [pageEndCol, setPageEndCol] = useState(
-    file.page_end_col || null
-  );
+  const [pageStartCol, setPageStartCol] = useState(file.page_start_col || 3);
+  const [pageEndCol, setPageEndCol] = useState(file.page_end_col || null);
 
   // Original FileType fields
   const [reorderPagesMetals, setReorderPagesMetals] = useState(
@@ -270,7 +266,8 @@ function FileType({ fileType: file, parentDirectory }) {
   };
 
   const handlePageNumberOffsetChange = (e) => {
-    const newOffset = e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
+    const newOffset =
+      e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
     setPageNumberOffset(newOffset);
 
     updateFileInState({
@@ -290,7 +287,8 @@ function FileType({ fileType: file, parentDirectory }) {
   };
 
   const handlePageEndColChange = (e) => {
-    const newEndCol = e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
+    const newEndCol =
+      e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
     setPageEndCol(newEndCol);
 
     updateFileInState({
@@ -343,40 +341,34 @@ function FileType({ fileType: file, parentDirectory }) {
               </Button>
             </div>
           </div>
-          <div className="d-flex align-items-center mb-2">
+          <div className="d-flex align-items-center">
             {FileIcon}
-              <Form.Control
+            <Form.Control
               className="ms-3"
               type="text"
-                value={directorySource}
-                onChange={handleDirectoryChange}
-              placeholder="Enter directory path"
-                onClick={(e) => e.stopPropagation()}
-              />
-          </div>
-          <div className="d-flex align-items-center">
-              <Form.Control
-              type="text"
-                value={filenameText}
-                onChange={handleFilenameChange}
-              placeholder="Enter filename filter (e.g., *.pdf)"
-                onClick={(e) => e.stopPropagation()}
-              />
+              value={filenameText}
+              onChange={handleFilenameChange}
+              placeholder="Text to match in filename"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       }
     >
       <Container>
-        {isFormerDocxTemplate() && (
+        {/* {isFormerDocxTemplate() && (
           <>
-            <Form.Check
-              type="switch"
-              id="table-of-contents-switch"
-              label="Has Table of Contents"
-              checked={isTableOfContents}
-              onChange={handleTableOfContentsToggle}
-              className="mb-3"
-            />
+            <Row className="mb-3">
+              <Col sm={6}>
+                <Form.Check
+                  type="switch"
+                  id="table-of-contents-switch"
+                  label="Has Table of Contents"
+                  checked={isTableOfContents}
+                  onChange={handleTableOfContentsToggle}
+                />
+              </Col>
+            </Row>
 
             {isTableOfContents && (
               <>
@@ -425,39 +417,40 @@ function FileType({ fileType: file, parentDirectory }) {
                   </Col>
                 </Form.Group>
               </>
-            )}
-          </>
-        )}
+            )} */}
 
-        <Form.Check
-          type="switch"
-          id="reorder-metals-switch"
-          label="Reorder Pages by Metals"
-              checked={reorderPagesMetals}
-              onChange={handleReorderPagesMetalsChange}
-          className="mb-3"
-          disabled={reorderPagesDatetime}
-            />
-
+        <Row className="mb-3">
+          <Col sm={6} md={4}>
             <Form.Check
               type="switch"
-          id="reorder-datetime-switch"
+              id="reorder-metals-switch"
+              label="Reorder Pages by Metals"
+              checked={reorderPagesMetals}
+              onChange={handleReorderPagesMetalsChange}
+              disabled={reorderPagesDatetime}
+            />
+          </Col>
+          <Col sm={6} md={4}>
+            <Form.Check
+              type="switch"
+              id="reorder-datetime-switch"
               label="Reorder Pages by Date/Time"
               checked={reorderPagesDatetime}
               onChange={handleReorderPagesDatetimeChange}
-          className="mb-3"
-          disabled={reorderPagesMetals}
+              disabled={reorderPagesMetals}
             />
-
+          </Col>
+          <Col sm={6} md={4}>
             <Form.Check
               type="switch"
-          id="keep-bookmarks-switch"
+              id="keep-bookmarks-switch"
               label="Keep Existing Bookmarks"
               checked={keepExistingBookmarks}
               onChange={handleKeepExistingBookmarksChange}
-          className="mb-3"
               disabled={reorderPagesMetals || reorderPagesDatetime}
             />
+          </Col>
+        </Row>
 
         <BookmarkRules
           fileType={file}
@@ -470,13 +463,6 @@ function FileType({ fileType: file, parentDirectory }) {
           <div className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h5>Files</h5>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={handleBookmarkFilesWithFilename}
-              >
-                Bookmark All with Filename
-              </Button>
             </div>
 
             <div style={{ maxHeight: '400px', overflow: 'auto' }}>
@@ -490,14 +476,14 @@ function FileType({ fileType: file, parentDirectory }) {
                   </tr>
                 </thead>
                 <tbody>
-              {file.files.map((fileData, index) => (
-                <FileData
+                  {file.files.map((fileData, index) => (
+                    <FileData
                       key={fileData.id}
-                  fileData={fileData}
+                      fileData={fileData}
                       index={index}
                       onChange={handleFileDataChange}
-                />
-              ))}
+                    />
+                  ))}
                 </tbody>
               </Table>
             </div>

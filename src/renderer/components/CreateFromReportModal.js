@@ -181,9 +181,13 @@ const CreateFromReportModal = ({ show, onHide }) => {
 
   const handleSelectOutputDirectory = async () => {
     try {
+      // Default to a standard location similar to the other template paths
+      const defaultPath = 'G:\\data\\PDFBuilder\\Reports';
+
       const result = await window.electron.openDirectoryDialog({
         title: 'Select Output Directory',
         properties: ['openDirectory', 'createDirectory'],
+        defaultPath: defaultPath,
       });
 
       if (result && result.filePaths && result.filePaths.length > 0) {
@@ -451,6 +455,142 @@ const CreateFromReportModal = ({ show, onHide }) => {
 
       // Use the updated report from the response if available
       const reportToLoad = responseData.updated_report || filteredTemplate;
+
+      // Create FileType components for the DOCX templates
+      // Check if templates were chosen and prepend them to the report
+      const { v4: uuidv4 } = require('uuid');
+
+      // Helper function to create FileType for DOCX template
+      const createDocxFileType = (templatePath, bookmarkName) => {
+        if (!templatePath) return null;
+
+        const filename = templatePath.split(/[/\\]/).pop();
+        // Remove file extension
+        const filenameWithoutExt = filename.replace(/\.[^.]+$/, '');
+
+        return {
+          id: uuidv4(),
+          type: 'FileType',
+          bookmark_name: bookmarkName,
+          directory_source: './',
+          filename_text_to_match: filenameWithoutExt,
+          will_have_page_numbers: true,
+          files: [],
+          variables_in_doc: [],
+          base_directory: '',
+          children: [],
+        };
+      };
+
+      // Check if we need to add any templates
+      const templatesAdded = [];
+
+      // Check if templates already exist in the report
+      const templateFilenames = [
+        coverPageTemplatePath &&
+          coverPageTemplatePath
+            .split(/[/\\]/)
+            .pop()
+            .replace(/\.[^.]+$/, ''),
+        coverPagesTemplatePath &&
+          coverPagesTemplatePath
+            .split(/[/\\]/)
+            .pop()
+            .replace(/\.[^.]+$/, ''),
+        caseNarrativeTemplatePath &&
+          caseNarrativeTemplatePath
+            .split(/[/\\]/)
+            .pop()
+            .replace(/\.[^.]+$/, ''),
+      ].filter(Boolean);
+
+      // Check if any of these templates already exist in the report
+      const existingFileTypes = reportToLoad.children.filter(
+        (child) =>
+          child.type === 'FileType' &&
+          templateFilenames.some((filename) =>
+            child.filename_text_to_match.includes(filename),
+          ),
+      );
+
+      const existingFilenames = existingFileTypes.map(
+        (ft) => ft.filename_text_to_match,
+      );
+
+      // Create array of templates to add in correct order
+      const templatesToAdd = [];
+
+      // Add Cover Page Template
+      if (
+        coverPageTemplatePath &&
+        !existingFilenames.some((name) =>
+          name.includes(
+            coverPageTemplatePath
+              .split(/[/\\]/)
+              .pop()
+              .replace(/\.[^.]+$/, ''),
+          ),
+        )
+      ) {
+        const coverPageFileType = createDocxFileType(
+          coverPageTemplatePath,
+          'Cover Page',
+        );
+        if (coverPageFileType) {
+          templatesToAdd.push(coverPageFileType);
+          templatesAdded.push('Cover Page');
+        }
+      }
+
+      // Add Cover Pages Template
+      if (
+        coverPagesTemplatePath &&
+        !existingFilenames.some((name) =>
+          name.includes(
+            coverPagesTemplatePath
+              .split(/[/\\]/)
+              .pop()
+              .replace(/\.[^.]+$/, ''),
+          ),
+        )
+      ) {
+        const coverPagesFileType = createDocxFileType(
+          coverPagesTemplatePath,
+          'Cover Pages',
+        );
+        if (coverPagesFileType) {
+          templatesToAdd.push(coverPagesFileType);
+          templatesAdded.push('Cover Pages');
+        }
+      }
+
+      // Add Case Narrative Template
+      if (
+        caseNarrativeTemplatePath &&
+        !existingFilenames.some((name) =>
+          name.includes(
+            caseNarrativeTemplatePath
+              .split(/[/\\]/)
+              .pop()
+              .replace(/\.[^.]+$/, ''),
+          ),
+        )
+      ) {
+        const caseNarrativeFileType = createDocxFileType(
+          caseNarrativeTemplatePath,
+          'Case Narrative',
+        );
+        if (caseNarrativeFileType) {
+          templatesToAdd.push(caseNarrativeFileType);
+          templatesAdded.push('Case Narrative');
+        }
+      }
+
+      // Prepend all templates at once in correct order
+      if (templatesToAdd.length > 0) {
+        reportToLoad.children = [...templatesToAdd, ...reportToLoad.children];
+        console.log(`Added templates to report: ${templatesAdded.join(', ')}`);
+      }
 
       // Load the report into the app
       const reportWithFlags = setFlags(reportToLoad);
