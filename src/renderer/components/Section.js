@@ -9,6 +9,7 @@ import { handleAPIUpdate, setFlags } from './utils';
 import { useLoading } from '../contexts/LoadingContext';
 import { useReport } from '../contexts/ReportContext';
 import MethodCodesModal from './MethodCodesModal';
+import { IoDuplicate } from 'react-icons/io5';
 import path from 'path';
 
 function Section({ section, isRoot = false, parentDirectory, filename }) {
@@ -265,6 +266,49 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
     }
   }, [section.needs_update]);
 
+  const handleDuplicate = () => {
+    const path = findSectionPath(section);
+    if (!path) return;
+
+    // Create a deep copy of the section with a new ID
+    const duplicatedSection = JSON.parse(JSON.stringify(section));
+    duplicatedSection.id = uuidv4();
+
+    // Update the bookmark name to indicate it's a copy
+    if (duplicatedSection.bookmark_name) {
+      duplicatedSection.bookmark_name = `${duplicatedSection.bookmark_name} (Copy)`;
+    }
+
+    // Recursively assign new IDs to all children
+    const assignNewIds = (item) => {
+      if (item.id) {
+        item.id = uuidv4();
+      }
+      if (item.children && item.children.length > 0) {
+        item.children.forEach(assignNewIds);
+      }
+      return item;
+    };
+
+    assignNewIds(duplicatedSection);
+
+    // Get the parent section's children
+    // If path.length === 0, this is the root section which shouldn't be duplicated
+    if (path.length > 0) {
+      const parentPath = path.slice(0, -1);
+      const sectionIndex = path[path.length - 1];
+
+      dispatch({
+        type: 'ADD_CHILD',
+        payload: {
+          path: parentPath,
+          child: duplicatedSection,
+          index: sectionIndex + 1, // Insert after the current section
+        },
+      });
+    }
+  };
+
   return (
     <>
       <CustomAccordion
@@ -296,16 +340,29 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
                     : 'No files found in this section'}
                 </span>
                 {!isRoot && (
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete();
-                    }}
-                  >
-                    Delete
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="me-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate();
+                      }}
+                    >
+                      <IoDuplicate />
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete();
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
