@@ -5,7 +5,12 @@ import BookmarkIcon from './BookmarkIcon';
 import { FaFilePdf, FaFileWord } from 'react-icons/fa';
 const path = require('path');
 
-export default function FileData({ fileData, index, onChange }) {
+export default function FileData({
+  fileData,
+  index,
+  onChange,
+  directorySource,
+}) {
   const { file_path, num_pages } = fileData;
   // Extract the filename without extension
   const fileName = path.basename(file_path, path.extname(file_path));
@@ -15,10 +20,29 @@ export default function FileData({ fileData, index, onChange }) {
     onChange({ ...fileData, bookmark_name: newBookmarkName || null });
   };
 
+  const handleFileClick = async () => {
+    try {
+      // Resolve the full path by combining the directory source with the relative file path
+      const fullPath = await window.electron.resolvePath({
+        base: directorySource,
+        relative: file_path,
+      });
+
+      // Open the file with the system's default application
+      window.electron.openFile(fullPath);
+    } catch (error) {
+      console.error('Error opening file:', error);
+    }
+  };
+
   return (
     <tr>
       <td>{index + 1}</td>
-      <td>
+      <td
+        onClick={handleFileClick}
+        style={{ cursor: 'pointer' }}
+        title={`Click to open ${file_path}`}
+      >
         <span className="d-flex align-items-center">
           {isDocx ? (
             <FaFileWord size={18} className="me-2 text-primary" />

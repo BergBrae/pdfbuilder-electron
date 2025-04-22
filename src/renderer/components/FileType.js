@@ -470,7 +470,15 @@ function FileType({ fileType: file, parentDirectory }) {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Filename</th>
+                    <th>
+                      Filename{' '}
+                      <span
+                        className="text-muted"
+                        style={{ fontSize: '0.8em' }}
+                      >
+                        (Click to open)
+                      </span>
+                    </th>
                     <th>Pages</th>
                     <th>Bookmark</th>
                   </tr>
@@ -482,6 +490,10 @@ function FileType({ fileType: file, parentDirectory }) {
                       fileData={fileData}
                       index={index}
                       onChange={handleFileDataChange}
+                      directorySource={path.join(
+                        parentDirectory,
+                        directorySource,
+                      )}
                     />
                   ))}
                 </tbody>
