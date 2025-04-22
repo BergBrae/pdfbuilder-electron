@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import BookmarkIcon from './BookmarkIcon';
 import BookmarkRules from './BookmarkRules';
-import { FaFilePdf } from 'react-icons/fa';
+import { FaFilePdf, FaFileWord } from 'react-icons/fa';
 import { Form, Container, Button, Row, Table } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import FileData from './FileData';
@@ -15,7 +15,8 @@ const FileIcon = (
   <span className="pdf-icon">
     <span className="pdf-icon-content">
       <FaFilePdf size={25} className="me-2" />
-      PDF File
+      <FaFileWord size={25} className="me-2" />
+      Document Files
     </span>
   </span>
 );
@@ -36,6 +37,35 @@ function FileType({ fileType: file, parentDirectory }) {
       ? file.keep_existing_bookmarks
       : true,
   );
+
+  // Helper function to determine if a file is a DOCX
+  const isDocxFile = (filePath) => {
+    return filePath.toLowerCase().endsWith('.docx');
+  };
+
+  // Count different file types
+  const getPdfCount = () =>
+    file.files.filter((f) => !isDocxFile(f.file_path)).length;
+  const getDocxCount = () =>
+    file.files.filter((f) => isDocxFile(f.file_path)).length;
+
+  // Generate status text
+  const getStatusText = () => {
+    if (file.files.length === 0) return 'No files found';
+
+    const pdfCount = getPdfCount();
+    const docxCount = getDocxCount();
+
+    const parts = [];
+    if (pdfCount > 0) {
+      parts.push(`${pdfCount} PDF${pdfCount !== 1 ? 's' : ''}`);
+    }
+    if (docxCount > 0) {
+      parts.push(`${docxCount} DOCX${docxCount !== 1 ? 's' : ''}`);
+    }
+
+    return parts.join(' and ');
+  };
 
   const findFileTypePath = (
     targetFile,
@@ -157,7 +187,7 @@ function FileType({ fileType: file, parentDirectory }) {
       ...fileData,
       bookmark_name: path
         .basename(fileData.file_path)
-        .replace(/\.pdf$/i, '')
+        .replace(/\.(pdf|docx)$/i, '')
         .replace(/[-_.]/g, ' '),
     }));
     updateFileInState({ ...file, files: updatedFiles });
@@ -236,11 +266,7 @@ function FileType({ fileType: file, parentDirectory }) {
                   file.files.length > 0 ? 'text-success' : 'text-danger'
                 }`}
               >
-                {file.files.length > 0
-                  ? `${file.files.length} ${
-                      file.files.length === 1 ? 'file' : 'files'
-                    } found`
-                  : 'No files found'}
+                {getStatusText()}
               </span>
               <Button
                 variant="outline-danger"
@@ -260,7 +286,7 @@ function FileType({ fileType: file, parentDirectory }) {
               className="d-flex flex-wrap align-items-center ms-3"
               style={{ gap: '0.5rem' }}
             >
-              A PDF in
+              Documents in
               <Form.Control
                 size="sm"
                 style={{ width: '150px' }}
@@ -288,14 +314,14 @@ function FileType({ fileType: file, parentDirectory }) {
             <div className="mb-3">
               <BookmarkRules fileType={file} onChange={updateFileInState} />
             </div>
-            {/* <Button
+            <Button
               variant="secondary"
               size="sm"
               onClick={handleBookmarkFilesWithFilename}
               disabled={reorderPagesMetals || reorderPagesDatetime}
             >
               Bookmark Files with Filenames
-            </Button> */}
+            </Button>
           </div>
 
           <Form className="ms-3">
@@ -337,6 +363,7 @@ function FileType({ fileType: file, parentDirectory }) {
                   fileData={fileData}
                   onFileDataChange={handleFileDataChange}
                   showBookmark={true}
+                  isDocx={isDocxFile(fileData.file_path)}
                 />
               ))}
             </div>

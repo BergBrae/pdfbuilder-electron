@@ -3,9 +3,15 @@ import React from 'react';
 import { Col, Card } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
 import BookmarkIcon from './BookmarkIcon';
+import { FaFilePdf, FaFileWord } from 'react-icons/fa';
 const path = require('path');
 
-export default function FileData({ fileData, onFileDataChange, showBookmark }) {
+export default function FileData({
+  fileData,
+  onFileDataChange,
+  showBookmark,
+  isDocx,
+}) {
   const { file_path, num_pages } = fileData;
   // Extract filename using path.basename for cross-platform compatibility
   const fileName = path.basename(file_path);
@@ -34,12 +40,22 @@ export default function FileData({ fileData, onFileDataChange, showBookmark }) {
             />
           )}
           <p className="filename m-2">
-            {fileName}
+            <span className="d-flex align-items-center mb-1">
+              {isDocx ? (
+                <FaFileWord size={18} className="me-2 text-primary" />
+              ) : (
+                <FaFilePdf size={18} className="me-2 text-danger" />
+              )}
+              {fileName}
+            </span>
             <br />
-            <br />
-            {num_pages}
-            {num_pages > 1 ? ' Pages' : ' Page'}
-            <br />
+            {!isDocx && (
+              <>
+                {num_pages}
+                {num_pages > 1 ? ' Pages' : ' Page'}
+                <br />
+              </>
+            )}
             <small style={{ color: '#6c757d' }}>Double click to open</small>
           </p>
         </Card.Body>

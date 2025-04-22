@@ -36,8 +36,11 @@ def validate_paths(report, cwd="/"):
                     return f"Error: file_path ({file_path}) does not exist for the {index+1}th file in FileType {child['bookmark_name']}"
                 if not os.path.isfile(file_path):
                     return f"Error: file_path ({file_path}) is not a file for the {index+1}th file in FileType {child['bookmark_name']}"
-                if not file_path.lower().endswith(".pdf"):
-                    return f"Error: file_path ({file_path}) is not a pdf file for the {index+1}th file in FileType {child['bookmark_name']}"
+                if not (
+                    file_path.lower().endswith(".pdf")
+                    or file_path.lower().endswith(".docx")
+                ):
+                    return f"Error: file_path ({file_path}) is not a pdf or docx file for the {index+1}th file in FileType {child['bookmark_name']}"
 
         if child["type"] == "Section":
             result = validate_paths(child, base_directory)

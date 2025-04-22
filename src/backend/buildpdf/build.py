@@ -322,7 +322,26 @@ class PDFBuilder:
         """
         file_path = os.path.normpath(os.path.join(directory_source, file["file_path"]))
         file_bookmark = self._create_bookmark_if_needed(file, parent_bookmark)
-        pdf, num_pages = self._get_pdf_and_page_count(file_path)
+
+        # Check if it's a DOCX file and convert to PDF first
+        if file_path.lower().endswith(".docx"):
+            try:
+                pdf, num_pages, _ = convert_docx_template_to_pdf(
+                    docx_path=file_path,
+                    replacements={},  # No replacements for regular DOCX files
+                )
+            except Exception as e:
+                print(f"Error converting DOCX to PDF: {str(e)}")
+                # Add to problematic files
+                self.problematic_files.append(
+                    {
+                        "path": file_path,
+                        "error": f"Failed to convert DOCX to PDF: {str(e)}",
+                    }
+                )
+                return  # Skip this file
+        else:
+            pdf, num_pages = self._get_pdf_and_page_count(file_path)
 
         # Extract existing bookmarks from the PDF
         if keep_existing_bookmarks:

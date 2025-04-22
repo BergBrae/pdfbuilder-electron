@@ -93,18 +93,16 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
     }  # use existing files if they are already in file.files
     file.files = []
     if os.path.isdir(directory_source):
-        # Search for both .pdf and .PDF files
-        pdf_paths = []
-        for ext in ["*.pdf", "*.PDF"]:
-            pdf_paths.extend(glob.glob(os.path.join(directory_source, ext)))
+        # Search for both .pdf/.PDF and .docx/.DOCX files
+        matched_paths = []
+        for ext in ["*.pdf", "*.PDF", "*.docx", "*.DOCX"]:
+            matched_paths.extend(glob.glob(os.path.join(directory_source, ext)))
 
-        pdf_paths = list(set(pdf_paths))
+        matched_paths = list(set(matched_paths))
 
-        for path in pdf_paths:
+        for path in matched_paths:
             filename = os.path.basename(path)
-            if not os.path.isdir(
-                path
-            ):  # No need to check extension again since we filtered in glob
+            if not os.path.isdir(path):
                 if qualify_filename(file.filename_text_to_match, filename):
                     if path in previous_files:
                         file.files.append(previous_files[path])
@@ -114,8 +112,13 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
     # sort files by filename
     file.files = sorted(file.files, key=lambda x: os.path.basename(x.file_path))
 
-    # Set num pages
+    # Set num pages for PDF files only
     for file_data in file.files:
+        # Skip page count for DOCX files
+        if file_data.file_path.lower().endswith((".docx")):
+            file_data.num_pages = -1
+            continue
+
         try:
             with open(file_data.file_path, "rb") as f:
                 pdf = PyPDF2.PdfReader(f)
