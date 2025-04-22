@@ -9,7 +9,7 @@ export default function AddComponent({ path, index }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const labelToType = {
-    'PDF Type': 'FileType',
+    'File Type': 'FileType',
     Section: 'Section',
   };
 
@@ -63,7 +63,7 @@ export default function AddComponent({ path, index }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="add-component-buttons">
-        {['PDF Type', 'Section'].map((type) => (
+        {['File Type', 'Section'].map((type) => (
           <Button
             key={type}
             className="add-component-btn"

@@ -1,6 +1,40 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.2.0</h5>
+      <ul>
+        <li>
+          Docx files now have data populated from analytical report information
+        </li>
+        <li>
+          Default paths for files within 'Create from Analytical Report' can be
+          set in settings
+        </li>
+        <li>
+          'PDF Type' has become 'File Type' and now supports docx files. 'Docx
+          Template' has been removed
+        </li>
+        <li>Added the ability to duplicate sections</li>
+        <li>
+          Added the ability to add COA and Designated Benchsheets folders when
+          creating from analytical report
+        </li>
+        <li>
+          Merit ID bookmarking now ignores pages that contain 'Merit
+          Laboratories Bottle Preservation Check'
+        </li>
+        <li>
+          Merit ID bookmark rule now considers 'Data File 7168102' as
+          'S71681.02'
+        </li>
+        <li>
+          Fixed an issue that prevented editing bookmarks for individual files
+        </li>
+        <li>
+          Create from analytical report now shows a summary of created folders
+          and files
+        </li>
+      </ul>
       <h5>Version 2.1.1</h5>
       <ul>
         <li>
@@ -11,7 +45,7 @@ export default function ChangeLog() {
       <h5>Version 2.1.0</h5>
       <ul>
         <li>
-          Added a "Create from Analytical Report" option for initialization
+          Added a 'Create from Analytical Report' option for initialization
         </li>
       </ul>
       <h5>Version 2.0.1</h5>
@@ -91,7 +125,7 @@ export default function ChangeLog() {
           pages.
         </li>
         <li>Added auto-update feature</li>
-        <li>Added "What's New?" section</li>
+        <li>Added 'What's New?' section</li>
       </ul>
     </div>
   );

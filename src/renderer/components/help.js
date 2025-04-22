@@ -4,13 +4,16 @@ import { Tabs, Tab } from 'react-bootstrap';
 export default function Help() {
   return (
     <div>
+      <div className="alert alert-warning">
+        <strong>Notice:</strong> This help documentation is currently out of date and will be updated to reflect recent changes. Please refer to the changelog for the latest features and modifications.
+      </div>
       <h6>
         PDFBuilder is used to create templates for reports. This is done using
-        three building blocks: Docx Templates, PDF Types, and Sections. Please
+        three building blocks: Docx Templates, File Types, and Sections. Please
         read more on each below.
       </h6>
       <Tabs defaultActiveKey="pdftype" id="help-tabs" className="mb-3">
-        <Tab eventKey="pdftype" title="PDF Type">
+        <Tab eventKey="pdftype" title="File Type">
           <PdfTypeHelp />
         </Tab>
         <Tab eventKey="section" title="Section">
@@ -87,10 +90,10 @@ function PdfTypeHelp() {
   return (
     <div className="help-content">
       <h4>
-        <b>PDF Type</b>
+        <b>File Type</b>
       </h4>
       <p>
-        A PDF Type defines a group of files based on their filenames. It can
+        A File Type defines a group of files based on their filenames. It can
         match several files.
       </p>
       <p>How to use:</p>
@@ -130,14 +133,14 @@ function PdfTypeHelp() {
           </ul>
         </li>
         <li>
-          When a PDF Type matches at least one file, it turns green and shows
+          When a File Type matches at least one file, it turns green and shows
           the matching files below, sorted alphabetically. If it matches no
           files, it turns red and is ignored when building.
         </li>
       </ul>
       <h5>Bookmark Rules</h5>
       <p>
-        Within a PDF Type, you can set page-level bookmark rules. These rules
+        Within a File Type, you can set page-level bookmark rules. These rules
         check the text on each page to decide whether to add a bookmark. You
         specify rules using the same logic as above (e.g.,{' '}
         <code>"report" and not "form"</code>) and provide a bookmark title for
@@ -164,17 +167,17 @@ function PdfTypeHelp() {
       <h5>Bookmark as File Name</h5>
       <p>
         Clicking "Bookmark Files with Filenames" creates a bookmark for each
-        file in the PDF Type, using the filenames (with simple formatting like
+        file in the File Type, using the filenames (with simple formatting like
         replacing underscores with spaces).
       </p>
       <p>
         <b>Important:</b> This is the same as editing the PDF's bookmark by
-        double-clicking it in the PDF Type. If you change the PDF Type, these
+        double-clicking it in the File Type. If you change the File Type, these
         bookmarks will be lost.
       </p>
       <h5>Reorder Pages</h5>
       <p>
-        This option rearranges pages within each PDF in the PDF Type. It will
+        This option rearranges pages within each PDF in the File Type. It will
         sort alphabetically based on "Lab Sample ID: ____", breaking ties with
         "Data Set ID: ____". When enabled, pages from different files can become
         interleaved.
