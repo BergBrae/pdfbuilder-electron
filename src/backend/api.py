@@ -577,6 +577,10 @@ class CreateDirectoryRequest(BaseModel):
     cover_pages_template_path: str = None  # Optional path to cover pages template
     case_narrative_template_path: str = None  # Optional path to case narrative template
     process_docx_templates: bool = False  # Optional flag to process DOCX templates
+    add_coa_folder: bool = False  # Optional flag to add COA folder
+    add_benchsheets_folder: bool = (
+        False  # Optional flag to add Designated Benchsheets folder
+    )
 
 
 @app.post("/create_directory_structure")
@@ -594,6 +598,8 @@ def create_directory_structure(request: CreateDirectoryRequest):
             - cover_pages_template_path: Optional path to cover pages template
             - case_narrative_template_path: Optional path to case narrative template
             - process_docx_templates: Optional flag to process DOCX templates
+            - add_coa_folder: Optional flag to add COA folder
+            - add_benchsheets_folder: Optional flag to add Designated Benchsheets folder
 
     Returns:
         Dictionary with success status and created directories
@@ -658,6 +664,20 @@ def create_directory_structure(request: CreateDirectoryRequest):
         print(f"Creating root directory: {root_dir}")
         os.makedirs(root_dir, exist_ok=True)
         created_dirs.append(root_dir)
+
+        # Create COA folder if requested
+        if request.add_coa_folder:
+            coa_dir = os.path.join(root_dir, "COA")
+            os.makedirs(coa_dir, exist_ok=True)
+            created_dirs.append(coa_dir)
+            print(f"Created COA directory: {coa_dir}")
+
+        # Create Designated Benchsheets folder if requested
+        if request.add_benchsheets_folder:
+            benchsheets_dir = os.path.join(root_dir, "Designated Benchsheets")
+            os.makedirs(benchsheets_dir, exist_ok=True)
+            created_dirs.append(benchsheets_dir)
+            print(f"Created Designated Benchsheets directory: {benchsheets_dir}")
 
         # Check if the base_path is already an absolute path
         if os.path.isabs(request.base_path):

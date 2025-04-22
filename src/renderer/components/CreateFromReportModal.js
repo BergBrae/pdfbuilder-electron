@@ -61,6 +61,10 @@ const CreateFromReportModal = ({ show, onHide }) => {
   // Current step in the wizard
   const [currentStep, setCurrentStep] = useState(1);
 
+  // Add state for new checkboxes
+  const [addCOAFolder, setAddCOAFolder] = useState(true);
+  const [addBenchsheetsFolder, setAddBenchsheetsFolder] = useState(true);
+
   // Report context
   const { dispatch } = useReport();
 
@@ -108,6 +112,8 @@ const CreateFromReportModal = ({ show, onHide }) => {
     setSuccess(null);
     setEditMode(false);
     setCurrentStep(1);
+    setAddCOAFolder(true);
+    setAddBenchsheetsFolder(true);
   };
 
   const handleSelectAnalyticalReport = async () => {
@@ -432,6 +438,8 @@ const CreateFromReportModal = ({ show, onHide }) => {
         cover_page_template_path: coverPageTemplatePath,
         cover_pages_template_path: coverPagesTemplatePath,
         case_narrative_template_path: caseNarrativeTemplatePath,
+        add_coa_folder: addCOAFolder,
+        add_benchsheets_folder: addBenchsheetsFolder,
       });
 
       const response = await fetch(
@@ -450,6 +458,8 @@ const CreateFromReportModal = ({ show, onHide }) => {
             cover_pages_template_path: coverPagesTemplatePath,
             case_narrative_template_path: caseNarrativeTemplatePath,
             process_docx_templates: true, // Flag to process DOCX templates
+            add_coa_folder: addCOAFolder,
+            add_benchsheets_folder: addBenchsheetsFolder,
           }),
         },
       );
@@ -910,6 +920,26 @@ const CreateFromReportModal = ({ show, onHide }) => {
               Browse
             </Button>
           </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            id="add-coa-folder"
+            label="Add COA Folder"
+            checked={addCOAFolder}
+            onChange={(e) => setAddCOAFolder(e.target.checked)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            id="add-benchsheets-folder"
+            label="Add Designated Benchsheets Folder"
+            checked={addBenchsheetsFolder}
+            onChange={(e) => setAddBenchsheetsFolder(e.target.checked)}
+          />
         </Form.Group>
 
         {error && <Alert variant="danger">{error}</Alert>}
