@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import BookmarkIcon from './BookmarkIcon';
 import BookmarkRules from './BookmarkRules';
 import { FaFilePdf, FaFileWord } from 'react-icons/fa';
-import { Form, Container, Button, Row, Table } from 'react-bootstrap';
+import { Form, Container, Button, Row, Col, Table } from 'react-bootstrap';
 import CustomAccordion from './CustomAccordion';
 import FileData from './FileData';
 import { handleAPIUpdate } from './utils';
@@ -26,6 +26,22 @@ function FileType({ fileType: file, parentDirectory }) {
   const { incrementLoading, decrementLoading } = useLoading();
   const [directorySource, setDirectorySource] = useState(file.directory_source);
   const [filenameText, setFilenameText] = useState(file.filename_text_to_match);
+
+  // DocxTemplate-like fields
+  const [isTableOfContents, setIsTableOfContents] = useState(
+    file.is_table_of_contents || false
+  );
+  const [pageNumberOffset, setPageNumberOffset] = useState(
+    file.page_number_offset || 0
+  );
+  const [pageStartCol, setPageStartCol] = useState(
+    file.page_start_col || 3
+  );
+  const [pageEndCol, setPageEndCol] = useState(
+    file.page_end_col || null
+  );
+
+  // Original FileType fields
   const [reorderPagesMetals, setReorderPagesMetals] = useState(
     file.reorder_pages_metals,
   );
@@ -41,6 +57,11 @@ function FileType({ fileType: file, parentDirectory }) {
   // Helper function to determine if a file is a DOCX
   const isDocxFile = (filePath) => {
     return filePath.toLowerCase().endsWith('.docx');
+  };
+
+  // Helper to check if this is a former DocxTemplate
+  const isFormerDocxTemplate = () => {
+    return file.docx_path !== undefined || getDocxCount() > 0;
   };
 
   // Count different file types
@@ -237,6 +258,47 @@ function FileType({ fileType: file, parentDirectory }) {
     });
   };
 
+  // DocxTemplate-like handlers
+  const handleTableOfContentsToggle = () => {
+    const newIsTableOfContents = !isTableOfContents;
+    setIsTableOfContents(newIsTableOfContents);
+
+    updateFileInState({
+      ...file,
+      is_table_of_contents: newIsTableOfContents,
+    });
+  };
+
+  const handlePageNumberOffsetChange = (e) => {
+    const newOffset = e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
+    setPageNumberOffset(newOffset);
+
+    updateFileInState({
+      ...file,
+      page_number_offset: newOffset,
+    });
+  };
+
+  const handlePageStartColChange = (e) => {
+    const newStartCol = parseInt(e.target.value, 10) || 0;
+    setPageStartCol(newStartCol);
+
+    updateFileInState({
+      ...file,
+      page_start_col: newStartCol,
+    });
+  };
+
+  const handlePageEndColChange = (e) => {
+    const newEndCol = e.target.value === '' ? null : parseInt(e.target.value, 10) || 0;
+    setPageEndCol(newEndCol);
+
+    updateFileInState({
+      ...file,
+      page_end_col: newEndCol,
+    });
+  };
+
   const updateFile = async (updatedFile) => {
     return handleAPIUpdate(
       `http://localhost:8000/filetype?parent_directory_source=${parentDirectory}`,
@@ -258,6 +320,7 @@ function FileType({ fileType: file, parentDirectory }) {
                 isBookmarked={!!file.bookmark_name}
                 bookmarkName={file.bookmark_name}
                 onBookmarkChange={handleBookmarkChange}
+                includeIcon={false}
               />
             </div>
             <div className="d-flex align-items-center">
@@ -280,92 +343,163 @@ function FileType({ fileType: file, parentDirectory }) {
               </Button>
             </div>
           </div>
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mb-2">
             {FileIcon}
-            <div
-              className="d-flex flex-wrap align-items-center ms-3"
-              style={{ gap: '0.5rem' }}
-            >
-              Documents in
               <Form.Control
-                size="sm"
-                style={{ width: '150px' }}
+              className="ms-3"
+              type="text"
                 value={directorySource}
                 onChange={handleDirectoryChange}
+              placeholder="Enter directory path"
                 onClick={(e) => e.stopPropagation()}
               />
-              containing
+          </div>
+          <div className="d-flex align-items-center">
               <Form.Control
-                size="sm"
-                style={{ width: '250px' }}
+              type="text"
                 value={filenameText}
                 onChange={handleFilenameChange}
+              placeholder="Enter filename filter (e.g., *.pdf)"
                 onClick={(e) => e.stopPropagation()}
               />
-              in the filename.
-            </div>
           </div>
         </div>
       }
     >
       <Container>
-        <div className="d-flex align-items-start mb-3">
-          <div>
-            <div className="mb-3">
-              <BookmarkRules fileType={file} onChange={updateFileInState} />
-            </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleBookmarkFilesWithFilename}
-              disabled={reorderPagesMetals || reorderPagesDatetime}
-            >
-              Bookmark Files with Filenames
-            </Button>
-          </div>
-
-          <Form className="ms-3">
+        {isFormerDocxTemplate() && (
+          <>
             <Form.Check
               type="switch"
-              id="reorder-pages-metals-switch"
-              label="Reorder Pages by Metal Content"
+              id="table-of-contents-switch"
+              label="Has Table of Contents"
+              checked={isTableOfContents}
+              onChange={handleTableOfContentsToggle}
+              className="mb-3"
+            />
+
+            {isTableOfContents && (
+              <>
+                <Form.Group as={Row} className="mb-3">
+                  <Form.Label column sm="4">
+                    Page Start Column:
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control
+                      type="number"
+                      style={{ maxWidth: '300px' }}
+                      value={pageStartCol || ''}
+                      onChange={handlePageStartColChange}
+                      placeholder="Enter start column"
+                    />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className="mb-3">
+                  <Form.Label column sm="4">
+                    Page End Column:
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control
+                      type="number"
+                      style={{ maxWidth: '300px' }}
+                      value={pageEndCol || ''}
+                      onChange={handlePageEndColChange}
+                      placeholder="Enter end column (or leave blank)"
+                    />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className="mb-3">
+                  <Form.Label column sm="4">
+                    Page Number Offset:
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control
+                      type="number"
+                      style={{ maxWidth: '300px' }}
+                      value={pageNumberOffset || ''}
+                      onChange={handlePageNumberOffsetChange}
+                      placeholder="Enter page number offset"
+                    />
+                  </Col>
+                </Form.Group>
+              </>
+            )}
+          </>
+        )}
+
+        <Form.Check
+          type="switch"
+          id="reorder-metals-switch"
+          label="Reorder Pages by Metals"
               checked={reorderPagesMetals}
               onChange={handleReorderPagesMetalsChange}
-              className="mb-2"
+          className="mb-3"
+          disabled={reorderPagesDatetime}
             />
+
             <Form.Check
               type="switch"
-              id="reorder-pages-datetime-switch"
+          id="reorder-datetime-switch"
               label="Reorder Pages by Date/Time"
               checked={reorderPagesDatetime}
               onChange={handleReorderPagesDatetimeChange}
-              className="mb-2"
+          className="mb-3"
+          disabled={reorderPagesMetals}
             />
+
             <Form.Check
               type="switch"
-              id="keep-existing-bookmarks-switch"
+          id="keep-bookmarks-switch"
               label="Keep Existing Bookmarks"
               checked={keepExistingBookmarks}
               onChange={handleKeepExistingBookmarksChange}
-              className="mb-2"
+          className="mb-3"
               disabled={reorderPagesMetals || reorderPagesDatetime}
             />
-          </Form>
-        </div>
+
+        <BookmarkRules
+          fileType={file}
+          onUpdate={(updatedRules) =>
+            updateFileInState({ ...file, bookmark_rules: updatedRules })
+          }
+        />
 
         {file.files.length > 0 && (
-          <div className="mt-3">
-            <h6>Found Files:</h6>
-            <div className="file-data-container">
+          <div className="mt-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5>Files</h5>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={handleBookmarkFilesWithFilename}
+              >
+                Bookmark All with Filename
+              </Button>
+            </div>
+
+            <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Filename</th>
+                    <th>Pages</th>
+                    <th>Bookmark</th>
+                  </tr>
+                </thead>
+                <tbody>
               {file.files.map((fileData, index) => (
                 <FileData
-                  key={fileData.id || index}
+                      key={fileData.id}
                   fileData={fileData}
-                  onFileDataChange={handleFileDataChange}
-                  showBookmark={true}
-                  isDocx={isDocxFile(fileData.file_path)}
+                      index={index}
+                      onChange={handleFileDataChange}
                 />
               ))}
+                </tbody>
+              </Table>
             </div>
           </div>
         )}

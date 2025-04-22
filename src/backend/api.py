@@ -14,7 +14,7 @@ from initialization.extract_RPT import extract_rpt_data
 from pydantic import BaseModel
 import shutil
 
-from schema import DocxTemplate, FileType, FileData, Section
+from schema import FileType, FileData, Section
 from validate import validate_report
 from fastapi import HTTPException
 
@@ -50,37 +50,99 @@ async def root():
 
 
 @app.post("/docxtemplate")
-def validate_docx_template(
-    doc: DocxTemplate, parent_directory_source: str
-) -> DocxTemplate:
-    docx_path = os.path.join(parent_directory_source, doc.docx_path)
+def validate_docx_template(doc: dict, parent_directory_source: str) -> dict:
+    """
+    For backwards compatibility, handle DocxTemplate requests but convert to FileType.
+    """
+    docx_path = os.path.join(parent_directory_source, doc["docx_path"])
     docx_path = os.path.normpath(docx_path)
-    doc.variables_in_doc = []
 
-    # check if it is a directory
+    # Convert to FileType
+    file_type = {
+        "type": "FileType",
+        "id": doc["id"],
+        "bookmark_name": doc.get("bookmark_name"),
+        "directory_source": os.path.dirname(doc["docx_path"]),
+        "filename_text_to_match": os.path.basename(doc["docx_path"]),
+        "will_have_page_numbers": doc.get("will_have_page_numbers", True),
+        "files": [],
+        "variables_in_doc": [],
+        "is_table_of_contents": doc.get("is_table_of_contents", False),
+        "page_number_offset": doc.get("page_number_offset", 0),
+        "page_start_col": doc.get("page_start_col", 3),
+        "page_end_col": doc.get("page_end_col"),
+        "docx_path": doc["docx_path"],  # Keep original path for compatibility
+        "needs_update": False,
+    }
+
+    # Check if it is a directory
     if os.path.isdir(docx_path):
-        doc.exists = False
-        doc.variables_in_doc = []
-        return doc
+        file_type["exists"] = False
+        file_type["variables_in_doc"] = []
+        return file_type
 
-    doc.exists = os.path.exists(docx_path)
-    if doc.exists:
+    file_type["exists"] = os.path.exists(docx_path)
+    if file_type["exists"]:
         if docx_path.lower().endswith(".doc"):
-            doc.variables_in_doc = [
+            file_type["variables_in_doc"] = [
                 "Please convert this file to .docx format from within Word."
             ]
-            return doc
-        doc.variables_in_doc = get_variables_in_docx(docx_path)
+            return file_type
+        file_type["variables_in_doc"] = get_variables_in_docx(docx_path)
+
+        # Add file to files list
+        file_type["files"] = [
+            {
+                "type": "FileData",
+                "id": createUUID(),
+                "file_path": docx_path,
+                "num_pages": -1,  # Unknown until converted
+                "bookmark_name": file_type["bookmark_name"],
+            }
+        ]
     else:
-        doc.variables_in_doc = []
+        file_type["variables_in_doc"] = []
 
-    doc.needs_update = False
-
-    return doc
+    return file_type
 
 
 @app.post("/filetype")
 def validate_file_type(file: FileType, parent_directory_source: str) -> FileType:
+    # Handle DocxTemplate compatibility
+    if hasattr(file, "docx_path") and file.docx_path:
+        docx_path = os.path.join(parent_directory_source, file.docx_path)
+        docx_path = os.path.normpath(docx_path)
+
+        # For DocxTemplate-like FileType
+        file.exists = os.path.exists(docx_path)
+        file.files = []
+
+        if file.exists:
+            if docx_path.lower().endswith(".doc"):
+                file.variables_in_doc = [
+                    "Please convert this file to .docx format from within Word."
+                ]
+                return file
+            file.variables_in_doc = get_variables_in_docx(docx_path)
+
+            # Add file to files list
+            file.files.append(
+                FileData(
+                    id=createUUID(),
+                    file_path=docx_path,
+                    num_pages=-1,
+                    bookmark_name=file.bookmark_name,
+                )
+            )
+        else:
+            file.variables_in_doc = []
+
+        # Page numbers aren't currently relevant
+        file.will_have_page_numbers = False
+        file.needs_update = False
+        return file
+
+    # Normal FileType processing
     if not file.filename_text_to_match:
         file.files = []
         return file
@@ -127,6 +189,8 @@ def validate_file_type(file: FileType, parent_directory_source: str) -> FileType
             print(f"Error: {e}")
             file_data.num_pages = -1
 
+    # Page numbers aren't currently relevant
+    file.will_have_page_numbers = False
     file.needs_update = False
 
     return file
@@ -146,10 +210,68 @@ def load_file(path) -> Section:
             status_code=500, detail=f"An unexpected error occurred: {e}"
         )
 
+    # Convert DocxTemplate to FileType for backwards compatibility
+    data = convert_docx_templates_to_file_types(data)
+
     try:
         return Section(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error constructing report: {e}")
+
+
+def convert_docx_templates_to_file_types(data):
+    """Recursively convert DocxTemplate objects to FileType objects."""
+    if not isinstance(data, dict):
+        return data
+
+    if data.get("type") == "DocxTemplate":
+        # Convert DocxTemplate to FileType
+        file_type = {
+            "type": "FileType",
+            "id": data["id"],
+            "bookmark_name": data.get("bookmark_name"),
+            "directory_source": os.path.dirname(data["docx_path"]) or "./",
+            "filename_text_to_match": os.path.basename(data["docx_path"]),
+            "will_have_page_numbers": data.get("will_have_page_numbers", True),
+            "files": [],
+            "variables_in_doc": data.get("variables_in_doc", []),
+            "is_table_of_contents": data.get("is_table_of_contents", False),
+            "page_number_offset": data.get("page_number_offset", 0),
+            "page_start_col": data.get("page_start_col", 3),
+            "page_end_col": data.get("page_end_col"),
+            "docx_path": data["docx_path"],  # Keep original path for compatibility
+            "exists": data.get("exists", False),
+            "needs_update": data.get("needs_update", False),
+            "bookmark_rules": [],
+        }
+
+        return file_type
+
+    # Process all values in the dict
+    for key in list(data.keys()):
+        if key == "children" and isinstance(data[key], list):
+            # Process children array
+            data[key] = [
+                convert_docx_templates_to_file_types(child) for child in data[key]
+            ]
+        elif isinstance(data[key], dict):
+            data[key] = convert_docx_templates_to_file_types(data[key])
+        elif isinstance(data[key], list):
+            # Process any list of dictionaries
+            data[key] = [
+                (
+                    convert_docx_templates_to_file_types(item)
+                    if isinstance(item, dict)
+                    else item
+                )
+                for item in data[key]
+            ]
+
+    # For backward compatibility, ensure Section has empty variables array instead of removing it
+    if data.get("type") == "Section" and "variables" not in data:
+        data["variables"] = []
+
+    return data
 
 
 @app.post("/savefile")
@@ -163,12 +285,221 @@ def build_pdf(data: dict, output_path: str):
     if platform.system() == "Windows":
         pythoncom.CoInitialize()  # Initialize COM library only on Windows
     try:
+        # Convert any remaining DocxTemplate to FileType
+        data = convert_docx_templates_to_file_types(data)
+
+        # Convert DOCX files to PDF in all FileType objects
+        temp_pdf_files = []  # Track temporary files for cleanup
+
+        def process_docx_files(node, parent_directory="", parent_section=None):
+            if isinstance(node, dict):
+                if node.get("type") == "FileType":
+                    # Get directory for this FileType
+                    if parent_directory:
+                        directory_source = os.path.join(
+                            parent_directory, node.get("directory_source", "")
+                        )
+                    else:
+                        directory_source = node.get("directory_source", "")
+
+                    directory_source = os.path.normpath(directory_source)
+
+                    # Prepare variable replacements
+                    replacements = {}
+
+                    # Get replacements from variable_replacements if available
+                    if node.get("variable_replacements"):
+                        replacements.update(node.get("variable_replacements"))
+
+                    # Get replacements from parent section's variables if available
+                    if parent_section and parent_section.get("variables"):
+                        for var in parent_section.get("variables"):
+                            if var.get("template_text") and var.get("constant_value"):
+                                replacements[var.get("template_text")] = var.get(
+                                    "constant_value"
+                                )
+
+                    # Check if this is a DocxTemplate-converted FileType
+                    if "docx_path" in node:
+                        docx_path = node["docx_path"]
+                        if parent_directory:
+                            docx_path = os.path.join(parent_directory, docx_path)
+                        docx_path = os.path.normpath(docx_path)
+
+                        if os.path.exists(docx_path) and docx_path.lower().endswith(
+                            ".docx"
+                        ):
+                            try:
+                                print(f"Converting docx_path to PDF: {docx_path}")
+                                print(f"Using replacements: {replacements}")
+
+                                # Use the existing conversion function
+                                pdf_reader, num_pages, pdf_path, modified_docx = (
+                                    convert_docx_template_to_pdf(
+                                        docx_path=docx_path,
+                                        replacements=replacements,
+                                        is_table_of_contents=node.get(
+                                            "is_table_of_contents", False
+                                        ),
+                                        page_start_col=node.get("page_start_col"),
+                                        page_end_col=node.get("page_end_col"),
+                                    )
+                                )
+
+                                if pdf_path and os.path.exists(pdf_path):
+                                    # Create a new file entry for the PDF
+                                    pdf_file_data = {
+                                        "type": "FileData",
+                                        "id": createUUID(),
+                                        "file_path": pdf_path,
+                                        "num_pages": num_pages,
+                                        "bookmark_name": node.get("bookmark_name"),
+                                    }
+
+                                    # Add this file to the files list
+                                    if "files" not in node:
+                                        node["files"] = []
+                                    node["files"].append(pdf_file_data)
+                                    temp_pdf_files.append(pdf_path)  # Track for cleanup
+                                    print(
+                                        f"Successfully converted docx_path to: {pdf_path}"
+                                    )
+                            except Exception as e:
+                                print(
+                                    f"Error converting docx_path to PDF: {docx_path} - {str(e)}"
+                                )
+
+                    # Check all files in this FileType
+                    updated_files = []
+                    for file_data in node.get("files", []):
+                        if isinstance(file_data, dict):
+                            file_path = file_data.get("file_path", "")
+                        else:
+                            # Handle case where file_data might be a string
+                            file_path = str(file_data)
+                            file_data = {"file_path": file_path}
+
+                        # If it's a DOCX file, convert it to PDF
+                        if file_path.lower().endswith(".docx"):
+                            try:
+                                print(f"Converting DOCX to PDF: {file_path}")
+                                print(f"Using replacements: {replacements}")
+
+                                # Use the existing conversion function
+                                pdf_reader, num_pages, pdf_path, docx_path = (
+                                    convert_docx_template_to_pdf(
+                                        docx_path=file_path, replacements=replacements
+                                    )
+                                )
+
+                                if pdf_path and os.path.exists(pdf_path):
+                                    # Create a new file entry for the PDF
+                                    pdf_file_data = {
+                                        "type": "FileData",
+                                        "id": createUUID(),
+                                        "file_path": pdf_path,
+                                        "num_pages": num_pages,
+                                        "bookmark_name": file_data.get("bookmark_name"),
+                                    }
+
+                                    # Copy any other important attributes from the original file_data
+                                    for key in file_data:
+                                        if (
+                                            key
+                                            not in [
+                                                "type",
+                                                "id",
+                                                "file_path",
+                                                "num_pages",
+                                            ]
+                                            and key not in pdf_file_data
+                                        ):
+                                            pdf_file_data[key] = file_data[key]
+
+                                    updated_files.append(pdf_file_data)
+                                    temp_pdf_files.append(pdf_path)  # Track for cleanup
+                                    print(f"Successfully converted to: {pdf_path}")
+                                else:
+                                    # Keep the original DOCX if conversion failed
+                                    updated_files.append(file_data)
+                                    print(f"Failed to convert DOCX to PDF: {file_path}")
+                            except Exception as e:
+                                # Keep the original DOCX if conversion failed
+                                updated_files.append(file_data)
+                                print(
+                                    f"Error converting DOCX to PDF: {file_path} - {str(e)}"
+                                )
+                        else:
+                            # Keep non-DOCX files as they are
+                            updated_files.append(file_data)
+
+                    # Update the files list
+                    node["files"] = updated_files
+
+                # Process child nodes
+                if node.get("type") == "Section":
+                    # Get directory for child processing
+                    if parent_directory:
+                        section_directory = os.path.join(
+                            parent_directory, node.get("base_directory", "")
+                        )
+                    else:
+                        section_directory = node.get("base_directory", "")
+
+                    # Process children
+                    for child in node.get("children", []):
+                        process_docx_files(child, section_directory, node)
+
+                # Process other dictionary fields
+                for key, value in node.items():
+                    if key != "children" and isinstance(value, dict):
+                        process_docx_files(value, parent_directory, parent_section)
+                    elif key != "children" and isinstance(value, list):
+                        for item in value:
+                            if isinstance(item, dict):
+                                process_docx_files(
+                                    item, parent_directory, parent_section
+                                )
+
+        # Process the entire report structure
+        process_docx_files(data, data.get("base_directory", ""))
+
+        # Add empty variables array to all Section objects for backward compatibility
+        def add_variables_to_sections(node):
+            if isinstance(node, dict):
+                # If this is a Section, ensure it has a variables field
+                if node.get("type") == "Section" and "variables" not in node:
+                    node["variables"] = []
+
+                # If this is a FileType, set will_have_page_numbers to False
+                if node.get("type") == "FileType":
+                    node["will_have_page_numbers"] = False
+
+                # Process all children recursively
+                for key, value in node.items():
+                    if isinstance(value, dict):
+                        add_variables_to_sections(value)
+                    elif isinstance(value, list):
+                        for item in value:
+                            if isinstance(item, dict):
+                                add_variables_to_sections(item)
+
+        add_variables_to_sections(data)
+
         problem = validate_report(data)
         if isinstance(problem, str):
             raise HTTPException(status_code=400, detail=problem)
 
         builder = PDFBuilder()  # Instantiate the PDFBuilder
         result = builder.generate_pdf(data, output_path)  # Generate the PDF
+
+        # Clean up temporary PDF files
+        for temp_file in temp_pdf_files:
+            try:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+            except Exception as e:
+                print(f"Error removing temporary file {temp_file}: {str(e)}")
 
         return result  # Return the complete result including problematic_files
 
@@ -724,6 +1055,7 @@ def _filter_sections_by_method_codes(section, available_method_codes):
 def _fill_variables(section, data):
     """
     Fill variables in a section with data.
+    Now works with FileType objects that have variables_in_doc field.
 
     Args:
         section: Section data
@@ -751,11 +1083,9 @@ def _fill_variables(section, data):
 
         print(f"Normalized data keys: {list(normalized_data.keys())}")
 
-        # Fill variables at root level
-        variables = section.get("variables", [])
-        if variables and isinstance(variables, list):
-            print(f"Found {len(variables)} variables to process in section")
-            _process_variables(variables, data, normalized_data)
+        # Ensure section has variables array for backward compatibility
+        if "variables" not in section:
+            section["variables"] = []
 
         # Process children recursively
         children = section.get("children", [])
@@ -772,162 +1102,111 @@ def _fill_variables(section, data):
             if child_type == "Section":
                 _fill_variables(child, data)
 
-            # Also process DocxTemplate children directly
-            elif child_type == "DocxTemplate":
-                # Get variables from the parent section that match this template's variables_in_doc
+            # Process FileType with variables_in_doc (former DocxTemplate)
+            elif child_type == "FileType" and child.get("variables_in_doc"):
                 variables_in_doc = child.get("variables_in_doc", [])
                 if not variables_in_doc:
                     continue
 
-                print(f"Processing DocxTemplate with {len(variables_in_doc)} variables")
+                print(f"Processing FileType with {len(variables_in_doc)} variables")
 
-                # Find matching variables in the parent section
-                matching_variables = []
-                for var_text in variables_in_doc:
-                    # Look for existing variable in parent section's variables
-                    found = False
-                    if variables and isinstance(variables, list):
-                        for var in variables:
-                            if var.get("template_text") == var_text:
-                                matching_variables.append(var)
-                                found = True
-                                break
+                # Store the variable mappings directly in the file object
+                # as a map of template_text -> replacement value
+                if not child.get("variable_replacements"):
+                    child["variable_replacements"] = {}
 
-                    # If not found, create a new variable
-                    if not found:
-                        new_var = {
-                            "template_text": var_text,
-                            "is_constant": True,
-                            "constant_value": "",
-                            "id": str(uuid.uuid4()),
-                        }
-                        matching_variables.append(new_var)
+                # Process each variable in variables_in_doc
+                for template_text in variables_in_doc:
+                    variable_value = _find_matching_value(
+                        template_text, data, normalized_data
+                    )
+                    if variable_value is not None:
+                        # Store the replacement value
+                        child["variable_replacements"][template_text] = variable_value
 
-                # Process these variables
-                if matching_variables:
-                    _process_variables(matching_variables, data, normalized_data)
-
-                    # Update the parent section's variables with any new ones
-                    if not variables:
-                        section["variables"] = matching_variables
-                    else:
-                        # Add any new variables that don't exist in the parent
-                        existing_template_texts = {
-                            v.get("template_text")
-                            for v in variables
-                            if v.get("template_text")
-                        }
-                        for var in matching_variables:
-                            if var.get("template_text") not in existing_template_texts:
-                                variables.append(var)
-                                existing_template_texts.add(var.get("template_text"))
+                        # For backward compatibility, add to section's variables array
+                        # Check if this variable already exists
+                        existing_var = next(
+                            (
+                                var
+                                for var in section["variables"]
+                                if var.get("template_text") == template_text
+                            ),
+                            None,
+                        )
+                        if existing_var:
+                            # Update existing variable
+                            existing_var["constant_value"] = variable_value
+                        else:
+                            # Create new TemplateVariable-like object
+                            section["variables"].append(
+                                {
+                                    "template_text": template_text,
+                                    "is_constant": True,
+                                    "constant_value": variable_value,
+                                    "id": str(uuid.uuid4()),
+                                    "type": "TemplateVariable",
+                                }
+                            )
     except Exception as e:
         # Log error but continue processing
         print(f"Error filling variables: {str(e)}")
 
 
-def _process_variables(variables, data, normalized_data):
-    """
-    Process a list of variables and fill them with data.
+def _find_matching_value(template_text, data, normalized_data):
+    """Find a matching value for the template text in the data."""
+    if not template_text:
+        return None
 
-    Args:
-        variables: List of variables to process
-        data: Original data dictionary
-        normalized_data: Normalized data dictionary
-    """
-    for variable in variables:
-        if not variable or not isinstance(variable, dict):
-            continue
+    print(f"Processing variable: {template_text}")
 
-        if variable.get("is_constant"):
-            # Try to find a matching variable in the data by template_text
-            template_text = variable.get("template_text")
-            print(f"Processing variable: {template_text}")
+    # Try direct match first
+    if template_text in data:
+        print(f"  Direct match found for '{template_text}'")
+        return str(data[template_text])
 
-            # Try different variations of the template_text for matching
-            if template_text:
-                # Try direct match first
-                if template_text in data:
-                    print(f"  Direct match found for '{template_text}'")
-                    variable["constant_value"] = str(data[template_text])
-                    continue
+    # Try normalized version (lowercase, spaces replaced with underscores)
+    normalized_template = template_text.lower().replace(" ", "_").replace("/", "_")
+    print(f"  Trying normalized template: '{normalized_template}'")
+    if normalized_template in normalized_data:
+        print(
+            f"  Normalized match found for '{template_text}' as '{normalized_template}'"
+        )
+        return str(normalized_data[normalized_template])
 
-                # Try normalized version (lowercase, spaces replaced with underscores)
-                normalized_template = (
-                    template_text.lower().replace(" ", "_").replace("/", "_")
+    # Handle date format patterns (e.g., "Report Date mm/dd/yyyy" -> "Report Date")
+    # Common patterns in templates include date format indicators
+    for pattern in [" mm/dd/yyyy", " MM/DD/YYYY", " dd/mm/yyyy", " DD/MM/YYYY"]:
+        if pattern in template_text:
+            base_name = template_text.replace(pattern, "")
+            print(f"  Trying date pattern match: '{base_name}'")
+            if base_name in data:
+                print(
+                    f"  Date pattern match found for '{template_text}' as '{base_name}'"
                 )
-                print(f"  Trying normalized template: '{normalized_template}'")
-                if normalized_template in normalized_data:
-                    print(
-                        f"  Normalized match found for '{template_text}' as '{normalized_template}'"
-                    )
-                    variable["constant_value"] = str(
-                        normalized_data[normalized_template]
-                    )
-                    continue
+                return str(data[base_name])
+            # Also try normalized version
+            normalized_base = base_name.lower().replace(" ", "_").replace("/", "_")
+            if normalized_base in normalized_data:
+                print(
+                    f"  Date pattern match found for '{template_text}' as '{normalized_base}'"
+                )
+                return str(normalized_data[normalized_base])
 
-                # Handle date format patterns (e.g., "Report Date mm/dd/yyyy" -> "Report Date")
-                # Common patterns in templates include date format indicators
-                date_pattern_match = None
-                for pattern in [
-                    " mm/dd/yyyy",
-                    " MM/DD/YYYY",
-                    " dd/mm/yyyy",
-                    " DD/MM/YYYY",
-                ]:
-                    if pattern in template_text:
-                        base_name = template_text.replace(pattern, "")
-                        print(f"  Trying date pattern match: '{base_name}'")
-                        if base_name in data:
-                            date_pattern_match = base_name
-                            break
-                        # Also try normalized version
-                        normalized_base = (
-                            base_name.lower().replace(" ", "_").replace("/", "_")
-                        )
-                        if normalized_base in normalized_data:
-                            date_pattern_match = normalized_base
-                            break
+    # Try matching by removing common prefixes/suffixes
+    # For example, "merit_set_id" might match "Merit ID" in the template
+    for data_key in data.keys():
+        # Convert both to lowercase for comparison
+        if data_key.lower().replace(
+            "_", " "
+        ) in template_text.lower() or template_text.lower() in data_key.lower().replace(
+            "_", " "
+        ):
+            print(f"  Partial match found: '{template_text}' ~ '{data_key}'")
+            return str(data[data_key])
 
-                if date_pattern_match:
-                    print(
-                        f"  Date pattern match found for '{template_text}' as '{date_pattern_match}'"
-                    )
-                    if date_pattern_match in data:
-                        variable["constant_value"] = str(data[date_pattern_match])
-                    else:
-                        variable["constant_value"] = str(
-                            normalized_data[date_pattern_match]
-                        )
-                    continue
-
-                # Try matching by removing common prefixes/suffixes
-                # For example, "merit_set_id" might match "Merit ID" in the template
-                for data_key in data.keys():
-                    # Convert both to lowercase for comparison
-                    if data_key.lower().replace(
-                        "_", " "
-                    ) in template_text.lower() or template_text.lower() in data_key.lower().replace(
-                        "_", " "
-                    ):
-                        print(
-                            f"  Partial match found: '{template_text}' ~ '{data_key}'"
-                        )
-                        variable["constant_value"] = str(data[data_key])
-                        break
-
-                if variable.get("constant_value"):
-                    continue
-
-                print(f"  No match found for '{template_text}'")
-
-            # If not found, try with id as fallback
-            var_id = variable.get("id")
-            if var_id and var_id in data:
-                print(f"  Match found by ID: {var_id}")
-                variable["constant_value"] = str(data[var_id])
-            else:
-                print(f"  No match found by ID: {var_id}")
+    print(f"  No match found for '{template_text}'")
+    return None
 
 
 class DocxVariablesRequest(BaseModel):

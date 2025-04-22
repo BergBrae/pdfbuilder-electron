@@ -2,17 +2,12 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { areReportsEqual } from '../components/utils';
 
 // Types
-export interface Variable {
-  name: string;
-  value: string;
-}
-
 export interface Section {
   type: string;
   bookmark_name: string;
   base_directory: string;
-  variables: Variable[];
   children: Section[];
+  method_codes?: string[];
 }
 
 interface ReportState {
@@ -51,8 +46,8 @@ const initialReport: Section = {
   type: 'Section',
   bookmark_name: 'Quality Control Report',
   base_directory: '',
-  variables: [],
   children: [],
+  method_codes: [],
 };
 
 const initialState: ReportState = {

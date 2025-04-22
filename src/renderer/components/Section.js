@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import DocxTemplate from './DocxTemplate';
 import FileType from './FileType';
-import TemplateVariable from './TemplateVariable';
 import BookmarkIcon from './BookmarkIcon';
 import AddComponent from './AddComponent';
 import { Row, Col, Container, Accordion, Button, Badge } from 'react-bootstrap';
@@ -27,11 +25,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
     for (const child of section.children) {
       if (child.type === 'FileType') {
         total += child.files.length;
-      } else if (child.type === 'DocxTemplate') {
-        // Count a found DocxTemplate as one file
-        if (child.exists) {
-          total += 1;
-        }
       } else if (child.type === 'Section') {
         total += calculateTotalFiles(child);
       }
@@ -45,46 +38,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
   useEffect(() => {
     setTotalFiles(calculateTotalFiles(section));
   }, [section.children]);
-
-  const getUpdatedVariables = (section) => {
-    const currentTemplateTexts = section.variables.map(
-      (variable) => variable.template_text,
-    );
-    const updatedVariables = [];
-
-    for (const child of section.children) {
-      if (child.variables_in_doc) {
-        for (const templateText of child.variables_in_doc) {
-          if (
-            !currentTemplateTexts.includes(templateText) &&
-            !updatedVariables
-              .map((variable) => variable.template_text)
-              .includes(templateText)
-          ) {
-            // Then it is a new variable
-            updatedVariables.push({
-              template_text: templateText,
-              is_constant: true,
-              constant_value: '',
-              id: uuidv4(),
-            });
-          } else if (
-            !updatedVariables
-              .map((variable) => variable.template_text)
-              .includes(templateText)
-          ) {
-            // existing variable
-            updatedVariables.push(
-              section.variables.find(
-                (variable) => variable.template_text === templateText,
-              ),
-            );
-          }
-        }
-      }
-    }
-    return updatedVariables;
-  };
 
   const findSectionPath = (
     targetSection,
@@ -113,10 +66,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
     const updatedChildren = section.children.map((child, i) =>
       i === index ? newChild : child,
     );
-    const updatedVariables = getUpdatedVariables({
-      ...section,
-      children: updatedChildren,
-    });
 
     dispatch({
       type: 'UPDATE_SECTION',
@@ -125,25 +74,7 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
         section: {
           ...section,
           children: updatedChildren,
-          variables: updatedVariables,
         },
-      },
-    });
-  };
-
-  const handleVariableChange = (index, newVariable) => {
-    const path = findSectionPath(section);
-    if (!path) return;
-
-    const updatedVariables = section.variables.map((variable, i) =>
-      i === index ? newVariable : variable,
-    );
-
-    dispatch({
-      type: 'UPDATE_SECTION',
-      payload: {
-        path,
-        section: { ...section, variables: updatedVariables },
       },
     });
   };
@@ -202,16 +133,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
     let newChild = null;
 
     switch (type) {
-      case 'DocxTemplate':
-        newChild = {
-          type: 'DocxTemplate',
-          id: uuidv4(),
-          docx_path: '',
-          will_have_page_numbers: false,
-          variables_in_doc: [],
-          bookmark_name: '',
-        };
-        break;
       case 'FileType':
         newChild = {
           type: 'FileType',
@@ -228,7 +149,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
           type: 'Section',
           id: uuidv4(),
           base_directory: './',
-          variables: [],
           children: [],
           method_codes: [],
         };
@@ -261,18 +181,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
       const updatedChildren = section.children.filter(
         (child) => child.id !== id,
       );
-      const updatedVariables = [];
-      for (const child of updatedChildren) {
-        if (child.variables_in_doc) {
-          updatedVariables.push(
-            ...child.variables_in_doc.map((variable) => ({
-              template_text: variable,
-              is_constant: true,
-              constant_value: '',
-            })),
-          );
-        }
-      }
 
       dispatch({
         type: 'UPDATE_SECTION',
@@ -281,7 +189,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
           section: {
             ...section,
             children: updatedChildren,
-            variables: updatedVariables,
           },
         },
       });
@@ -294,25 +201,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
         },
       });
     }
-  };
-
-  const handleVariablesUpdate = (variables) => {
-    const path = findSectionPath(section);
-    if (!path) return;
-
-    const updatedVariables = variables.map((variable) => ({
-      template_text: variable,
-      is_constant: true,
-      constant_value: '',
-    }));
-
-    dispatch({
-      type: 'UPDATE_SECTION',
-      payload: {
-        path,
-        section: { ...section, variables: updatedVariables },
-      },
-    });
   };
 
   const updateChildWithAPI = async (child, directorySource) => {
@@ -358,7 +246,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
             section,
             directorySource,
           );
-          updatedSection.variables = getUpdatedVariables(updatedSection);
           updatedSection.needs_update = false;
 
           dispatch({
@@ -476,24 +363,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
           </div>
         }
       >
-        {section.variables.length > 0 && (
-          <div className="mb-4">
-            <h6 className="mb-3 text-muted">Variables</h6>
-            <Row>
-              {section.variables.map((variable, index) => (
-                <Col xl={3} key={variable.id || index}>
-                  <TemplateVariable
-                    variable={variable}
-                    onChange={(newVariable) =>
-                      handleVariableChange(index, newVariable)
-                    }
-                  />
-                </Col>
-              ))}
-            </Row>
-          </div>
-        )}
-
         <div>
           {section.children.map((child, index) => (
             <React.Fragment key={child.id}>
@@ -503,18 +372,6 @@ function Section({ section, isRoot = false, parentDirectory, filename }) {
               <div className="component-wrapper">
                 {(() => {
                   switch (child.type) {
-                    case 'DocxTemplate':
-                      return (
-                        <DocxTemplate
-                          template={child}
-                          onTemplateChange={(newTemplate) =>
-                            handleChildChange(index, newTemplate)
-                          }
-                          onDelete={() => handleDelete(child.id)}
-                          parentDirectory={directorySource}
-                          onVariablesUpdate={handleVariablesUpdate}
-                        />
-                      );
                     case 'FileType':
                       return (
                         <FileType

@@ -9,7 +9,6 @@ export default function AddComponent({ path, index }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const labelToType = {
-    'Docx Template': 'DocxTemplate',
     'PDF Type': 'FileType',
     Section: 'Section',
   };
@@ -18,21 +17,11 @@ export default function AddComponent({ path, index }) {
     const baseComponent = {
       id: uuidv4(),
       type: type,
-      variables: [],
-      variables_in_doc: [],
       base_directory: '',
       children: [],
     };
 
     switch (type) {
-      case 'DocxTemplate':
-        return {
-          ...baseComponent,
-          docx_path: '',
-          will_have_page_numbers: false,
-          bookmark_name: '',
-          exists: false,
-        };
       case 'FileType':
         return {
           ...baseComponent,
@@ -41,12 +30,13 @@ export default function AddComponent({ path, index }) {
           will_have_page_numbers: true,
           bookmark_name: '',
           files: [],
-          exists: false,
+          variables_in_doc: [],
         };
       case 'Section':
         return {
           ...baseComponent,
           bookmark_name: '',
+          method_codes: [],
         };
       default:
         return baseComponent;
@@ -73,7 +63,7 @@ export default function AddComponent({ path, index }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="add-component-buttons">
-        {['Docx Template', 'PDF Type', 'Section'].map((type) => (
+        {['PDF Type', 'Section'].map((type) => (
           <Button
             key={type}
             className="add-component-btn"
