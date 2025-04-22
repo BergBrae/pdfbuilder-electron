@@ -22,6 +22,7 @@ import {
   IoIosSave,
   IoIosCreate,
   IoIosHelpCircle,
+  IoIosSettings,
 } from 'react-icons/io';
 import { IoHammer, IoAnalytics } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
@@ -32,6 +33,7 @@ import { ReportProvider, useReport } from './contexts/ReportContext';
 import meritLogo from '../../assets/merit-logo.jpeg';
 import path from 'path';
 import CreateFromReportModal from './components/CreateFromReportModal';
+import SettingsModal from './components/SettingsModal';
 
 // Types
 interface ProblemFile {
@@ -74,6 +76,7 @@ function AppContent() {
   const [showJsonModal, setShowJsonModal] = useState(false);
   const [showAnalyticalReportModal, setShowAnalyticalReportModal] =
     useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [buildStatus, setBuildStatus] = useState('');
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<BuildError | null>(null);
@@ -269,6 +272,10 @@ function AppContent() {
     setShowHelpModal(true);
   };
 
+  const handleSettings = () => {
+    setShowSettingsModal(true);
+  };
+
   const closeHelpModal = () => {
     setShowHelpModal(false);
   };
@@ -392,6 +399,12 @@ function AppContent() {
       <CreateFromReportModal
         show={showAnalyticalReportModal}
         onHide={() => setShowAnalyticalReportModal(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        show={showSettingsModal}
+        onHide={() => setShowSettingsModal(false)}
       />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -579,6 +592,9 @@ function AppContent() {
           </Button>
           <Button variant="secondary" onClick={handleHelp}>
             <IoIosHelpCircle /> Help
+          </Button>
+          <Button variant="secondary" onClick={handleSettings}>
+            <IoIosSettings /> Settings
           </Button>
         </div>
         <div className="buttons-container">

@@ -18,19 +18,36 @@ import { setFlags } from './utils';
 const CreateFromReportModal = ({ show, onHide }) => {
   // State for file selection
   const [analyticalReportPath, setAnalyticalReportPath] = useState('');
-  const [templatePath, setTemplatePath] = useState(
-    'G:\\data\\PDFBuilder\\Master Templates\\Master Template.json',
-  );
-  const [coverPageTemplatePath, setCoverPageTemplatePath] = useState(
-    'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx',
-  );
-  const [coverPagesTemplatePath, setCoverPagesTemplatePath] = useState(
-    'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx',
-  );
-  const [caseNarrativeTemplatePath, setCaseNarrativeTemplatePath] = useState(
-    'G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx',
-  );
+  const [templatePath, setTemplatePath] = useState('');
+  const [coverPageTemplatePath, setCoverPageTemplatePath] = useState('');
+  const [coverPagesTemplatePath, setCoverPagesTemplatePath] = useState('');
+  const [caseNarrativeTemplatePath, setCaseNarrativeTemplatePath] =
+    useState('');
   const [outputDirectory, setOutputDirectory] = useState('');
+
+  // Load default paths from localStorage on initial render
+  useEffect(() => {
+    if (show) {
+      // Set defaults from localStorage or use hardcoded values as fallback
+      const defaultTemplatePath =
+        localStorage.getItem('defaultTemplatePath') ||
+        'G:\\data\\PDFBuilder\\Master Templates\\Master Template.json';
+      const defaultCoverPagePath =
+        localStorage.getItem('defaultCoverPageTemplatePath') ||
+        'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx';
+      const defaultCoverPagesPath =
+        localStorage.getItem('defaultCoverPagesTemplatePath') ||
+        'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx';
+      const defaultCaseNarrativePath =
+        localStorage.getItem('defaultCaseNarrativeTemplatePath') ||
+        'G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx';
+
+      setTemplatePath(defaultTemplatePath);
+      setCoverPageTemplatePath(defaultCoverPagePath);
+      setCoverPagesTemplatePath(defaultCoverPagesPath);
+      setCaseNarrativeTemplatePath(defaultCaseNarrativePath);
+    }
+  }, [show]);
 
   // State for backend processing
   const [extractedData, setExtractedData] = useState(null);
@@ -62,18 +79,26 @@ const CreateFromReportModal = ({ show, onHide }) => {
 
   const resetForm = () => {
     setAnalyticalReportPath('');
-    setTemplatePath(
-      'G:\\data\\PDFBuilder\\Master Templates\\Master Template.json',
-    );
-    setCoverPageTemplatePath(
-      'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx',
-    );
-    setCoverPagesTemplatePath(
-      'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx',
-    );
-    setCaseNarrativeTemplatePath(
-      'G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx',
-    );
+
+    // Get default values from localStorage or use fallbacks
+    const defaultTemplatePath =
+      localStorage.getItem('defaultTemplatePath') ||
+      'G:\\data\\PDFBuilder\\Master Templates\\Master Template.json';
+    const defaultCoverPagePath =
+      localStorage.getItem('defaultCoverPageTemplatePath') ||
+      'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Page Template.docx';
+    const defaultCoverPagesPath =
+      localStorage.getItem('defaultCoverPagesTemplatePath') ||
+      'G:\\data\\PDFBuilder\\Master Templates\\Master Cover Pages Template.docx';
+    const defaultCaseNarrativePath =
+      localStorage.getItem('defaultCaseNarrativeTemplatePath') ||
+      'G:\\data\\PDFBuilder\\Master Templates\\Master Case Narrative Template.docx';
+
+    setTemplatePath(defaultTemplatePath);
+    setCoverPageTemplatePath(defaultCoverPagePath);
+    setCoverPagesTemplatePath(defaultCoverPagesPath);
+    setCaseNarrativeTemplatePath(defaultCaseNarrativePath);
+
     setOutputDirectory('');
     setExtractedData(null);
     setEditedData(null);
