@@ -214,6 +214,7 @@ export default function Outline({ report, moveItem }) {
           <Modal.Title>Outline</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p className="text-muted small">Drag to reorder</p>
           <DndProvider backend={HTML5Backend}>
             <div
               className={`outline-item ${outlineData.exists ? 'green' : 'red'}`}

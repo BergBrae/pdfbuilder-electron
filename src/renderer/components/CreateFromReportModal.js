@@ -864,7 +864,7 @@ const CreateFromReportModal = ({ show, onHide }) => {
         <Button
           variant="primary"
           onClick={handleFilterTemplate}
-          disabled={!templatePath || isLoading || editMode}
+          disabled={!templatePath || isLoading}
         >
           {isLoading ? (
             <>
