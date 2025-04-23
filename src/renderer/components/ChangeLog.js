@@ -24,7 +24,7 @@ export default function ChangeLog() {
           Laboratories Bottle Preservation Check'
         </li>
         <li>
-          Merit ID bookmark rule now considers 'Data File 7168102' as
+          Merit ID bookmark rule now considers text like 'Data File 7168102' as
           'S71681.02'
         </li>
         <li>

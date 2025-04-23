@@ -21,6 +21,7 @@ class PDFBuilder:
             0  # used for table of contents. Adds a specified number to each page number
         )
         self.problematic_files: List[Dict[str, Any]] = []  # Track problematic files
+        self.temporary_pdfs_created: List[str] = [] # Track temporary PDFs created by the builder
 
     def generate_pdf(self, report: Dict[str, Any], output_path: str) -> Dict[str, Any]:
         """
@@ -50,6 +51,7 @@ class PDFBuilder:
             "success": True,
             "output_path": output_path,
             "problematic_files": self.problematic_files,
+            "temporary_pdfs": self.temporary_pdfs_created, # Return the list of temp PDFs
         }
 
     def _generate_pdf_pass_one(self, report: Dict[str, Any]) -> None:
@@ -123,11 +125,12 @@ class PDFBuilder:
             docx_path = os.path.normpath(
                 os.path.join(base_directory, child["docx_path"])
             )
-            _, num_pages, _ = convert_docx_template_to_pdf(
+            _, num_pages, _, _ = convert_docx_template_to_pdf(
                 docx_path,
                 is_table_of_contents=child.get("is_table_of_contents", False),
                 page_start_col=child.get("page_start_col"),
                 page_end_col=child.get("page_end_col"),
+                bookmark_data=self.bookmark_data,
             )
             self.page_number_offset = child.get("page_number_offset", 0)
             docx_data = {
@@ -326,9 +329,13 @@ class PDFBuilder:
         # Check if it's a DOCX file and convert to PDF first
         if file_path.lower().endswith(".docx"):
             try:
-                pdf, num_pages, _ = convert_docx_template_to_pdf(
+                pdf, num_pages, _, modified_docx = convert_docx_template_to_pdf(
                     docx_path=file_path,
-                    replacements={},  # No replacements for regular DOCX files
+                    replacements=self._map_template_variables(
+                        file.get("variables", [])
+                    ),
+                    is_table_of_contents=file.get("is_table_of_contents", False),
+                    bookmark_data=self.bookmark_data,
                 )
             except Exception as e:
                 print(f"Error converting DOCX to PDF: {str(e)}")
@@ -503,7 +510,7 @@ class PDFBuilder:
         writer = PdfWriter()
         for data in self.writer_data:
             if data["type"] == "docxTemplate":
-                pdf, num_pages, modified_docx = convert_docx_template_to_pdf(
+                pdf, num_pages, created_pdf_path, modified_docx = convert_docx_template_to_pdf(
                     data["path"],
                     replacements=data["replacements"],
                     page_start_col=data.get("page_start_col"),
@@ -515,21 +522,51 @@ class PDFBuilder:
                 if data.get("is_table_of_contents"):
                     self._shift_bookmarks(num_pages - data["num_pages"])
 
-                    pdf, num_pages, modified_docx = convert_docx_template_to_pdf(
+                    pdf, num_pages, toc_pdf_path, _ = convert_docx_template_to_pdf(
                         data["path"],
-                        replacements=data["replacements"],
-                        page_start_col=data.get("page_start_col"),
-                        page_end_col=data.get("page_end_col"),
-                        is_table_of_contents=data.get("is_table_of_contents", False),
+                        is_table_of_contents=True,
                         bookmark_data=self.bookmark_data,
-                        page_number_offset=self.page_number_offset,
                     )
+                    if toc_pdf_path and os.path.exists(toc_pdf_path):
+                        self.temporary_pdfs_created.append(toc_pdf_path)
 
                     self.table_of_contents_docx = modified_docx
+                elif created_pdf_path and os.path.exists(created_pdf_path): # Check if a PDF was created
+                    self.temporary_pdfs_created.append(created_pdf_path) # Track it
 
-                writer.append(pdf, import_outline=False)
+                if pdf: # Ensure pdf reader is valid before appending
+                    writer.append(pdf, import_outline=False)
+                else:
+                    print(f"Warning: Skipping append for {data['path']} due to conversion issue.")
+                    self.problematic_files.append({
+                        "path": data['path'],
+                        "error": "Failed to convert DOCX template during composition phase."
+                    })
+
             if data["type"] == "FileData":
-                writer.append(data["pdf"], import_outline=False)
+                # Check if the file path points to a DOCX file that might have been converted earlier
+                # (The conversion in _process_file might create a PDF)
+                file_path = data["path"]
+                if file_path.lower().endswith(".docx"):
+                    potential_pdf_path = os.path.splitext(file_path)[0] + ".pdf"
+                    if potential_pdf_path not in self.temporary_pdfs_created and os.path.exists(potential_pdf_path):
+                        # This PDF was likely created during _process_file
+                        # We should ensure it gets cleaned up if it wasn't added elsewhere
+                        # Let's add it to the main list in api.py via problematic_files for now
+                        # A cleaner way might involve passing the initial temp list here
+                        # but this avoids changing the method signature significantly.
+                        print(f"Tracking potential temporary PDF for cleanup: {potential_pdf_path}")
+                        self.temporary_pdfs_created.append(potential_pdf_path)
+
+                if data["pdf"]: # Ensure pdf reader exists
+                    writer.append(data["pdf"], import_outline=False)
+                else:
+                    print(f"Warning: Skipping append for {data['path']} as PDF reader is missing.")
+                    if not any(p['path'] == data['path'] for p in self.problematic_files):
+                         self.problematic_files.append({
+                            "path": data['path'],
+                            "error": "PDF object missing for file during composition phase."
+                         })
 
         return writer
 

@@ -13,6 +13,7 @@ import platform
 from initialization.extract_RPT import extract_rpt_data
 from pydantic import BaseModel
 import shutil
+import traceback
 
 from schema import FileType, FileData, Section
 from validate import validate_report
@@ -382,6 +383,12 @@ def build_pdf(data: dict, output_path: str):
                                 print(
                                     f"Error converting docx_path to PDF: {docx_path} - {str(e)}"
                                 )
+                                traceback.print_exc()
+                            except Exception as e:
+                                print(
+                                    f"Error converting docx_path to PDF: {docx_path} - {str(e)}"
+                                )
+                                traceback.print_exc()
 
                     # Check all files in this FileType
                     updated_files = []
@@ -438,11 +445,10 @@ def build_pdf(data: dict, output_path: str):
                                     updated_files.append(file_data)
                                     print(f"Failed to convert DOCX to PDF: {file_path}")
                             except Exception as e:
-                                # Keep the original DOCX if conversion failed
-                                updated_files.append(file_data)
                                 print(
                                     f"Error converting DOCX to PDF: {file_path} - {str(e)}"
                                 )
+                                traceback.print_exc()
                         else:
                             # Keep non-DOCX files as they are
                             updated_files.append(file_data)
@@ -506,6 +512,9 @@ def build_pdf(data: dict, output_path: str):
 
         builder = PDFBuilder()  # Instantiate the PDFBuilder
         result = builder.generate_pdf(data, output_path)  # Generate the PDF
+
+        # Combine temporary files from both steps
+        temp_pdf_files.extend(result.get("temporary_pdfs", []))
 
         # Clean up temporary PDF files
         for temp_file in temp_pdf_files:
