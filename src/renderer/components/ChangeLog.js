@@ -1,6 +1,14 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.2.1</h5>
+      <ul>
+        <li>
+          Fixed an issue that prevented building when using reordering for{' '}
+          <em>metals form 1</em>
+        </li>
+        <li>Fixed an issue that prevented exiting the bookmark rules modal</li>
+      </ul>
       <h5>Version 2.2.0</h5>
       <ul>
         <li>
