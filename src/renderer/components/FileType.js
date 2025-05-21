@@ -454,9 +454,17 @@ function FileType({ fileType: file, parentDirectory }) {
 
         <BookmarkRules
           fileType={file}
-          onUpdate={(updatedRules) =>
-            updateFileInState({ ...file, bookmark_rules: updatedRules })
-          }
+          onUpdate={async (updatedFileType) => {
+            try {
+              incrementLoading();
+              const updatedFile = await updateFile(updatedFileType);
+              if (updatedFile) {
+                updateFileInState(updatedFile);
+              }
+            } finally {
+              decrementLoading();
+            }
+          }}
         />
 
         {file.files.length > 0 && (

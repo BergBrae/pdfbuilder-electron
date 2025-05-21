@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
 
-export default function BookmarkRules({ fileType, onChange }) {
+export default function BookmarkRules({ fileType, onUpdate }) {
   const [show, setShow] = useState(false);
   const [rules, setRules] = useState(fileType.bookmark_rules || []);
   const [error, setError] = useState(''); // State for handling error messages
 
+  // Add effect to sync rules with fileType changes
+  useEffect(() => {
+    setRules(
+      Array.isArray(fileType.bookmark_rules) ? fileType.bookmark_rules : [],
+    );
+  }, [fileType.bookmark_rules]);
+
   const validateRules = () => {
-    // Validate all rules before allowing the modal to close
     for (const rule of rules) {
       const isSpecial =
         rule.isSpecial ||
         (rule.bookmark_name === 'SAMPLEID' && rule.rule === 'SAMPLEID');
-      if (!isSpecial && (!rule.rule || !rule.bookmark_name)) {
-        setError('All fields must be filled out.');
+
+      // If it's a special rule, it's always valid in terms of field completion
+      if (isSpecial) continue;
+
+      const ruleIsEmpty = !rule.rule || rule.rule.trim() === '';
+      const bookmarkNameIsEmpty =
+        !rule.bookmark_name || rule.bookmark_name.trim() === '';
+
+      // If one is filled and the other is not (and it's not a completely blank rule that will be removed)
+      if (
+        (ruleIsEmpty && !bookmarkNameIsEmpty) ||
+        (!ruleIsEmpty && bookmarkNameIsEmpty)
+      ) {
+        setError(
+          'One of the fields is blank. Please fill both or clear both to remove the rule.',
+        );
         return false; // Validation failed
       }
     }
@@ -22,17 +42,33 @@ export default function BookmarkRules({ fileType, onChange }) {
   };
 
   const handleClose = () => {
-    // If validation passes, close the modal
     if (validateRules()) {
-      const updatedFileType = { ...fileType, bookmark_rules: rules };
-      onChange(updatedFileType);
+      // Filter out rules where both fields are empty (unless it's a special rule)
+      const cleanedRules = rules.filter((rule) => {
+        const isSpecial =
+          rule.isSpecial ||
+          (rule.bookmark_name === 'SAMPLEID' && rule.rule === 'SAMPLEID');
+        if (isSpecial) return true; // Keep special rules
+
+        const ruleIsEmpty = !rule.rule || rule.rule.trim() === '';
+        const bookmarkNameIsEmpty =
+          !rule.bookmark_name || rule.bookmark_name.trim() === '';
+
+        // Keep rules that are not completely empty
+        return !(ruleIsEmpty && bookmarkNameIsEmpty);
+      });
+
+      const updatedFileType = { ...fileType, bookmark_rules: cleanedRules };
+      onUpdate(updatedFileType);
       setShow(false);
     }
   };
 
   const handleShow = () => {
     setError(''); // Reset any previous error messages when showing the modal
-    setRules(fileType.bookmark_rules || []);
+    setRules(
+      Array.isArray(fileType.bookmark_rules) ? fileType.bookmark_rules : [],
+    );
     setShow(true);
   };
 
@@ -73,11 +109,7 @@ export default function BookmarkRules({ fileType, onChange }) {
 
   return (
     <>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={handleShow}
-      >
+      <Button variant="secondary" size="sm" onClick={handleShow}>
         Set Bookmark Rules ({numRules})
       </Button>
 
