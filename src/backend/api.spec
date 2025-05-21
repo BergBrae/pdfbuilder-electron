@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['/Volumes/X10Pro/Merit/dev/pdfbuilder-electron/src/backend/api.py'],
+    ['E:\\Merit\\dev\\pdfbuilder-electron\\src\\backend\\api.py'],
     pathex=[],
     binaries=[],
-    datas=[('/Volumes/X10Pro/Merit/dev/pdfbuilder-electron/src/backend/initialization/all_methods.txt', 'initialization')],
+    datas=[('E:\\Merit\\dev\\pdfbuilder-electron\\src\\backend\\initialization\\all_methods.txt', 'initialization')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

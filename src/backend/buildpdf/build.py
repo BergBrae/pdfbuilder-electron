@@ -21,7 +21,9 @@ class PDFBuilder:
             0  # used for table of contents. Adds a specified number to each page number
         )
         self.problematic_files: List[Dict[str, Any]] = []  # Track problematic files
-        self.temporary_pdfs_created: List[str] = [] # Track temporary PDFs created by the builder
+        self.temporary_pdfs_created: List[str] = (
+            []
+        )  # Track temporary PDFs created by the builder
 
     def generate_pdf(self, report: Dict[str, Any], output_path: str) -> Dict[str, Any]:
         """
@@ -51,7 +53,7 @@ class PDFBuilder:
             "success": True,
             "output_path": output_path,
             "problematic_files": self.problematic_files,
-            "temporary_pdfs": self.temporary_pdfs_created, # Return the list of temp PDFs
+            "temporary_pdfs": self.temporary_pdfs_created,  # Return the list of temp PDFs
         }
 
     def _generate_pdf_pass_one(self, report: Dict[str, Any]) -> None:
@@ -235,7 +237,20 @@ class PDFBuilder:
             raise ValueError("keep_existing_bookmarks is not supported for reordering")
 
         file_type_bookmark = self._create_bookmark_if_needed(child, root_bookmark)
-        pdf, num_pages = reorder_metals_form1(child["files"])
+        directory_source = os.path.normpath(
+            os.path.join(base_directory, child["directory_source"])
+        )
+
+        # Construct full paths for each file
+        files_with_full_paths = []
+        for file in child["files"]:
+            file_with_full_path = file.copy()
+            file_with_full_path["file_path"] = os.path.normpath(
+                os.path.join(directory_source, file["file_path"])
+            )
+            files_with_full_paths.append(file_with_full_path)
+
+        pdf, num_pages = reorder_metals_form1(files_with_full_paths)
 
         page_level_bookmarks = get_page_level_bookmarks(
             pdf=pdf,
@@ -510,14 +525,16 @@ class PDFBuilder:
         writer = PdfWriter()
         for data in self.writer_data:
             if data["type"] == "docxTemplate":
-                pdf, num_pages, created_pdf_path, modified_docx = convert_docx_template_to_pdf(
-                    data["path"],
-                    replacements=data["replacements"],
-                    page_start_col=data.get("page_start_col"),
-                    page_end_col=data.get("page_end_col"),
-                    is_table_of_contents=data.get("is_table_of_contents", False),
-                    bookmark_data=self.bookmark_data,
-                    page_number_offset=self.page_number_offset,
+                pdf, num_pages, created_pdf_path, modified_docx = (
+                    convert_docx_template_to_pdf(
+                        data["path"],
+                        replacements=data["replacements"],
+                        page_start_col=data.get("page_start_col"),
+                        page_end_col=data.get("page_end_col"),
+                        is_table_of_contents=data.get("is_table_of_contents", False),
+                        bookmark_data=self.bookmark_data,
+                        page_number_offset=self.page_number_offset,
+                    )
                 )
                 if data.get("is_table_of_contents"):
                     self._shift_bookmarks(num_pages - data["num_pages"])
@@ -531,17 +548,23 @@ class PDFBuilder:
                         self.temporary_pdfs_created.append(toc_pdf_path)
 
                     self.table_of_contents_docx = modified_docx
-                elif created_pdf_path and os.path.exists(created_pdf_path): # Check if a PDF was created
-                    self.temporary_pdfs_created.append(created_pdf_path) # Track it
+                elif created_pdf_path and os.path.exists(
+                    created_pdf_path
+                ):  # Check if a PDF was created
+                    self.temporary_pdfs_created.append(created_pdf_path)  # Track it
 
-                if pdf: # Ensure pdf reader is valid before appending
+                if pdf:  # Ensure pdf reader is valid before appending
                     writer.append(pdf, import_outline=False)
                 else:
-                    print(f"Warning: Skipping append for {data['path']} due to conversion issue.")
-                    self.problematic_files.append({
-                        "path": data['path'],
-                        "error": "Failed to convert DOCX template during composition phase."
-                    })
+                    print(
+                        f"Warning: Skipping append for {data['path']} due to conversion issue."
+                    )
+                    self.problematic_files.append(
+                        {
+                            "path": data["path"],
+                            "error": "Failed to convert DOCX template during composition phase.",
+                        }
+                    )
 
             if data["type"] == "FileData":
                 # Check if the file path points to a DOCX file that might have been converted earlier
@@ -549,24 +572,35 @@ class PDFBuilder:
                 file_path = data["path"]
                 if file_path.lower().endswith(".docx"):
                     potential_pdf_path = os.path.splitext(file_path)[0] + ".pdf"
-                    if potential_pdf_path not in self.temporary_pdfs_created and os.path.exists(potential_pdf_path):
+                    if (
+                        potential_pdf_path not in self.temporary_pdfs_created
+                        and os.path.exists(potential_pdf_path)
+                    ):
                         # This PDF was likely created during _process_file
                         # We should ensure it gets cleaned up if it wasn't added elsewhere
                         # Let's add it to the main list in api.py via problematic_files for now
                         # A cleaner way might involve passing the initial temp list here
                         # but this avoids changing the method signature significantly.
-                        print(f"Tracking potential temporary PDF for cleanup: {potential_pdf_path}")
+                        print(
+                            f"Tracking potential temporary PDF for cleanup: {potential_pdf_path}"
+                        )
                         self.temporary_pdfs_created.append(potential_pdf_path)
 
-                if data["pdf"]: # Ensure pdf reader exists
+                if data["pdf"]:  # Ensure pdf reader exists
                     writer.append(data["pdf"], import_outline=False)
                 else:
-                    print(f"Warning: Skipping append for {data['path']} as PDF reader is missing.")
-                    if not any(p['path'] == data['path'] for p in self.problematic_files):
-                         self.problematic_files.append({
-                            "path": data['path'],
-                            "error": "PDF object missing for file during composition phase."
-                         })
+                    print(
+                        f"Warning: Skipping append for {data['path']} as PDF reader is missing."
+                    )
+                    if not any(
+                        p["path"] == data["path"] for p in self.problematic_files
+                    ):
+                        self.problematic_files.append(
+                            {
+                                "path": data["path"],
+                                "error": "PDF object missing for file during composition phase.",
+                            }
+                        )
 
         return writer
 

@@ -39,3 +39,5 @@ src/backend/output.pdf
 
 src/backend/dist/*
 ._*
+
+debugging-assets/*
