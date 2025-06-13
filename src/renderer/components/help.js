@@ -4,13 +4,10 @@ import { Tabs, Tab } from 'react-bootstrap';
 export default function Help() {
   return (
     <div>
-      <div className="alert alert-warning">
-        <strong>Notice:</strong> This help documentation is currently out of date and will be updated to reflect recent changes. Please refer to the changelog for the latest features and modifications.
-      </div>
       <h6>
         PDFBuilder is used to create templates for reports. This is done using
-        three building blocks: Docx Templates, File Types, and Sections. Please
-        read more on each below.
+        two building blocks: File Types and Sections. Please read more on each
+        below.
       </h6>
       <Tabs defaultActiveKey="pdftype" id="help-tabs" className="mb-3">
         <Tab eventKey="pdftype" title="File Type">
@@ -18,6 +15,9 @@ export default function Help() {
         </Tab>
         <Tab eventKey="section" title="Section">
           <SectionHelp />
+        </Tab>
+        <Tab eventKey="misc" title="Misc">
+          <MiscHelp />
         </Tab>
       </Tabs>
     </div>
@@ -94,7 +94,9 @@ function PdfTypeHelp() {
       </h4>
       <p>
         A File Type defines a group of files based on their filenames. It can
-        match several files.
+        match several files. It can handle both PDF and DOCX files. If a DOCX
+        file is included, it will be automatically converted to a PDF when the
+        report is built.
       </p>
       <p>How to use:</p>
       <ul>
@@ -164,24 +166,25 @@ function PdfTypeHelp() {
         on the same page, none are considered valid. IDs are ignored if they're
         preceded by "Report ID: ".
       </p>
-      <h5>Bookmark as File Name</h5>
-      <p>
-        Clicking "Bookmark Files with Filenames" creates a bookmark for each
-        file in the File Type, using the filenames (with simple formatting like
-        replacing underscores with spaces).
-      </p>
-      <p>
-        <b>Important:</b> This is the same as editing the PDF's bookmark by
-        double-clicking it in the File Type. If you change the File Type, these
-        bookmarks will be lost.
-      </p>
       <h5>Reorder Pages</h5>
       <p>
-        This option rearranges pages within each PDF in the File Type. It will
-        sort alphabetically based on "Lab Sample ID: ____", breaking ties with
-        "Data Set ID: ____". When enabled, pages from different files can become
-        interleaved.
+        This option rearranges pages within each PDF in the File Type. When
+        enabled, pages from different files can become interleaved. There are
+        two types of reordering available:
       </p>
+      <ul>
+        <li>
+          <b>Metals Form 1:</b> This will sort pages alphabetically based on
+          "Lab Sample ID: ____", breaking ties with "Data Set ID: ____".
+        </li>
+        <li>
+          <b>By Date/Time:</b> This reorders pages based on a date and time
+          found in the page's text (format: <code>DD-MMM-YYYY / HH:MM</code>).
+          Pages marked as 'manually integrated' are prioritized in sorting.
+          Duplicate pages are removed. This is useful for reordering pages from
+          an instrument that have been manually reviewed.
+        </li>
+      </ul>
     </div>
   );
 }
@@ -214,6 +217,10 @@ function SectionHelp() {
       </ul>
 
       <h5>Method Codes</h5>
+      <p>
+        <b>Note:</b> This feature only applies when using the "Create from
+        Analytical Report" option with a template that has method codes defined.
+      </p>
       <p>
         Sections can be associated with specific method codes, which determine
         whether the section should be included in a report based on the methods
@@ -255,6 +262,43 @@ function SectionHelp() {
         method code to each section. When generating a report from an analytical
         PDF that only uses "GC-MS", only the section with the "GC-MS" method
         code will be included.
+      </p>
+    </div>
+  );
+}
+
+function MiscHelp() {
+  return (
+    <div className="help-content">
+      <h4>
+        <b>Miscellaneous</b>
+      </h4>
+      <h5>Reordering, Duplicating, and Deleting</h5>
+      <p>
+        You can reorder sections and file types by dragging and dropping them in
+        the outline view on the left.
+      </p>
+      <p>
+        Sections can be duplicated or deleted using the copy and delete buttons
+        in the section header.
+      </p>
+
+      <h5>Create from Analytical Report</h5>
+      <p>
+        This feature helps initialize a new report by extracting key information
+        from an analytical report PDF. This includes client information and
+        method codes, which are then used to populate DOCX template files and
+        filter sections based on the methods used.
+      </p>
+      <p>
+        To make use of this, your DOCX templates should contain variables in the
+        format{' '}
+        <code>
+          {'${'}variable_name{'}'}
+        </code>
+        . These variables will be replaced with the data extracted from the
+        analytical report. Ensure the variable names in your DOCX file match the
+        names used in the extracted data.
       </p>
     </div>
   );

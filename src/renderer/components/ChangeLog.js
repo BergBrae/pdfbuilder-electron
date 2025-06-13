@@ -1,6 +1,10 @@
 export default function ChangeLog() {
   return (
     <div>
+      <h5>Version 2.2.2</h5>
+      <ul>
+        <li>Updated the help section</li>
+      </ul>
       <h5>Version 2.2.1</h5>
       <ul>
         <li>
